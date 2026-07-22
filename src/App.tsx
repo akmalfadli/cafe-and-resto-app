@@ -9,6 +9,14 @@ export const App: React.FC = () => {
   const [currentAppMode, setCurrentAppMode] = React.useState<'pos' | 'backoffice'>('pos');
   const { currentUser, fetchInitialData, isDatabaseMode, isLoading } = useAppStore();
 
+  const isStaffManagerOrOwner = currentUser?.role === 'Owner' || currentUser?.role === 'Manager';
+
+  // Draggable position coordinates for the floating toolbar (Declared above conditional returns)
+  const [position, setPosition] = React.useState({ x: window.innerWidth - 320, y: window.innerHeight - 80 });
+  const [isDragging, setIsDragging] = React.useState(false);
+  const dragStartRef = React.useRef({ x: 0, y: 0 });
+  const toolbarPosRef = React.useRef({ x: 0, y: 0 });
+
   useEffect(() => {
     fetchInitialData();
   }, [fetchInitialData]);
@@ -25,14 +33,6 @@ export const App: React.FC = () => {
   if (!currentUser) {
     return <LoginScreen />;
   }
-
-  const isStaffManagerOrOwner = currentUser.role === 'Owner' || currentUser.role === 'Manager';
-
-  // Draggable position coordinates for the floating toolbar
-  const [position, setPosition] = React.useState({ x: window.innerWidth - 320, y: window.innerHeight - 80 });
-  const [isDragging, setIsDragging] = React.useState(false);
-  const dragStartRef = React.useRef({ x: 0, y: 0 });
-  const toolbarPosRef = React.useRef({ x: 0, y: 0 });
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only drag with left click
