@@ -8,7 +8,7 @@ interface CloseShiftModalProps {
 }
 
 export const CloseShiftModal: React.FC<CloseShiftModalProps> = ({ isOpen, onClose }) => {
-  const { activeShift, sales, closeShift } = useAppStore();
+  const { activeShift, sales, closeShift, logout } = useAppStore();
   const [endingCash, setEndingCash] = useState('');
   const [notes, setNotes] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -58,6 +58,7 @@ export const CloseShiftModal: React.FC<CloseShiftModalProps> = ({ isOpen, onClos
     setError(null);
     try {
       await closeShift(amount, notes || undefined);
+      await logout();
       onClose();
     } catch (err: any) {
       setError(err.message || 'Gagal menutup shift.');
