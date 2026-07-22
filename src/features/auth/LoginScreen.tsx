@@ -19,11 +19,11 @@ export const LoginScreen: React.FC = () => {
   const [ownerPin, setOwnerPin] = useState('');
 
   const handlePinPress = (digit: string) => {
-    if (pin.length < 4) {
+    if (pin.length < 6) {
       const nextPin = pin + digit;
       setPin(nextPin);
       setError('');
-      if (nextPin.length === 4) {
+      if (nextPin.length === 6) {
         verifyPin(nextPin);
       }
     }
@@ -62,8 +62,8 @@ export const LoginScreen: React.FC = () => {
 
   const handleRegisterOwner = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ownerName || !ownerEmail || !ownerPassword || ownerPin.length !== 4) {
-      setError('Harap isi semua kolom, kata sandi (min. 6 karakter), dan 4 digit PIN.');
+    if (!ownerName || !ownerEmail || !ownerPassword || ownerPin.length !== 6) {
+      setError('Harap isi semua kolom, kata sandi (min. 6 karakter), dan 6 digit PIN.');
       return;
     }
 
@@ -142,15 +142,15 @@ export const LoginScreen: React.FC = () => {
               </div>
 
               <div>
-                <label className="font-semibold text-stone-600 block mb-1">PIN Kasir (4 Digit)</label>
+                <label className="font-semibold text-stone-600 block mb-1">PIN Kasir (6 Digit)</label>
                 <input
                   type="password"
-                  maxLength={4}
+                  maxLength={6}
                   required
                   value={ownerPin}
                   onChange={(e) => setOwnerPin(e.target.value)}
                   className="w-full border border-stone-300 rounded-xl px-3 py-2 font-mono text-center font-bold text-base focus:outline-none"
-                  placeholder="••••"
+                  placeholder="••••••"
                 />
               </div>
             </div>
@@ -361,9 +361,9 @@ export const LoginScreen: React.FC = () => {
               </div>
 
               <div className="text-center space-y-2">
-                <label className="text-xs font-semibold text-stone-500">Masukkan 4 Digit PIN Keamanan</label>
+                <label className="text-xs font-semibold text-stone-500">Masukkan 6 Digit PIN Keamanan</label>
                 <div className="flex justify-center gap-3 py-2">
-                  {[0, 1, 2, 3].map((idx) => (
+                  {[0, 1, 2, 3, 4, 5].map((idx) => (
                     <div
                       key={idx}
                       className={`w-4 h-4 rounded-full border-2 transition-all ${

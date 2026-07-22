@@ -19,8 +19,8 @@ export const UsersView: React.FC = () => {
 
   const handleCreateStaff = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !email || !password || pinCode.length !== 4) {
-      setError('Harap isi semua kolom, kata sandi (min. 6 karakter), dan 4 digit PIN.');
+    if (!fullName || !email || !password || pinCode.length !== 6) {
+      setError('Harap isi semua kolom, kata sandi (min. 6 karakter), dan 6 digit PIN.');
       return;
     }
 
@@ -43,8 +43,8 @@ export const UsersView: React.FC = () => {
 
   const handleUpdatePin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPin.length !== 4 || isNaN(Number(newPin))) {
-      setPinError('PIN harus berupa 4 digit angka.');
+    if (newPin.length !== 6 || isNaN(Number(newPin))) {
+      setPinError('PIN harus berupa 6 digit angka.');
       return;
     }
     try {
@@ -112,7 +112,7 @@ export const UsersView: React.FC = () => {
                 </td>
                 <td className="p-3 font-mono font-bold text-stone-500 flex items-center gap-1">
                   <Key className="w-3.5 h-3.5 text-stone-400" />
-                  <span>•••• ({u.pin_code})</span>
+                  <span>•••••• ({u.pin_code})</span>
                 </td>
                 <td className="p-3">
                   <span className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">
@@ -202,15 +202,15 @@ export const UsersView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="font-semibold text-stone-600 block mb-1">PIN Kasir (4 Digit)</label>
+                  <label className="font-semibold text-stone-600 block mb-1">PIN Kasir (6 Digit)</label>
                   <input
                     type="password"
-                    maxLength={4}
+                    maxLength={6}
                     required
                     value={pinCode}
                     onChange={(e) => setPinCode(e.target.value)}
                     className="w-full border border-stone-300 rounded-xl px-3 py-2.5 font-mono text-center font-bold text-base focus:outline-none"
-                    placeholder="••••"
+                    placeholder="••••••"
                   />
                 </div>
               </div>
@@ -255,15 +255,15 @@ export const UsersView: React.FC = () => {
               {pinError && <p className="p-2 bg-red-50 text-red-600 rounded-xl text-center font-bold">{pinError}</p>}
 
               <div>
-                <label className="font-semibold text-stone-600 block mb-1.5">Masukkan PIN Baru (4 Digit)</label>
+                <label className="font-semibold text-stone-600 block mb-1.5">Masukkan PIN Baru (6 Digit)</label>
                 <input
                   type="password"
-                  maxLength={4}
+                  maxLength={6}
                   required
                   value={newPin}
                   onChange={(e) => setNewPin(e.target.value)}
                   className="w-full border border-stone-300 rounded-xl px-3 py-3 font-mono text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-coffee-500"
-                  placeholder="••••"
+                  placeholder="••••••"
                 />
               </div>
 
