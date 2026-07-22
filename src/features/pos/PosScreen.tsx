@@ -43,7 +43,10 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
     updateCartNotes,
     removeFromCart,
     clearCart,
-    setDiscount
+    setDiscount,
+    pendingSales,
+    isDatabaseMode,
+    syncOfflineSales
   } = useAppStore();
 
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
@@ -108,6 +111,23 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
               </span>
             ) : 'Belum Ada Shift'}
           </span>
+          <span className={`text-[10px] md:text-xs px-2 py-1 rounded-lg font-bold border transition flex items-center gap-1 ${
+            isDatabaseMode 
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+              : 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${isDatabaseMode ? 'bg-emerald-500' : 'bg-amber-500 animate-ping'}`} />
+            {isDatabaseMode ? 'Online' : 'Offline'}
+          </span>
+          {pendingSales.length > 0 && (
+            <button
+              onClick={() => syncOfflineSales()}
+              className="text-[9px] md:text-[10px] bg-coffee-50 border border-coffee-200 text-coffee-700 px-2 py-1 rounded-lg font-extrabold hover:bg-coffee-100 transition animate-bounce flex items-center gap-1"
+              title="Sinkronkan Transaksi Offline"
+            >
+              🔄 {pendingSales.length} Sync Pending
+            </button>
+          )}
         </div>
 
         <div className="relative flex-1 max-w-xs sm:max-w-md flex items-center gap-1.5">

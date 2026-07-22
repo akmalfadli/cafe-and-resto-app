@@ -25,6 +25,9 @@ interface AppStore {
   shifts: CashShift[];
   tables: TableItem[];
   activeShift: CashShift | null;
+  pendingSales: any[];
+  setDatabaseMode: (mode: boolean) => void;
+  syncOfflineSales: () => Promise<void>;
 
   // POS State
   cart: CartItem[];
@@ -145,6 +148,15 @@ export const useAppStore = create<AppStore>((set, get) => ({
   receiptLogo: '',
   enableTableNumber: true,
   enableTax: true,
+  pendingSales: (() => {
+    try {
+      const saved = localStorage.getItem('cafepos_pending_sales');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  })(),
+  setDatabaseMode: (mode) => set({ isDatabaseMode: mode }),
   setReceiptHeader: (header) => set({ receiptHeader: header }),
   setReceiptFooter: (footer) => set({ receiptFooter: footer }),
   setReceiptLogo: (logo) => set({ receiptLogo: logo }),
@@ -444,8 +456,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
     const paddedNum = String(nextNum).padStart(3, '0');
     const receiptNumber = `INV-${dateCode}-${paddedNum}`;
+    const uniqueSaleId = `sale-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
 
     const newSaleData: any = {
+      id: uniqueSaleId,
       receipt_number: receiptNumber,
       cashier_id: currentUser?.id || 'usr-3',
       cashier_name: currentUser?.full_name || 'Kasir',
@@ -473,13 +487,32 @@ export const useAppStore = create<AppStore>((set, get) => ({
     };
 
     if (isDatabaseMode) {
-      const savedSale = await dbService.createSale(newSaleData);
-      set({ sales: [savedSale, ...get().sales], cart: [], discountValue: 0 });
-      return savedSale;
+      try {
+        const savedSale = await dbService.createSale(newSaleData);
+        set({ sales: [savedSale, ...get().sales], cart: [], discountValue: 0 });
+        return savedSale;
+      } catch (dbErr) {
+        console.warn('Database save failed, falling back to offline pending transaction:', dbErr);
+        const updatedPending = [...get().pendingSales, newSaleData];
+        localStorage.setItem('cafepos_pending_sales', JSON.stringify(updatedPending));
+        set({
+          pendingSales: updatedPending,
+          sales: [newSaleData, ...get().sales],
+          cart: [],
+          discountValue: 0
+        });
+        return newSaleData;
+      }
     } else {
-      const fallbackSale = { ...newSaleData, id: `sale-${Date.now()}` };
-      set({ sales: [fallbackSale, ...get().sales], cart: [], discountValue: 0 });
-      return fallbackSale;
+      const updatedPending = [...get().pendingSales, newSaleData];
+      localStorage.setItem('cafepos_pending_sales', JSON.stringify(updatedPending));
+      set({
+        pendingSales: updatedPending,
+        sales: [newSaleData, ...get().sales],
+        cart: [],
+        discountValue: 0
+      });
+      return newSaleData;
     }
   },
 
@@ -636,6 +669,44 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
       const updatedProducts = products.map((p) => p.id === productId ? { ...p, cost_price: recipeCost } : p);
       set({ recipes: updatedRecipes, products: updatedProducts });
+    }
+  },
+
+  syncOfflineSales: async () => {
+    const { pendingSales } = get();
+    if (pendingSales.length === 0) return;
+    
+    console.log(`Starting synchronization of ${pendingSales.length} offline transactions...`);
+    const successfulIds: string[] = [];
+
+    for (const sale of pendingSales) {
+      try {
+        // Prevent double transactions by upserting or inserting using the fixed ID.
+        // dbService.createSale inserts items and payments mapping
+        await dbService.createSale(sale);
+        successfulIds.push(sale.id);
+      } catch (err: any) {
+        console.error(`Failed to sync transaction ${sale.receipt_number}:`, err?.message);
+        // If it's a primary key violation, it means the transaction is already in Supabase
+        if (err?.code === '23505' || err?.message?.includes('duplicate key value')) {
+          successfulIds.push(sale.id);
+        }
+      }
+    }
+
+    if (successfulIds.length > 0) {
+      const remainingPending = pendingSales.filter((s) => !successfulIds.includes(s.id));
+      localStorage.setItem('cafepos_pending_sales', JSON.stringify(remainingPending));
+      set({ pendingSales: remainingPending });
+      console.log(`Successfully synced ${successfulIds.length} transactions to Supabase.`);
+      
+      // Refresh the sales list in dashboard and local view
+      try {
+        const freshSales = await dbService.getSales();
+        set({ sales: freshSales });
+      } catch (e) {
+        console.warn('Could not refresh sales list after sync:', e);
+      }
     }
   },
 }));

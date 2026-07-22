@@ -66,6 +66,41 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Network Status and Auto Syncer loop hook
+  const { setDatabaseMode, syncOfflineSales } = useAppStore();
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setDatabaseMode(true);
+      syncOfflineSales();
+    };
+    const handleOffline = () => {
+      setDatabaseMode(false);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Initial check
+    setDatabaseMode(navigator.onLine);
+    if (navigator.onLine) {
+      syncOfflineSales();
+    }
+
+    // Auto POS syncer background loop every 10 seconds
+    const interval = setInterval(() => {
+      if (navigator.onLine) {
+        syncOfflineSales();
+      }
+    }, 10000);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      clearInterval(interval);
+    };
+  }, [setDatabaseMode, syncOfflineSales]);
+
   useEffect(() => {
     fetchInitialData();
   }, [fetchInitialData]);
