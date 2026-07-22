@@ -301,9 +301,9 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
           <div className="p-3 border-b border-stone-200 dark:border-stone-800 space-y-2">
             <div className="grid grid-cols-3 gap-1 bg-stone-100 p-1 rounded-xl">
               {[
-                { id: 'dine_in', label: 'Makan di Tempat', icon: UtensilsCrossed },
-                { id: 'take_away', label: 'Bawa Pulang', icon: ShoppingBag },
-                { id: 'delivery', label: 'Pengiriman', icon: Truck },
+                { id: 'dine_in', label: 'Dine In', icon: UtensilsCrossed },
+                { id: 'take_away', label: 'Take Home', icon: ShoppingBag },
+                { id: 'delivery', label: 'Delivery', icon: Truck },
               ].map((t) => {
                 const Icon = t.icon;
                 const active = orderType === t.id;
