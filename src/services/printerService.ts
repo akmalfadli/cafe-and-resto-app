@@ -219,6 +219,9 @@ export const printerService = {
       let metaText = formatRow('No. Struk', sale.receipt_number);
       metaText += formatRow('Tanggal', new Date(sale.created_at).toLocaleDateString('id-ID'));
       metaText += formatRow('Kasir', sale.cashier_name);
+      if (sale.customer_name) {
+        metaText += formatRow('Pelanggan', sale.customer_name);
+      }
       metaText += formatRow('Tipe', sale.order_type.toUpperCase());
       if (enableTableNumber && sale.table_number) {
         metaText += formatRow('Meja', sale.table_number);

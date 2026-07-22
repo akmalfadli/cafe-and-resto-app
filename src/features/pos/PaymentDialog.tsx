@@ -188,6 +188,9 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
                 <div className="grid grid-cols-[110px_10px_1fr]"><span>No. Struk</span><span>:</span><span className="text-right font-semibold">{completedSale.receipt_number}</span></div>
                 <div className="grid grid-cols-[110px_10px_1fr]"><span>Tanggal</span><span>:</span><span className="text-right">{new Date(completedSale.created_at).toLocaleString()}</span></div>
                 <div className="grid grid-cols-[110px_10px_1fr]"><span>Kasir</span><span>:</span><span className="text-right">{completedSale.cashier_name}</span></div>
+                {completedSale.customer_name && (
+                  <div className="grid grid-cols-[110px_10px_1fr]"><span>Pelanggan</span><span>:</span><span className="text-right">{completedSale.customer_name}</span></div>
+                )}
                 <div className="grid grid-cols-[110px_10px_1fr]"><span>Tipe Pesanan</span><span>:</span><span className="text-right uppercase font-bold">{completedSale.order_type}</span></div>
                 {enableTableNumber && completedSale.table_number && (
                   <div className="grid grid-cols-[110px_10px_1fr]"><span>Meja</span><span>:</span><span className="text-right font-bold">{completedSale.table_number}</span></div>
