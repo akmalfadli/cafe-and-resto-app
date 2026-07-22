@@ -14,6 +14,7 @@ export const ShiftGateScreen: React.FC = () => {
 
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(eligibleStaff[0] || null);
   const [startingCash, setStartingCash] = useState('');
+  const [pinCode, setPinCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +28,14 @@ export const ShiftGateScreen: React.FC = () => {
   const handleOpenShift = async () => {
     if (!selectedProfile) {
       setError('Pilih kasir yang akan membuka shift.');
+      return;
+    }
+    if (pinCode.length !== 4) {
+      setError('Masukkan 4 digit PIN keamanan.');
+      return;
+    }
+    if (selectedProfile.pin_code !== pinCode) {
+      setError('PIN keamanan salah. Silakan coba lagi.');
       return;
     }
     const amount = parseFloat(startingCash.replace(/\./g, '').replace(',', '.'));
@@ -104,7 +113,7 @@ export const ShiftGateScreen: React.FC = () => {
           </div>
 
           {/* Cashier Selector */}
-          <div className="mb-5">
+          <div className="mb-4">
             <label className="block text-stone-300 text-sm font-semibold mb-2">
               <User className="w-4 h-4 inline-block mr-1.5 text-coffee-400" />
               Pilih Kasir / Manager
@@ -122,8 +131,9 @@ export const ShiftGateScreen: React.FC = () => {
                   onChange={(e) => {
                     const found = eligibleStaff.find((p) => p.id === e.target.value) || null;
                     setSelectedProfile(found);
+                    setPinCode(''); // Reset PIN on user change
                   }}
-                  className="w-full appearance-none bg-stone-800 border border-stone-700 focus:border-coffee-500 focus:ring-2 focus:ring-coffee-500/20 rounded-2xl text-white font-semibold text-sm px-4 py-3.5 outline-none transition pr-10 cursor-pointer"
+                  className="w-full appearance-none bg-stone-800 border border-stone-700 focus:border-coffee-500 focus:ring-2 focus:ring-coffee-500/20 rounded-2xl text-white font-semibold text-sm px-4 py-3 outline-none transition pr-10 cursor-pointer"
                 >
                   {eligibleStaff.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -137,20 +147,37 @@ export const ShiftGateScreen: React.FC = () => {
 
             {/* Selected profile badge */}
             {selectedProfile && (
-              <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-stone-800/40 rounded-xl">
-                <div className="w-7 h-7 rounded-full bg-coffee-500/20 text-coffee-400 flex items-center justify-center text-sm font-bold shrink-0">
+              <div className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-stone-800/40 rounded-xl">
+                <div className="w-7 h-7 rounded-full bg-coffee-500/20 text-coffee-400 flex items-center justify-center text-xs font-bold shrink-0">
                   {selectedProfile.full_name.charAt(0)}
                 </div>
                 <div>
-                  <p className="text-white text-sm font-semibold leading-tight">{selectedProfile.full_name}</p>
-                  <p className="text-coffee-400 text-xs">{selectedProfile.role}</p>
+                  <p className="text-white text-xs font-semibold leading-tight">{selectedProfile.full_name}</p>
+                  <p className="text-coffee-400 text-[10px]">{selectedProfile.role}</p>
                 </div>
               </div>
             )}
           </div>
 
+          {/* PIN Input */}
+          <div className="mb-4">
+            <label className="block text-stone-300 text-sm font-semibold mb-2">
+              PIN Keamanan Kasir (4 Digit)
+            </label>
+            <input
+              type="password"
+              maxLength={4}
+              required
+              placeholder="••••"
+              value={pinCode}
+              onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ''))}
+              onKeyDown={(e) => e.key === 'Enter' && handleOpenShift()}
+              className="w-full py-3 bg-stone-800 border border-stone-700 focus:border-coffee-500 focus:ring-2 focus:ring-coffee-500/20 rounded-2xl text-white text-center font-mono text-lg font-bold outline-none transition placeholder:text-stone-600"
+            />
+          </div>
+
           {/* Starting Cash Input */}
-          <div className="mb-6">
+          <div className="mb-5">
             <label className="block text-stone-300 text-sm font-semibold mb-2">
               <Wallet className="w-4 h-4 inline-block mr-1.5 text-coffee-400" />
               Modal Awal (Uang di Laci)
@@ -164,10 +191,10 @@ export const ShiftGateScreen: React.FC = () => {
                 value={startingCash}
                 onChange={(e) => setStartingCash(formatCurrency(e.target.value))}
                 onKeyDown={(e) => e.key === 'Enter' && handleOpenShift()}
-                className="w-full pl-12 pr-4 py-4 bg-stone-800 border border-stone-700 focus:border-coffee-500 focus:ring-2 focus:ring-coffee-500/20 rounded-2xl text-white text-xl font-bold outline-none transition placeholder:text-stone-600"
+                className="w-full pl-12 pr-4 py-3 bg-stone-800 border border-stone-700 focus:border-coffee-500 focus:ring-2 focus:ring-coffee-500/20 rounded-2xl text-white text-lg font-bold outline-none transition placeholder:text-stone-600"
               />
             </div>
-            <p className="text-stone-500 text-xs mt-1.5 pl-1">Masukkan 0 jika tidak ada modal awal</p>
+            <p className="text-stone-500 text-[10px] mt-1.5 pl-1">Masukkan 0 jika tidak ada modal awal</p>
           </div>
 
           {/* Error */}
