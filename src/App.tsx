@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 import { PosScreen } from './features/pos/PosScreen';
 import { BackOfficeLayout } from './features/backoffice/BackOfficeLayout';
 import { LoginScreen } from './features/auth/LoginScreen';
-import { Shield, Monitor, Database, RefreshCw } from 'lucide-react';
+import { Shield, Monitor, RefreshCw } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
 
 export const App: React.FC = () => {
   const [currentAppMode, setCurrentAppMode] = React.useState<'pos' | 'backoffice'>('pos');
-  const { currentUser, fetchInitialData, isDatabaseMode, isLoading } = useAppStore();
+  const { currentUser, fetchInitialData, isLoading } = useAppStore();
 
   const isStaffManagerOrOwner = currentUser?.role === 'Owner' || currentUser?.role === 'Manager';
 
@@ -151,12 +151,6 @@ export const App: React.FC = () => {
             <span>Back Office</span>
           </button>
         )}
-
-        <span className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-mono border ${isDatabaseMode ? 'bg-emerald-950 text-emerald-400 border-emerald-800' : 'bg-amber-950 text-amber-400 border-amber-800'
-          }`}>
-          <Database className="w-3 h-3" />
-          <span>{isDatabaseMode ? 'Online' : 'Offline'}</span>
-        </span>
       </div>
 
       {currentAppMode === 'pos' || !isStaffManagerOrOwner ? (
