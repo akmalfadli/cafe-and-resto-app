@@ -211,9 +211,16 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
                   });
 
                   return sortedItems.map((item, idx) => (
-                    <div key={idx} className="flex justify-between">
-                      <span>{item.quantity}x {item.product_name}</span>
-                      <span className="font-semibold">Rp {item.total_price.toLocaleString('id-ID')}</span>
+                    <div key={idx} className="space-y-0.5">
+                      <div className="flex justify-between">
+                        <span>{item.quantity}x {item.product_name}</span>
+                        <span className="font-semibold">Rp {item.total_price.toLocaleString('id-ID')}</span>
+                      </div>
+                      {item.notes && item.notes.trim() !== '' && (
+                        <div className="text-[10px] text-stone-400 dark:text-stone-500 pl-4 font-sans italic">
+                          * Catatan: {item.notes}
+                        </div>
+                      )}
                     </div>
                   ));
                 })()}

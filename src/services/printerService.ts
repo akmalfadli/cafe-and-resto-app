@@ -249,6 +249,9 @@ export const printerService = {
         const itemTotal = `Rp ${item.total_price.toLocaleString('id-ID')}`;
         const rightAlignedTotal = itemTotal.padStart(30 - itemPrice.length, ' ');
         itemsText += itemHeader;
+        if (item.notes && item.notes.trim() !== '') {
+          itemsText += `  * Catatan: ${item.notes}\n`;
+        }
         itemsText += `  ${itemPrice}${rightAlignedTotal}\n`;
       });
       itemsText += `------------------------------\n`;
