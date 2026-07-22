@@ -1,0 +1,447 @@
+import React, { useState } from 'react';
+import { useAppStore } from '../../store/useAppStore';
+import { 
+  Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
+  Trash2, Plus, Minus, CreditCard, Clock, User, 
+  UtensilsCrossed, ShoppingBag, Truck, Tag, LogOut, DoorOpen
+} from 'lucide-react';
+import { PaymentDialog } from './PaymentDialog';
+import { ShiftGateScreen } from './ShiftGateScreen';
+import { CloseShiftModal } from './CloseShiftModal';
+
+export const PosScreen: React.FC = () => {
+  const {
+    currentUser,
+    logout,
+    activeShift,
+    categories,
+    products,
+    cart,
+    selectedCategory,
+    searchQuery,
+    orderType,
+    selectedTable,
+    customerName,
+    enableTableNumber,
+    enableTax,
+    discountValue,
+    taxRate,
+    serviceRate,
+    tables,
+    setSelectedCategory,
+    setSearchQuery,
+    setOrderType,
+    setSelectedTable,
+    setCustomerName,
+    addToCart,
+    updateCartQty,
+    updateCartNotes,
+    removeFromCart,
+    clearCart,
+    setDiscount
+  } = useAppStore();
+
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [showCloseShift, setShowCloseShift] = useState(false);
+  const [tempDiscount, setTempDiscount] = useState<string>('0');
+
+  const filteredProducts = products.filter((product) => {
+    const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          product.sku.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch && product.is_available;
+  });
+
+  const subtotal = cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
+  const discountAmount = discountValue;
+  const afterDiscount = Math.max(0, subtotal - discountAmount);
+  const taxAmount = enableTax ? Math.round((afterDiscount * taxRate) / 100) : 0;
+  const serviceCharge = Math.round((afterDiscount * serviceRate) / 100);
+  const grandTotal = Math.round(afterDiscount + taxAmount + serviceCharge);
+
+  const getCategoryIcon = (iconName?: string) => {
+    switch (iconName) {
+      case 'Coffee': return <Coffee className="w-5 h-5" />;
+      case 'CupSoda': return <CupSoda className="w-5 h-5" />;
+      case 'Cookie': return <Cookie className="w-5 h-5" />;
+      case 'Utensils': return <Utensils className="w-5 h-5" />;
+      case 'IceCream': return <IceCream className="w-5 h-5" />;
+      default: return <Grid className="w-5 h-5" />;
+    }
+  };
+
+  return (
+    <div className="h-screen w-screen flex flex-col bg-bgmain overflow-hidden select-none font-sans">
+      
+      {/* TOP BAR */}
+      <header className="h-14 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-4 flex items-center justify-between shrink-0 shadow-sm z-10">
+        <div className="flex items-center gap-3">
+          <div className="bg-coffee-500 text-white font-black px-3 py-1.5 rounded-xl text-lg tracking-wider flex items-center gap-2">
+            <Coffee className="w-5 h-5" />
+            <span>CafePOS</span>
+          </div>
+          <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
+            activeShift 
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+              : 'bg-amber-50 text-amber-700 border-amber-200'
+          }`}>
+            {activeShift ? (
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Shift Aktif ({activeShift.cashier_name})
+              </span>
+            ) : 'Belum Ada Shift'}
+          </span>
+        </div>
+
+        <div className="relative w-80">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+          <input
+            type="text"
+            placeholder="Cari menu atau SKU..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-1.5 text-xs bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+          />
+        </div>
+
+        <div className="flex items-center gap-3 text-xs font-medium text-stone-600">
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-coffee-500" />
+            <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-stone-100 px-3 py-1.5 rounded-xl border border-stone-200">
+            <User className="w-4 h-4 text-coffee-500" />
+            <span className="font-bold text-stone-800">{currentUser?.full_name}</span>
+            <span className="text-[10px] bg-coffee-100 text-coffee-800 px-1.5 py-0.5 rounded font-bold uppercase">{currentUser?.role}</span>
+          </div>
+          {activeShift && (
+            <button
+              onClick={() => setShowCloseShift(true)}
+              className="flex items-center gap-1.5 p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition text-xs font-semibold"
+              title="Tutup Shift"
+            >
+              <DoorOpen className="w-4 h-4" />
+              <span className="hidden lg:inline">Tutup Shift</span>
+            </button>
+          )}
+          <button
+            onClick={logout}
+            className="p-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl border border-stone-200 transition"
+            title="Keluar Kasir"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
+      </header>
+
+      {/* Shift Gate Overlay — only for Cashier role */}
+      {!activeShift && currentUser?.role === 'Cashier' && <ShiftGateScreen />}
+
+      {/* Close Shift Modal */}
+      <CloseShiftModal isOpen={showCloseShift} onClose={() => setShowCloseShift(false)} />
+
+      {/* MAIN LAYOUT */}
+      <div className="flex-1 flex overflow-hidden">
+        
+        {/* LEFT COLUMN: Categories */}
+        <aside className="w-28 bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 p-2 flex flex-col gap-2 shrink-0 overflow-y-auto">
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={`flex flex-col items-center justify-center p-3 rounded-2xl transition touch-active ${
+              selectedCategory === 'all'
+                ? 'bg-coffee-500 text-white font-bold shadow-md'
+                : 'text-stone-600 hover:bg-stone-100'
+            }`}
+          >
+            <Grid className="w-6 h-6 mb-1" />
+            <span className="text-[11px]">Semua Menu</span>
+          </button>
+
+          {categories.map((cat) => {
+            const active = selectedCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`flex flex-col items-center justify-center p-3 rounded-2xl transition touch-active ${
+                  active
+                    ? 'bg-coffee-500 text-white font-bold shadow-md'
+                    : 'text-stone-600 hover:bg-stone-100'
+                }`}
+              >
+                <div className="mb-1">{getCategoryIcon(cat.icon)}</div>
+                <span className="text-[11px] text-center leading-tight">{cat.name}</span>
+              </button>
+            );
+          })}
+        </aside>
+
+        {/* CENTER COLUMN: Product Grid */}
+        <main className="flex-1 p-4 overflow-y-auto bg-stone-50/50">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                onClick={() => addToCart(product)}
+                className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col touch-active group"
+              >
+                <div className="h-32 w-full overflow-hidden bg-stone-100 relative">
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
+                  {product.is_favorite && (
+                    <span className="absolute top-2 left-2 bg-coffee-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                      ★ Favorit
+                    </span>
+                  )}
+                </div>
+                <div className="p-3 flex flex-col justify-between flex-1">
+                  <div>
+                    <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100 line-clamp-1">
+                      {product.name}
+                    </h3>
+                    <p className="text-[11px] text-stone-400 font-mono mt-0.5">{product.sku}</p>
+                  </div>
+                  <div className="mt-2 flex justify-between items-center">
+                    <span className="font-extrabold text-sm text-coffee-600 dark:text-coffee-400">
+                      Rp {product.selling_price.toLocaleString('id-ID')}
+                    </span>
+                    <button className="p-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-xl transition">
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </main>
+
+        {/* RIGHT COLUMN: Shopping Cart */}
+        <aside className="w-96 bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 flex flex-col shrink-0 shadow-lg">
+          
+          <div className="p-3 border-b border-stone-200 dark:border-stone-800 space-y-2">
+            <div className="grid grid-cols-3 gap-1 bg-stone-100 p-1 rounded-xl">
+              {[
+                { id: 'dine_in', label: 'Makan di Tempat', icon: UtensilsCrossed },
+                { id: 'take_away', label: 'Bawa Pulang', icon: ShoppingBag },
+                { id: 'delivery', label: 'Pengiriman', icon: Truck },
+              ].map((t) => {
+                const Icon = t.icon;
+                const active = orderType === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setOrderType(t.id as any)}
+                    className={`flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-semibold rounded-lg transition ${
+                      active ? 'bg-white text-coffee-600 shadow-sm' : 'text-stone-500 hover:text-stone-800'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{t.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="space-y-1.5 pt-1">
+              <div className="flex items-center justify-between bg-stone-50 px-3 py-1.5 rounded-xl border border-stone-200 text-xs">
+                <span className="text-stone-500 font-medium shrink-0">Nama Pelanggan:</span>
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Pelanggan Umum"
+                  className="w-40 text-right font-bold text-stone-800 bg-transparent focus:outline-none placeholder:font-normal"
+                />
+              </div>
+
+              {enableTableNumber && orderType === 'dine_in' && (
+                <div className="flex items-center justify-between bg-stone-50 px-3 py-1.5 rounded-xl border border-stone-200 text-xs">
+                  <span className="text-stone-500 font-medium">Nomor Meja:</span>
+                  <select
+                    value={selectedTable}
+                    onChange={(e) => setSelectedTable(e.target.value)}
+                    className="bg-transparent font-bold text-coffee-600 focus:outline-none cursor-pointer"
+                  >
+                    {tables.map((tbl) => (
+                      <option key={tbl.id} value={tbl.table_number}>
+                        Meja {tbl.table_number} ({tbl.capacity} kursi)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            {cart.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-stone-400 space-y-2">
+                <ShoppingBag className="w-12 h-12 stroke-[1.5]" />
+                <p className="text-xs font-medium">Keranjang masih kosong</p>
+                <p className="text-[11px] text-stone-300">Pilih menu di sebelah kiri untuk menambah</p>
+              </div>
+            ) : (
+              cart.map((item) => (
+                <div
+                  key={item.product.id}
+                  className="p-3 bg-stone-50 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 space-y-2"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="text-xs font-bold text-stone-800 dark:text-stone-100">
+                        {item.product.name}
+                      </h4>
+                      <p className="text-[11px] text-coffee-600 font-semibold mt-0.5">
+                        Rp {(item.product.selling_price * item.quantity).toLocaleString('id-ID')}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => removeFromCart(item.product.id)}
+                      className="text-stone-400 hover:text-red-500 p-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <input
+                      type="text"
+                      placeholder="Tambah catatan..."
+                      value={item.notes || ''}
+                      onChange={(e) => updateCartNotes(item.product.id, e.target.value)}
+                      className="text-[10px] bg-white border border-stone-200 rounded px-2 py-1 w-36 focus:outline-none"
+                    />
+
+                    <div className="flex items-center gap-2 bg-white rounded-lg border border-stone-200 px-1 py-0.5">
+                      <button
+                        onClick={() => updateCartQty(item.product.id, item.quantity - 1)}
+                        className="p-1 text-stone-600 hover:bg-stone-100 rounded"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateCartQty(item.product.id, item.quantity + 1)}
+                        className="p-1 text-stone-600 hover:bg-stone-100 rounded"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="p-3 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 space-y-2">
+            <div className="space-y-1 text-xs text-stone-600">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span className="font-semibold">Rp {subtotal.toLocaleString('id-ID')}</span>
+              </div>
+
+              {discountValue > 0 && (
+                <div className="flex justify-between text-red-600">
+                  <span>Diskon</span>
+                  <span>-Rp {discountAmount.toLocaleString('id-ID')}</span>
+                </div>
+              )}
+
+              {enableTax && (
+                <div className="flex justify-between">
+                  <span>Pajak ({taxRate}%)</span>
+                  <span>Rp {taxAmount.toLocaleString('id-ID')}</span>
+                </div>
+              )}
+
+              <div className="flex justify-between">
+                <span>Layanan ({serviceRate}%)</span>
+                <span>Rp {serviceCharge.toLocaleString('id-ID')}</span>
+              </div>
+
+              <div className="flex justify-between text-sm font-extrabold text-stone-800 dark:text-stone-100 pt-1 border-t border-stone-200">
+                <span>Total Akhir</span>
+                <span className="text-coffee-600">Rp {grandTotal.toLocaleString('id-ID')}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => {
+                  setTempDiscount(discountValue.toString());
+                  setShowDiscountModal(true);
+                }}
+                className="flex-1 py-1.5 border border-stone-300 rounded-lg text-[11px] font-semibold text-stone-700 hover:bg-white flex items-center justify-center gap-1"
+              >
+                <Tag className="w-3.5 h-3.5" />
+                Diskon
+              </button>
+              <button
+                onClick={clearCart}
+                className="py-1.5 px-3 border border-stone-300 rounded-lg text-[11px] font-semibold text-stone-700 hover:bg-white flex items-center justify-center"
+              >
+                Kosongkan
+              </button>
+            </div>
+
+            <button
+              disabled={cart.length === 0}
+              onClick={() => setIsPaymentOpen(true)}
+              className={`w-full py-3.5 rounded-xl font-extrabold text-sm text-white flex items-center justify-center gap-2 shadow-md transition touch-active ${
+                cart.length === 0
+                  ? 'bg-stone-300 cursor-not-allowed'
+                  : 'bg-coffee-500 hover:bg-coffee-600'
+              }`}
+            >
+              <CreditCard className="w-4 h-4" />
+              <span>BAYAR SEKARANG • Rp {grandTotal.toLocaleString('id-ID')}</span>
+            </button>
+          </div>
+
+        </aside>
+      </div>
+
+      <PaymentDialog isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} />
+
+      {showDiscountModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl p-5 max-w-xs w-full space-y-4 shadow-xl">
+            <h3 className="font-bold text-sm text-stone-800">Terapkan Diskon Pesanan</h3>
+            <div className="space-y-1">
+              <label className="text-xs text-stone-500">Jumlah Diskon (Rp)</label>
+              <input
+                type="number"
+                value={tempDiscount}
+                onChange={(e) => setTempDiscount(e.target.value)}
+                className="w-full border px-3 py-2 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDiscountModal(false)}
+                className="flex-1 py-2 border rounded-lg text-xs font-semibold"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  setDiscount('fixed', parseFloat(tempDiscount) || 0);
+                  setShowDiscountModal(false);
+                }}
+                className="flex-1 py-2 bg-coffee-500 text-white rounded-lg text-xs font-bold"
+              >
+                Terapkan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
