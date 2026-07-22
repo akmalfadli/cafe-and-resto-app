@@ -14,7 +14,6 @@ export const ShiftGateScreen: React.FC = () => {
 
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(eligibleStaff[0] || null);
   const [startingCash, setStartingCash] = useState('');
-  const [pinCode, setPinCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,14 +27,6 @@ export const ShiftGateScreen: React.FC = () => {
   const handleOpenShift = async () => {
     if (!selectedProfile) {
       setError('Pilih kasir yang akan membuka shift.');
-      return;
-    }
-    if (pinCode.length !== 4) {
-      setError('Masukkan 4 digit PIN keamanan.');
-      return;
-    }
-    if (selectedProfile.pin_code !== pinCode) {
-      setError('PIN keamanan salah. Silakan coba lagi.');
       return;
     }
     const amount = parseFloat(startingCash.replace(/\./g, '').replace(',', '.'));
@@ -131,7 +122,6 @@ export const ShiftGateScreen: React.FC = () => {
                   onChange={(e) => {
                     const found = eligibleStaff.find((p) => p.id === e.target.value) || null;
                     setSelectedProfile(found);
-                    setPinCode(''); // Reset PIN on user change
                   }}
                   className="w-full appearance-none bg-stone-800 border border-stone-700 focus:border-coffee-500 focus:ring-2 focus:ring-coffee-500/20 rounded-2xl text-white font-semibold text-sm px-4 py-3 outline-none transition pr-10 cursor-pointer"
                 >
@@ -157,23 +147,6 @@ export const ShiftGateScreen: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* PIN Input */}
-          <div className="mb-4">
-            <label className="block text-stone-300 text-sm font-semibold mb-2">
-              PIN Keamanan Kasir (4 Digit)
-            </label>
-            <input
-              type="password"
-              maxLength={4}
-              required
-              placeholder="••••"
-              value={pinCode}
-              onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ''))}
-              onKeyDown={(e) => e.key === 'Enter' && handleOpenShift()}
-              className="w-full py-3 bg-stone-800 border border-stone-700 focus:border-coffee-500 focus:ring-2 focus:ring-coffee-500/20 rounded-2xl text-white text-center font-mono text-lg font-bold outline-none transition placeholder:text-stone-600"
-            />
           </div>
 
           {/* Starting Cash Input */}
