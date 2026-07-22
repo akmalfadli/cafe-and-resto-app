@@ -346,7 +346,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
     );
     set({ cart: newCart });
   },
-
   removeFromCart: (productId) => {
     set({ cart: get().cart.filter((item) => item.product.id !== productId) });
   },
@@ -354,7 +353,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   clearCart: () => set({ cart: [], discountValue: 0 }),
 
   completeSale: async (paymentMethod, amountPaid, refNo) => {
-    const { cart, currentUser, activeShift, orderType, selectedTable, customerName, discountType, discountValue, taxRate, serviceRate, enableTax, isDatabaseMode } = get();
+    const { cart, currentUser, activeShift, orderType, selectedTable, customerName, discountType, discountValue, taxRate, serviceRate, enableTax, isDatabaseMode, sales: localSales } = get();
     
     const subtotal = cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
     const discountAmount = discountType === 'percentage' ? (subtotal * discountValue) / 100 : discountValue;
@@ -375,8 +374,38 @@ export const useAppStore = create<AppStore>((set, get) => ({
       total_price: item.product.selling_price * item.quantity,
     }));
 
+    // Calculate sequential number for today
+    const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const dateCode = todayStr.replace(/-/g, ''); // YYYYMMDD
+    let nextNum = 1;
+
+    try {
+      if (isDatabaseMode) {
+        // Query database count for sales today
+        const { data, error } = await supabase
+          .from('sales')
+          .select('id')
+          .gte('created_at', `${todayStr}T00:00:00.000Z`)
+          .lte('created_at', `${todayStr}T23:59:59.999Z`);
+        
+        if (!error && data) {
+          nextNum = data.length + 1;
+        }
+      } else {
+        // Local calculation fallback
+        const todaySalesCount = localSales.filter(s => s.created_at && s.created_at.startsWith(todayStr)).length;
+        nextNum = todaySalesCount + 1;
+      }
+    } catch (e) {
+      console.error('Failed to get sequential order number, using fallback:', e);
+      nextNum = Math.floor(100 + Math.random() * 900);
+    }
+
+    const paddedNum = String(nextNum).padStart(3, '0');
+    const receiptNumber = `INV-${dateCode}-${paddedNum}`;
+
     const newSaleData: any = {
-      receipt_number: `INV-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(100 + Math.random() * 900)}`,
+      receipt_number: receiptNumber,
       cashier_id: currentUser?.id || 'usr-3',
       cashier_name: currentUser?.full_name || 'Kasir',
       shift_id: activeShift?.id,
