@@ -476,20 +476,23 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
               <CreditCard className="w-4 h-4" />
               <span>BAYAR • Rp {grandTotal.toLocaleString('id-ID')}</span>
             </button>
+
+            {/* Discrete Kembali button (underneath BAYAR on mobile screens inside the cart view) */}
+            {showCartOnMobile && (
+              <button
+                onClick={() => setShowCartOnMobile(false)}
+                className="md:hidden w-full py-3 bg-stone-800 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2"
+              >
+                <span>← Kembali Pilih Menu</span>
+              </button>
+            )}
           </div>
 
         </aside>
 
-        {/* Mobile Cart Floating Action Bar */}
-        <div className="md:hidden absolute bottom-3 left-3 right-20 sm:right-24 z-30 flex items-center gap-2">
-          {showCartOnMobile ? (
-            <button
-              onClick={() => setShowCartOnMobile(false)}
-              className="flex-1 py-3.5 bg-stone-800 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2"
-            >
-              <span>← Kembali</span>
-            </button>
-          ) : (
+        {/* Mobile Cart Floating Action Bar (Only shows 'Lihat Keranjang' trigger on menu view) */}
+        {!showCartOnMobile && (
+          <div className="md:hidden absolute bottom-3 left-3 right-20 sm:right-24 z-30 flex items-center gap-2">
             <button
               onClick={() => setShowCartOnMobile(true)}
               className="flex-1 py-3.5 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition"
@@ -497,8 +500,8 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
               <ShoppingBag className="w-4 h-4" />
               <span>Keranjang ({cart.reduce((a, b) => a + b.quantity, 0)}) • Rp {grandTotal.toLocaleString('id-ID')}</span>
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <PaymentDialog isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} />
