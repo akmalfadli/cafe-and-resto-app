@@ -3,7 +3,8 @@ import { useAppStore } from '../../store/useAppStore';
 import { 
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
   Trash2, Plus, Minus, CreditCard, Clock, User, 
-  UtensilsCrossed, ShoppingBag, Truck, Tag, LogOut, DoorOpen
+  UtensilsCrossed, ShoppingBag, Truck, Tag, LogOut, DoorOpen,
+  LayoutGrid, List
 } from 'lucide-react';
 import { PaymentDialog } from './PaymentDialog';
 import { ShiftGateScreen } from './ShiftGateScreen';
@@ -45,6 +46,16 @@ export const PosScreen: React.FC = () => {
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [showCloseShift, setShowCloseShift] = useState(false);
   const [tempDiscount, setTempDiscount] = useState<string>('0');
+  const [showCartOnMobile, setShowCartOnMobile] = useState(false);
+  const [viewMode, setViewMode] = useState<'card' | 'list'>(() => {
+    return (localStorage.getItem('cafepos_menu_view_mode') as 'card' | 'list') || 'card';
+  });
+
+  const toggleViewMode = () => {
+    const nextMode = viewMode === 'card' ? 'list' : 'card';
+    setViewMode(nextMode);
+    localStorage.setItem('cafepos_menu_view_mode', nextMode);
+  };
 
   const filteredProducts = products.filter((product) => {
     const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
@@ -77,11 +88,11 @@ export const PosScreen: React.FC = () => {
       {/* TOP BAR */}
       <header className="h-14 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-4 flex items-center justify-between shrink-0 shadow-sm z-10">
         <div className="flex items-center gap-3">
-          <div className="bg-coffee-500 text-white font-black px-3 py-1.5 rounded-xl text-lg tracking-wider flex items-center gap-2">
-            <Coffee className="w-5 h-5" />
+          <div className="bg-coffee-500 text-white font-black px-2.5 py-1.5 rounded-xl text-base tracking-wider flex items-center gap-1.5 shrink-0">
+            <Coffee className="w-4 h-4" />
             <span>CafePOS</span>
           </div>
-          <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
+          <span className={`text-[10px] md:text-xs px-2.5 py-1 rounded-full font-semibold border truncate max-w-[120px] md:max-w-none ${
             activeShift 
               ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
               : 'bg-amber-50 text-amber-700 border-amber-200'
@@ -89,32 +100,40 @@ export const PosScreen: React.FC = () => {
             {activeShift ? (
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Shift Aktif ({activeShift.cashier_name})
+                <span className="hidden sm:inline">Shift Aktif (</span>{activeShift.cashier_name}<span className="hidden sm:inline">)</span>
               </span>
             ) : 'Belum Ada Shift'}
           </span>
         </div>
 
-        <div className="relative w-80">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
-          <input
-            type="text"
-            placeholder="Cari menu atau SKU..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-1.5 text-xs bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 focus:outline-none focus:ring-2 focus:ring-coffee-500"
-          />
+        <div className="relative w-40 sm:w-60 md:w-80 flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400" />
+            <input
+              type="text"
+              placeholder="Cari menu..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+            />
+          </div>
+          <button
+            onClick={toggleViewMode}
+            className="p-1.5 sm:p-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl border border-stone-200 transition shrink-0"
+            title={viewMode === 'card' ? 'Ubah ke Mode List' : 'Ubah ke Mode Grid'}
+          >
+            {viewMode === 'card' ? <List className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
+          </button>
         </div>
 
-        <div className="flex items-center gap-3 text-xs font-medium text-stone-600">
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2 md:gap-3 text-xs font-medium text-stone-600">
+          <div className="hidden sm:flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-coffee-500" />
             <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-stone-100 px-3 py-1.5 rounded-xl border border-stone-200">
-            <User className="w-4 h-4 text-coffee-500" />
-            <span className="font-bold text-stone-800">{currentUser?.full_name}</span>
-            <span className="text-[10px] bg-coffee-100 text-coffee-800 px-1.5 py-0.5 rounded font-bold uppercase">{currentUser?.role}</span>
+          <div className="flex items-center gap-1.5 bg-stone-100 px-2.5 py-1.5 rounded-xl border border-stone-200 text-[11px] sm:text-xs">
+            <User className="w-3.5 h-3.5 text-coffee-500" />
+            <span className="font-bold text-stone-800 truncate max-w-[60px] sm:max-w-none">{currentUser?.full_name}</span>
           </div>
           {activeShift && (
             <button
@@ -143,20 +162,20 @@ export const PosScreen: React.FC = () => {
       <CloseShiftModal isOpen={showCloseShift} onClose={() => setShowCloseShift(false)} />
 
       {/* MAIN LAYOUT */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         
         {/* LEFT COLUMN: Categories */}
-        <aside className="w-28 bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 p-2 flex flex-col gap-2 shrink-0 overflow-y-auto">
+        <aside className={`${showCartOnMobile ? 'hidden' : 'flex'} w-16 sm:w-20 md:w-28 bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 p-1 md:p-2 flex-col gap-1.5 md:gap-2 shrink-0 overflow-y-auto`}>
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`flex flex-col items-center justify-center p-3 rounded-2xl transition touch-active ${
+            className={`flex flex-col items-center justify-center p-2.5 md:p-3 rounded-xl md:rounded-2xl transition touch-active ${
               selectedCategory === 'all'
-                ? 'bg-coffee-500 text-white font-bold shadow-md'
+                ? 'bg-coffee-500 text-white font-bold shadow-sm'
                 : 'text-stone-600 hover:bg-stone-100'
             }`}
           >
-            <Grid className="w-6 h-6 mb-1" />
-            <span className="text-[11px]">Semua Menu</span>
+            <Grid className="w-5 h-5 md:w-6 md:h-6 mb-1" />
+            <span className="text-[10px] md:text-[11px] font-medium text-center">Semua</span>
           </button>
 
           {categories.map((cat) => {
@@ -165,63 +184,106 @@ export const PosScreen: React.FC = () => {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`flex flex-col items-center justify-center p-3 rounded-2xl transition touch-active ${
+                className={`flex flex-col items-center justify-center p-2.5 md:p-3 rounded-xl md:rounded-2xl transition touch-active ${
                   active
-                    ? 'bg-coffee-500 text-white font-bold shadow-md'
+                    ? 'bg-coffee-500 text-white font-bold shadow-sm'
                     : 'text-stone-600 hover:bg-stone-100'
                 }`}
               >
-                <div className="mb-1">{getCategoryIcon(cat.icon)}</div>
-                <span className="text-[11px] text-center leading-tight">{cat.name}</span>
+                <div className="mb-1 transform scale-90 md:scale-100">{getCategoryIcon(cat.icon)}</div>
+                <span className="text-[10px] md:text-[11px] text-center leading-tight">{cat.name}</span>
               </button>
             );
           })}
         </aside>
 
-        {/* CENTER COLUMN: Product Grid */}
-        <main className="flex-1 p-4 overflow-y-auto bg-stone-50/50">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                onClick={() => addToCart(product)}
-                className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col touch-active group"
-              >
-                <div className="h-32 w-full overflow-hidden bg-stone-100 relative">
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                  />
-                  {product.is_favorite && (
-                    <span className="absolute top-2 left-2 bg-coffee-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-                      ★ Favorit
-                    </span>
-                  )}
-                </div>
-                <div className="p-3 flex flex-col justify-between flex-1">
-                  <div>
-                    <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100 line-clamp-1">
-                      {product.name}
-                    </h3>
-                    <p className="text-[11px] text-stone-400 font-mono mt-0.5">{product.sku}</p>
+        {/* CENTER COLUMN: Product Grid / List Tiles */}
+        <main className={`${showCartOnMobile ? 'hidden' : 'block'} flex-1 p-2 md:p-4 overflow-y-auto bg-stone-50/50`}>
+          {viewMode === 'card' ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
+              {filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  onClick={() => addToCart(product)}
+                  className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col touch-active group"
+                >
+                  <div className="h-24 md:h-32 w-full overflow-hidden bg-stone-100 relative">
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                    />
+                    {product.is_favorite && (
+                      <span className="absolute top-1.5 left-1.5 bg-coffee-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow">
+                        ★ Favorit
+                      </span>
+                    )}
                   </div>
-                  <div className="mt-2 flex justify-between items-center">
+                  <div className="p-2.5 md:p-3 flex flex-col justify-between flex-1">
+                    <div>
+                      <h3 className="font-bold text-xs md:text-sm text-stone-800 dark:text-stone-100 line-clamp-1">
+                        {product.name}
+                      </h3>
+                      <p className="text-[10px] text-stone-400 font-mono mt-0.5">{product.sku}</p>
+                    </div>
+                    <div className="mt-1.5 md:mt-2 flex justify-between items-center">
+                      <span className="font-extrabold text-xs md:text-sm text-coffee-600 dark:text-coffee-400">
+                        Rp {product.selling_price.toLocaleString('id-ID')}
+                      </span>
+                      <button className="p-1 md:p-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg md:rounded-xl transition">
+                        <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  onClick={() => addToCart(product)}
+                  className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-3 flex items-center justify-between shadow-sm hover:shadow-md transition cursor-pointer touch-active group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">
+                          {product.name}
+                        </h3>
+                        {product.is_favorite && (
+                          <span className="bg-coffee-500 text-white text-[8px] font-bold px-1.5 py-0.2 rounded-full">
+                            ★ Favorit
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-stone-400 font-mono">{product.sku}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
                     <span className="font-extrabold text-sm text-coffee-600 dark:text-coffee-400">
                       Rp {product.selling_price.toLocaleString('id-ID')}
                     </span>
-                    <button className="p-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-xl transition">
+                    <button className="p-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg transition">
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </main>
 
         {/* RIGHT COLUMN: Shopping Cart */}
-        <aside className="w-96 bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 flex flex-col shrink-0 shadow-lg">
+        <aside className={`${showCartOnMobile ? 'flex' : 'hidden'} md:flex w-full md:w-72 lg:w-96 bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 flex-col shrink-0 shadow-lg`}>
           
           <div className="p-3 border-b border-stone-200 dark:border-stone-800 space-y-2">
             <div className="grid grid-cols-3 gap-1 bg-stone-100 p-1 rounded-xl">
@@ -389,21 +451,41 @@ export const PosScreen: React.FC = () => {
               </button>
             </div>
 
-            <button
+          <button
               disabled={cart.length === 0}
               onClick={() => setIsPaymentOpen(true)}
-              className={`w-full py-3.5 rounded-xl font-extrabold text-sm text-white flex items-center justify-center gap-2 shadow-md transition touch-active ${
+              className={`w-full py-3 md:py-3.5 rounded-xl font-extrabold text-sm text-white flex items-center justify-center gap-2 shadow-md transition touch-active ${
                 cart.length === 0
                   ? 'bg-stone-300 cursor-not-allowed'
                   : 'bg-coffee-500 hover:bg-coffee-600'
               }`}
             >
               <CreditCard className="w-4 h-4" />
-              <span>BAYAR SEKARANG • Rp {grandTotal.toLocaleString('id-ID')}</span>
+              <span>BAYAR • Rp {grandTotal.toLocaleString('id-ID')}</span>
             </button>
           </div>
 
         </aside>
+
+        {/* Mobile Cart Floating Action Bar */}
+        <div className="md:hidden absolute bottom-3 left-3 right-3 z-30 flex items-center gap-2">
+          {showCartOnMobile ? (
+            <button
+              onClick={() => setShowCartOnMobile(false)}
+              className="flex-1 py-3.5 bg-stone-800 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2"
+            >
+              <span>← Kembali Pilih Menu</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowCartOnMobile(true)}
+              className="flex-1 py-3.5 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>Lihat Keranjang ({cart.reduce((a, b) => a + b.quantity, 0)}) • Rp {grandTotal.toLocaleString('id-ID')}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       <PaymentDialog isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} />

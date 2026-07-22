@@ -52,15 +52,15 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-stone-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-stone-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4 animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-stone-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-stone-200 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
         
-        <div className="bg-coffee-500 text-white p-5 flex justify-between items-center">
+        <div className="bg-coffee-500 text-white p-4 sm:p-5 flex justify-between items-center shrink-0">
           <div>
-            <h2 className="text-lg font-bold">
+            <h2 className="text-base sm:text-lg font-bold">
               {completedSale ? 'Struk Pembayaran' : 'Pembayaran Kasir'}
             </h2>
-            <p className="text-xs text-coffee-100">
+            <p className="text-[10px] sm:text-xs text-coffee-100">
               {completedSale ? 'Transaksi Berhasil Disimpan' : 'Pilih Metode Pembayaran'}
             </p>
           </div>
@@ -70,7 +70,7 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
         </div>
 
         {!completedSale ? (
-          <div className="p-6 space-y-6">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
             <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-2">
               <div className="flex justify-between text-xs text-stone-500">
                 <span>Subtotal ({cart.reduce((a, b) => a + b.quantity, 0)} item)</span>
@@ -174,8 +174,8 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
             </div>
           </div>
         ) : (
-          <div className="p-6 space-y-5">
-            <div className="bg-stone-50 p-5 rounded-xl border border-stone-200 font-mono text-xs text-stone-800 space-y-3 print-section">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
+            <div className="bg-stone-50 p-4 sm:p-5 rounded-xl border border-stone-200 font-mono text-[10px] sm:text-xs text-stone-800 space-y-3 print-section max-h-[50vh] sm:max-h-none overflow-y-auto">
               <div className="text-center border-b border-dashed border-stone-300 pb-3 whitespace-pre-line font-bold text-stone-800">
                 {receiptLogo && (
                   <img src={receiptLogo} alt="Logo" className="w-16 h-16 object-contain mx-auto mb-2" />
