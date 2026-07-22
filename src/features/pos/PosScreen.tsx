@@ -492,7 +492,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
 
         {/* Mobile Cart Floating Action Bar (Only shows 'Lihat Keranjang' trigger on menu view) */}
         {!showCartOnMobile && (
-          <div className="md:hidden absolute bottom-3 left-3 right-20 sm:right-24 z-30 flex items-center gap-2">
+          <div className="md:hidden absolute bottom-3 left-3 right-3 z-30 flex items-center gap-2">
             <button
               onClick={() => setShowCartOnMobile(true)}
               className="flex-1 py-3.5 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition"
