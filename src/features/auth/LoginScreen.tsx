@@ -12,13 +12,34 @@ export const LoginScreen: React.FC = () => {
   const [isRegisterMode, setIsRegisterMode] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Security Lock Form State
+  const [failedAttempts, setFailedAttempts] = useState<number>(0);
+  const [lockUntil, setLockUntil] = useState<number | null>(null);
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(0);
+
   // Owner Registration Form State
   const [ownerName, setOwnerName] = useState('');
   const [ownerEmail, setOwnerEmail] = useState('');
   const [ownerPassword, setOwnerPassword] = useState('');
   const [ownerPin, setOwnerPin] = useState('');
 
+  // Monitor Lock Expiry Countdown
+  React.useEffect(() => {
+    if (!lockUntil) return;
+    const interval = setInterval(() => {
+      const remaining = Math.max(0, Math.round((lockUntil - Date.now()) / 1000));
+      setSecondsRemaining(remaining);
+      if (remaining === 0) {
+        setLockUntil(null);
+        setFailedAttempts(0);
+        setError('');
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockUntil]);
+
   const handlePinPress = (digit: string) => {
+    if (lockUntil && Date.now() < lockUntil) return;
     if (pin.length < 6) {
       const nextPin = pin + digit;
       setPin(nextPin);
@@ -30,6 +51,7 @@ export const LoginScreen: React.FC = () => {
   };
 
   const handleDelete = () => {
+    if (lockUntil && Date.now() < lockUntil) return;
     setPin(pin.slice(0, -1));
     setError('');
   };
@@ -38,9 +60,21 @@ export const LoginScreen: React.FC = () => {
     if (!selectedUser) return;
     if (selectedUser.pin_code === inputPin) {
       setCurrentUser(selectedUser);
+      setFailedAttempts(0);
+      setLockUntil(null);
     } else {
-      setError('Kode PIN salah. Silakan coba lagi.');
+      const nextAttempts = failedAttempts + 1;
+      setFailedAttempts(nextAttempts);
       setPin('');
+      
+      if (nextAttempts >= 5) {
+        const lockTime = Date.now() + 5 * 60 * 1000; // 5 minutes lock
+        setLockUntil(lockTime);
+        setSecondsRemaining(300);
+        setError('Terlalu banyak percobaan salah. Akun dikunci selama 5 menit.');
+      } else {
+        setError(`Kode PIN salah. Sisa percobaan: ${5 - nextAttempts}x.`);
+      }
     }
   };
 
@@ -375,14 +409,24 @@ export const LoginScreen: React.FC = () => {
                   ))}
                 </div>
                 {error && <p className="text-xs text-red-500 font-semibold animate-shake">{error}</p>}
+                
+                {lockUntil && (
+                  <div className="p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-2xl text-[11px] font-bold mt-2 border border-red-200/50">
+                    Akun terkunci. Coba lagi dalam: {Math.floor(secondsRemaining / 60)}m {secondsRemaining % 60}d
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-3 gap-3 pt-2">
+              <div className="grid grid-cols-3 gap-3 pt-2 relative">
+                {lockUntil && (
+                  <div className="absolute inset-0 bg-white/40 dark:bg-stone-900/40 backdrop-blur-[1px] z-10 rounded-2xl cursor-not-allowed" />
+                )}
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
                   <button
                     key={digit}
                     onClick={() => handlePinPress(digit)}
-                    className="h-14 rounded-2xl bg-stone-50 hover:bg-coffee-50 hover:border-coffee-300 border border-stone-200 text-lg font-bold text-stone-800 shadow-sm touch-active transition flex items-center justify-center"
+                    disabled={!!lockUntil}
+                    className="h-14 rounded-2xl bg-stone-50 hover:bg-coffee-50 hover:border-coffee-300 border border-stone-200 text-lg font-bold text-stone-800 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
                   >
                     {digit}
                   </button>
@@ -390,13 +434,15 @@ export const LoginScreen: React.FC = () => {
                 <div className="h-14" />
                 <button
                   onClick={() => handlePinPress('0')}
-                  className="h-14 rounded-2xl bg-stone-50 hover:bg-coffee-50 hover:border-coffee-300 border border-stone-200 text-lg font-bold text-stone-800 shadow-sm touch-active transition flex items-center justify-center"
+                  disabled={!!lockUntil}
+                  className="h-14 rounded-2xl bg-stone-50 hover:bg-coffee-50 hover:border-coffee-300 border border-stone-200 text-lg font-bold text-stone-800 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
                 >
                   0
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="h-14 rounded-2xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-600 shadow-sm touch-active transition flex items-center justify-center"
+                  disabled={!!lockUntil}
+                  className="h-14 rounded-2xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-600 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
                 >
                   <Delete className="w-5 h-5" />
                 </button>
