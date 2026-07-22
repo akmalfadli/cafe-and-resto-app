@@ -17,23 +17,6 @@ export const App: React.FC = () => {
   const dragStartRef = React.useRef({ x: 0, y: 0 });
   const toolbarPosRef = React.useRef({ x: 0, y: 0 });
 
-  useEffect(() => {
-    fetchInitialData();
-  }, [fetchInitialData]);
-
-  if (isLoading) {
-    return (
-      <div className="h-screen w-screen bg-stone-900 flex flex-col items-center justify-center text-white space-y-4 font-sans">
-        <RefreshCw className="w-10 h-10 animate-spin text-coffee-400" />
-        <p className="text-sm font-bold tracking-wider">Menghubungkan ke Server...</p>
-      </div>
-    );
-  }
-
-  if (!currentUser) {
-    return <LoginScreen />;
-  }
-
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only drag with left click
     if (e.button !== 0) return;
@@ -82,6 +65,23 @@ export const App: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    fetchInitialData();
+  }, [fetchInitialData]);
+
+  if (isLoading) {
+    return (
+      <div className="h-screen w-screen bg-stone-900 flex flex-col items-center justify-center text-white space-y-4 font-sans">
+        <RefreshCw className="w-10 h-10 animate-spin text-coffee-400" />
+        <p className="text-sm font-bold tracking-wider">Menghubungkan ke Server...</p>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <LoginScreen />;
+  }
 
   return (
     <div className="relative h-screen w-screen overflow-hidden font-sans">
