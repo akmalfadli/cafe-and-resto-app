@@ -85,6 +85,16 @@ export const DashboardView: React.FC = () => {
       };
     });
 
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(sales.length / itemsPerPage) || 1;
+
+  // Slice sales for pagination
+  const paginatedSales = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return sales.slice(startIndex, startIndex + itemsPerPage);
+  }, [sales, currentPage]);
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       
@@ -242,7 +252,7 @@ export const DashboardView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {sales.map((sale) => (
+              {paginatedSales.map((sale) => (
                 <tr key={sale.id} className="hover:bg-stone-50">
                   <td className="py-3 font-mono font-bold text-coffee-600">{sale.receipt_number}</td>
                   <td className="py-3 font-medium text-stone-700">{sale.cashier_name}</td>
@@ -258,6 +268,32 @@ export const DashboardView: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between pt-4 border-t border-stone-100 text-xs text-stone-500 font-semibold">
+          <div>
+            Menampilkan {sales.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} - {Math.min(currentPage * itemsPerPage, sales.length)} dari {sales.length} transaksi
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 border border-stone-200 hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition"
+            >
+              Sebelumnya
+            </button>
+            <span className="px-3 py-1.5 bg-coffee-50 text-coffee-700 border border-coffee-200 rounded-lg">
+              Halaman {currentPage} dari {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 border border-stone-200 hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition"
+            >
+              Berikutnya
+            </button>
+          </div>
         </div>
       </div>
 
