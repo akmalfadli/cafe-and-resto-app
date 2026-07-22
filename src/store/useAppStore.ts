@@ -60,6 +60,7 @@ interface AppStore {
   fetchInitialData: () => Promise<void>;
   registerOwnerAccount: (name: string, email: string, pin: string, password?: string) => Promise<Profile>;
   createStaffAccount: (name: string, email: string, role: 'Manager' | 'Cashier', pin: string, password?: string) => Promise<Profile>;
+  updateProfilePin: (profileId: string, newPin: string) => Promise<void>;
 
   addCategory: (cat: Omit<Category, 'id'>) => Promise<void>;
   updateCategory: (id: string, cat: Partial<Category>) => Promise<void>;
@@ -307,6 +308,19 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
     set({ profiles: [...profiles, newProfile] });
     return newProfile;
+  },
+
+  updateProfilePin: async (profileId, newPin) => {
+    const { isDatabaseMode, profiles, currentUser } = get();
+    if (isDatabaseMode) {
+      const { error } = await supabase.from('profiles').update({ pin_code: newPin }).eq('id', profileId);
+      if (error) throw error;
+    }
+    const updatedProfiles = profiles.map((p) => p.id === profileId ? { ...p, pin_code: newPin } : p);
+    set({ profiles: updatedProfiles });
+    if (currentUser?.id === profileId) {
+      set({ currentUser: { ...currentUser, pin_code: newPin } });
+    }
   },
 
   setSelectedCategory: (catId) => set({ selectedCategory: catId }),

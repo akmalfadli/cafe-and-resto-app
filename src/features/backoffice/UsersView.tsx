@@ -3,8 +3,12 @@ import { useAppStore } from '../../store/useAppStore';
 import { UserCheck, Key, Plus, X } from 'lucide-react';
 
 export const UsersView: React.FC = () => {
-  const { profiles, createStaffAccount } = useAppStore();
+  const { profiles, createStaffAccount, updateProfilePin } = useAppStore();
   const [showModal, setShowModal] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [newPin, setNewPin] = useState('');
+  const [pinError, setPinError] = useState('');
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,6 +41,25 @@ export const UsersView: React.FC = () => {
     }
   };
 
+  const handleUpdatePin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPin.length !== 4 || isNaN(Number(newPin))) {
+      setPinError('PIN harus berupa 4 digit angka.');
+      return;
+    }
+    try {
+      if (selectedProfileId) {
+        await updateProfilePin(selectedProfileId, newPin);
+        setNewPin('');
+        setSelectedProfileId(null);
+        setShowPinModal(false);
+        setPinError('');
+      }
+    } catch (err: any) {
+      setPinError(err?.message || 'Gagal mengubah PIN.');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -63,6 +86,7 @@ export const UsersView: React.FC = () => {
               <th className="p-3">Peran / Jabatan</th>
               <th className="p-3">PIN Keamanan</th>
               <th className="p-3">Status</th>
+              <th className="p-3 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-100">
@@ -94,6 +118,19 @@ export const UsersView: React.FC = () => {
                   <span className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">
                     Aktif
                   </span>
+                </td>
+                <td className="p-3 text-right">
+                  <button
+                    onClick={() => {
+                      setSelectedProfileId(u.id);
+                      setNewPin('');
+                      setPinError('');
+                      setShowPinModal(true);
+                    }}
+                    className="px-3 py-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white text-stone-700 font-bold rounded-lg transition text-[10px]"
+                  >
+                    Ubah PIN
+                  </button>
                 </td>
               </tr>
             ))}
@@ -191,6 +228,61 @@ export const UsersView: React.FC = () => {
                   className="px-5 py-2 bg-coffee-500 hover:bg-coffee-600 text-white font-bold rounded-xl shadow"
                 >
                   Simpan Staf Baru
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showPinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-stone-200">
+            <div className="bg-coffee-500 text-white p-5 flex justify-between items-center">
+              <h2 className="text-sm font-bold">Ubah PIN Keamanan</h2>
+              <button 
+                onClick={() => {
+                  setShowPinModal(false);
+                  setSelectedProfileId(null);
+                }} 
+                className="p-1 hover:bg-coffee-600 rounded-full"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdatePin} className="p-6 space-y-4 text-xs">
+              {pinError && <p className="p-2 bg-red-50 text-red-600 rounded-xl text-center font-bold">{pinError}</p>}
+
+              <div>
+                <label className="font-semibold text-stone-600 block mb-1.5">Masukkan PIN Baru (4 Digit)</label>
+                <input
+                  type="password"
+                  maxLength={4}
+                  required
+                  value={newPin}
+                  onChange={(e) => setNewPin(e.target.value)}
+                  className="w-full border border-stone-300 rounded-xl px-3 py-3 font-mono text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                  placeholder="••••"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-stone-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPinModal(false);
+                    setSelectedProfileId(null);
+                  }}
+                  className="px-4 py-2 border border-stone-300 rounded-xl font-semibold hover:bg-stone-100"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-coffee-500 hover:bg-coffee-600 text-white font-bold rounded-xl shadow"
+                >
+                  Simpan PIN Baru
                 </button>
               </div>
             </form>
