@@ -395,7 +395,7 @@ export const ProductsView: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-black text-stone-800">Manajemen Produk & Menu</h1>
-          <p className="text-xs text-stone-500">Atur harga jual, kalkulator HPP resep, dan printer dapur</p>
+          <p className="text-xs text-stone-500">Atur harga jual, kalkulator HPP resep, dan stok menu</p>
         </div>
 
         <button 
@@ -443,7 +443,6 @@ export const ProductsView: React.FC = () => {
               <th className="p-3">Harga Jual</th>
               <th className="p-3">Harga HPP</th>
               <th className="p-3">Margin</th>
-              <th className="p-3">Printer</th>
               <th className="p-3 text-right">Aksi</th>
             </tr>
           </thead>
@@ -473,7 +472,6 @@ export const ProductsView: React.FC = () => {
                       {margin}%
                     </span>
                   </td>
-                  <td className="p-3 text-stone-500">{p.kitchen_printer}</td>
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-2">
                       <button
