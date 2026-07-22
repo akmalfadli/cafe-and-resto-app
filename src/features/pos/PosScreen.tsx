@@ -4,13 +4,17 @@ import {
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
   Trash2, Plus, Minus, CreditCard, Clock, User, 
   UtensilsCrossed, ShoppingBag, Truck, Tag, LogOut, DoorOpen,
-  LayoutGrid, List
+  LayoutGrid, List, Shield
 } from 'lucide-react';
 import { PaymentDialog } from './PaymentDialog';
 import { ShiftGateScreen } from './ShiftGateScreen';
 import { CloseShiftModal } from './CloseShiftModal';
 
-export const PosScreen: React.FC = () => {
+interface PosScreenProps {
+  onSwitchToBackOffice?: () => void;
+}
+
+export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) => {
   const {
     currentUser,
     logout,
@@ -86,13 +90,13 @@ export const PosScreen: React.FC = () => {
     <div className="h-screen w-screen flex flex-col bg-bgmain overflow-hidden select-none font-sans">
       
       {/* TOP BAR */}
-      <header className="h-14 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-4 flex items-center justify-between shrink-0 shadow-sm z-10">
-        <div className="flex items-center gap-3">
-          <div className="bg-coffee-500 text-white font-black px-2.5 py-1.5 rounded-xl text-base tracking-wider flex items-center gap-1.5 shrink-0">
+      <header className="h-14 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-2 sm:px-4 flex items-center justify-between shrink-0 shadow-sm z-10 gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="bg-coffee-500 text-white font-black px-2.5 py-1.5 rounded-xl text-sm sm:text-base tracking-wider flex items-center gap-1.5">
             <Coffee className="w-4 h-4" />
-            <span>CafePOS</span>
+            <span className="hidden xs:inline">CafePOS</span>
           </div>
-          <span className={`text-[10px] md:text-xs px-2.5 py-1 rounded-full font-semibold border truncate max-w-[120px] md:max-w-none ${
+          <span className={`hidden sm:inline-block text-[10px] md:text-xs px-2.5 py-1 rounded-full font-semibold border ${
             activeShift 
               ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
               : 'bg-amber-50 text-amber-700 border-amber-200'
@@ -100,18 +104,18 @@ export const PosScreen: React.FC = () => {
             {activeShift ? (
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="hidden sm:inline">Shift Aktif (</span>{activeShift.cashier_name}<span className="hidden sm:inline">)</span>
+                Shift Aktif ({activeShift.cashier_name})
               </span>
             ) : 'Belum Ada Shift'}
           </span>
         </div>
 
-        <div className="relative w-40 sm:w-60 md:w-80 flex items-center gap-2">
+        <div className="relative flex-1 max-w-xs sm:max-w-md flex items-center gap-1.5">
           <div className="relative flex-1">
             <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400" />
             <input
               type="text"
-              placeholder="Cari menu..."
+              placeholder="Cari..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 focus:outline-none focus:ring-2 focus:ring-coffee-500"
@@ -126,23 +130,32 @@ export const PosScreen: React.FC = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-2 md:gap-3 text-xs font-medium text-stone-600">
-          <div className="hidden sm:flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 md:gap-3 text-xs font-medium text-stone-600 shrink-0">
+          <div className="hidden md:flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-coffee-500" />
             <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-stone-100 px-2.5 py-1.5 rounded-xl border border-stone-200 text-[11px] sm:text-xs">
+          <div className="hidden sm:flex items-center gap-1.5 bg-stone-100 px-2.5 py-1.5 rounded-xl border border-stone-200">
             <User className="w-3.5 h-3.5 text-coffee-500" />
-            <span className="font-bold text-stone-800 truncate max-w-[60px] sm:max-w-none">{currentUser?.full_name}</span>
+            <span className="font-bold text-stone-800 truncate max-w-[80px]">{currentUser?.full_name}</span>
           </div>
           {activeShift && (
             <button
               onClick={() => setShowCloseShift(true)}
-              className="flex items-center gap-1.5 p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition text-xs font-semibold"
+              className="flex items-center gap-1 p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition text-[10px] sm:text-xs font-semibold"
               title="Tutup Shift"
             >
-              <DoorOpen className="w-4 h-4" />
-              <span className="hidden lg:inline">Tutup Shift</span>
+              <DoorOpen className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Tutup Shift</span>
+            </button>
+          )}
+          {onSwitchToBackOffice && (currentUser?.role === 'Owner' || currentUser?.role === 'Manager') && (
+            <button
+              onClick={onSwitchToBackOffice}
+              className="md:hidden p-1.5 bg-coffee-50 hover:bg-coffee-100 text-coffee-600 rounded-xl border border-coffee-200 transition"
+              title="Ke Back Office"
+            >
+              <Shield className="w-3.5 h-3.5" />
             </button>
           )}
           <button
@@ -468,13 +481,13 @@ export const PosScreen: React.FC = () => {
         </aside>
 
         {/* Mobile Cart Floating Action Bar */}
-        <div className="md:hidden absolute bottom-3 left-3 right-3 z-30 flex items-center gap-2">
+        <div className="md:hidden absolute bottom-3 left-3 right-20 sm:right-24 z-30 flex items-center gap-2">
           {showCartOnMobile ? (
             <button
               onClick={() => setShowCartOnMobile(false)}
               className="flex-1 py-3.5 bg-stone-800 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2"
             >
-              <span>← Kembali Pilih Menu</span>
+              <span>← Kembali</span>
             </button>
           ) : (
             <button
@@ -482,7 +495,7 @@ export const PosScreen: React.FC = () => {
               className="flex-1 py-3.5 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition"
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>Lihat Keranjang ({cart.reduce((a, b) => a + b.quantity, 0)}) • Rp {grandTotal.toLocaleString('id-ID')}</span>
+              <span>Keranjang ({cart.reduce((a, b) => a + b.quantity, 0)}) • Rp {grandTotal.toLocaleString('id-ID')}</span>
             </button>
           )}
         </div>

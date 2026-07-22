@@ -30,8 +30,8 @@ export const App: React.FC = () => {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden font-sans">
-      {/* Floating Toolbar */}
-      <div className="fixed bottom-4 left-4 z-50 bg-stone-900/90 backdrop-blur-md text-white p-1.5 rounded-2xl shadow-2xl border border-stone-700 flex items-center gap-1">
+      {/* Floating Toolbar (Only visible on tablet/desktop md:flex, hidden on mobile) */}
+      <div className="hidden md:flex fixed bottom-4 left-4 z-50 bg-stone-900/90 backdrop-blur-md text-white p-1.5 rounded-2xl shadow-2xl border border-stone-700 items-center gap-1">
         <button
           onClick={() => setCurrentAppMode('pos')}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition ${
@@ -75,7 +75,7 @@ export const App: React.FC = () => {
       </div>
 
       {currentAppMode === 'pos' || !isStaffManagerOrOwner ? (
-        <PosScreen />
+        <PosScreen onSwitchToBackOffice={() => setCurrentAppMode('backoffice')} />
       ) : (
         <BackOfficeLayout onSwitchToPos={() => setCurrentAppMode('pos')} />
       )}
