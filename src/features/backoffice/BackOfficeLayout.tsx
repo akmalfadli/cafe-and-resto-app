@@ -128,6 +128,11 @@ export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPo
           </nav>
         </div>
 
+        {/* Credit Link */}
+        <div className="px-5 py-2.5 text-center text-[10px] text-stone-500 border-t border-stone-800/80">
+          Created with ❤️ by <a href="https://akmalfadli.github.io" target="_blank" rel="noopener noreferrer" className="text-coffee-400 hover:text-coffee-300 font-bold hover:underline transition">Akmal Fadli</a>
+        </div>
+
         <div className="p-4 border-t border-stone-800 bg-stone-950/50 flex items-center justify-between shrink-0">
           <div>
             <p className="text-xs font-bold text-stone-200">{currentUser?.full_name}</p>

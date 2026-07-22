@@ -341,6 +341,9 @@ export const LoginScreen: React.FC = () => {
         )}
 
       </div>
+      <div className="absolute bottom-4 left-0 right-0 text-center text-xs text-stone-500 font-medium">
+        Created with ❤️ by <a href="https://akmalfadli.github.io" target="_blank" rel="noopener noreferrer" className="text-coffee-400 hover:text-coffee-300 font-bold hover:underline transition">Akmal Fadli</a>
+      </div>
     </div>
   );
 };
