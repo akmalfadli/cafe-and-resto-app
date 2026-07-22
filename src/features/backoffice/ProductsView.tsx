@@ -184,7 +184,6 @@ export const ProductFormModal: React.FC<{
   const [packagingCost, setPackagingCost] = useState(product?.packaging_cost?.toString() || '1000');
   const [serviceCost, setServiceCost] = useState(product?.service_cost?.toString() || '500');
   const [imageUrl, setImageUrl] = useState(product?.image_url || 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=600&q=80');
-  const [kitchenPrinter, setKitchenPrinter] = useState(product?.kitchen_printer || 'Printer Bar');
   const [isFavorite, setIsFavorite] = useState(product?.is_favorite || false);
   const [isAvailable, setIsAvailable] = useState(product?.is_available ?? true);
   const [isUploading, setIsUploading] = useState(false);
@@ -202,7 +201,6 @@ export const ProductFormModal: React.FC<{
       service_cost: parseFloat(serviceCost) || 0,
       is_available: isAvailable,
       is_favorite: isFavorite,
-      kitchen_printer: kitchenPrinter,
     };
 
     if (product) {
@@ -333,19 +331,6 @@ export const ProductFormModal: React.FC<{
               className="w-full border border-stone-300 rounded-xl px-3 py-1.5 focus:outline-none mt-2 text-[11px] font-mono text-stone-500"
               placeholder="https://..."
             />
-          </div>
-
-          <div>
-            <label className="font-semibold text-stone-600 block mb-1">Printer Tujuan</label>
-            <select
-              value={kitchenPrinter}
-              onChange={(e) => setKitchenPrinter(e.target.value)}
-              className="w-full border border-stone-300 rounded-xl px-3 py-2 font-medium"
-            >
-              <option value="Printer Bar">Printer Bar Station</option>
-              <option value="Printer Dapur Utama">Printer Dapur Utama</option>
-              <option value="Printer Dessert">Printer Dessert</option>
-            </select>
           </div>
 
           <div className="flex gap-4 pt-2">
