@@ -61,6 +61,7 @@ interface AppStore {
   registerOwnerAccount: (name: string, email: string, pin: string, password?: string) => Promise<Profile>;
   createStaffAccount: (name: string, email: string, role: 'Manager' | 'Cashier', pin: string, password?: string) => Promise<Profile>;
   updateProfilePin: (profileId: string, newPin: string) => Promise<void>;
+  loginWithOwnerPassword: (email: string, password: string) => Promise<Profile>;
 
   addCategory: (cat: Omit<Category, 'id'>) => Promise<void>;
   updateCategory: (id: string, cat: Partial<Category>) => Promise<void>;
@@ -320,6 +321,32 @@ export const useAppStore = create<AppStore>((set, get) => ({
     set({ profiles: updatedProfiles });
     if (currentUser?.id === profileId) {
       set({ currentUser: { ...currentUser, pin_code: newPin } });
+    }
+  },
+
+  loginWithOwnerPassword: async (email, password) => {
+    const { isDatabaseMode, profiles } = get();
+    if (isDatabaseMode) {
+      // 1. Authenticate with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (authError) throw authError;
+
+      // 2. Fetch public profile
+      const found = profiles.find((p) => p.id === authData.user.id && p.role === 'Owner' && p.is_active);
+      if (!found) {
+        throw new Error('Profil Pemilik (Owner) tidak aktif atau tidak ditemukan.');
+      }
+      return found;
+    } else {
+      // Offline fallback
+      const found = profiles.find((p) => p.email === email && p.role === 'Owner' && p.is_active);
+      if (!found) {
+        throw new Error('Akun Pemilik (Owner) tidak ditemukan.');
+      }
+      return found;
     }
   },
 

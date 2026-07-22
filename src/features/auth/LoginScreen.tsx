@@ -4,11 +4,13 @@ import { Coffee, User, Delete, UserPlus, Shield } from 'lucide-react';
 import type { Profile } from '../../types';
 
 export const LoginScreen: React.FC = () => {
-  const { profiles, setCurrentUser, registerOwnerAccount } = useAppStore();
+  const { profiles, setCurrentUser, registerOwnerAccount, loginWithOwnerPassword } = useAppStore();
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [pin, setPin] = useState<string>('');
+  const [passwordInput, setPasswordInput] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isRegisterMode, setIsRegisterMode] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Owner Registration Form State
   const [ownerName, setOwnerName] = useState('');
@@ -39,6 +41,22 @@ export const LoginScreen: React.FC = () => {
     } else {
       setError('Kode PIN salah. Silakan coba lagi.');
       setPin('');
+    }
+  };
+
+  const handleOwnerPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+    setIsLoading(true);
+    setError('');
+    try {
+      const authenticatedOwner = await loginWithOwnerPassword(selectedUser.email, passwordInput);
+      setCurrentUser(authenticatedOwner);
+    } catch (err: any) {
+      setError(err?.message || 'Kata sandi salah. Silakan coba lagi.');
+      setPasswordInput('');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -275,8 +293,55 @@ export const LoginScreen: React.FC = () => {
                 </div>
               )}
             </div>
+          ) : selectedUser.role === 'Owner' ? (
+            /* Owner Password Entry Step */
+            <form onSubmit={handleOwnerPasswordSubmit} className="p-6 space-y-4 text-xs">
+              <div className="flex items-center justify-between border-b pb-3 border-stone-100">
+                <div>
+                  <span className="text-[10px] text-stone-400 font-bold uppercase">Masuk sebagai Owner</span>
+                  <h3 className="font-bold text-sm text-stone-800">{selectedUser.full_name}</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedUser(null);
+                    setPasswordInput('');
+                    setError('');
+                  }}
+                  className="text-xs text-coffee-600 font-semibold hover:underline"
+                >
+                  Ganti Akun
+                </button>
+              </div>
+
+              <div>
+                <label className="font-semibold text-stone-600 block mb-1">Masukkan Kata Sandi Akun</label>
+                <input
+                  type="password"
+                  required
+                  autoFocus
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                    setError('');
+                  }}
+                  className="w-full border border-stone-300 rounded-xl px-3.5 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              {error && <p className="text-xs text-red-500 font-semibold">{error}</p>}
+
+              <button
+                type="submit"
+                disabled={isLoading || !passwordInput}
+                className="w-full py-3 bg-coffee-500 hover:bg-coffee-600 disabled:opacity-55 text-white font-bold rounded-xl shadow transition text-xs flex items-center justify-center gap-1.5"
+              >
+                {isLoading ? 'Memverifikasi...' : 'Masuk ke Back Office'}
+              </button>
+            </form>
           ) : (
-            /* PIN Entry Step */
+            /* Staff / Manager PIN Entry Step */
             <div className="p-6 space-y-5">
               <div className="flex items-center justify-between border-b pb-3 border-stone-100">
                 <div>
