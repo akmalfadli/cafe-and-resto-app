@@ -8,6 +8,36 @@ interface ImportProductsModalProps {
   onClose: () => void;
 }
 
+export const downloadTemplateExcel = () => {
+  const templateData = [
+    {
+      SKU: 'DRK-001',
+      Nama_Produk: 'Kopi Susu Gula Aren',
+      Kategori: 'Minuman',
+      Harga_Jual: 18000,
+      Biaya_Kemasan: 1000,
+      Biaya_Layanan: 500,
+      URL_Gambar: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600',
+      Favorit: 'YA'
+    },
+    {
+      SKU: 'SNK-002',
+      Nama_Produk: 'Croissant Cokelat',
+      Kategori: 'Snack',
+      Harga_Jual: 22000,
+      Biaya_Kemasan: 500,
+      Biaya_Layanan: 0,
+      URL_Gambar: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600',
+      Favorit: 'TIDAK'
+    }
+  ];
+
+  const worksheet = XLSX.utils.json_to_sheet(templateData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Template_Import_Produk');
+  XLSX.writeFile(workbook, 'Template_Import_Produk_CafePOS.xlsx');
+};
+
 export const ImportProductsModal: React.FC<ImportProductsModalProps> = ({ isOpen, onClose }) => {
   const { categories, addCategory, addProduct } = useAppStore();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -15,37 +45,6 @@ export const ImportProductsModal: React.FC<ImportProductsModalProps> = ({ isOpen
   const [importResult, setImportResult] = useState<{ success: number; failed: number; errors: string[] } | null>(null);
 
   if (!isOpen) return null;
-
-  // Download Excel Template
-  const handleDownloadTemplate = () => {
-    const templateData = [
-      {
-        SKU: 'DRK-001',
-        Nama_Produk: 'Kopi Susu Gula Aren',
-        Kategori: 'Minuman',
-        Harga_Jual: 18000,
-        Biaya_Kemasan: 1000,
-        Biaya_Layanan: 500,
-        URL_Gambar: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600',
-        Favorit: 'YA'
-      },
-      {
-        SKU: 'SNK-002',
-        Nama_Produk: 'Croissant Cokelat',
-        Kategori: 'Snack',
-        Harga_Jual: 22000,
-        Biaya_Kemasan: 500,
-        Biaya_Layanan: 0,
-        URL_Gambar: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600',
-        Favorit: 'TIDAK'
-      }
-    ];
-
-    const worksheet = XLSX.utils.json_to_sheet(templateData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Template_Import_Produk');
-    XLSX.writeFile(workbook, 'Template_Import_Produk_CafePOS.xlsx');
-  };
 
   // Read Excel File
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -180,7 +179,7 @@ export const ImportProductsModal: React.FC<ImportProductsModalProps> = ({ isOpen
               </p>
             </div>
             <button
-              onClick={handleDownloadTemplate}
+              onClick={downloadTemplateExcel}
               className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 shrink-0"
             >
               <Download className="w-4 h-4" />
