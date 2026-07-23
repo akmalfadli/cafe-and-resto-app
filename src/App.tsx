@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { PosScreen } from './features/pos/PosScreen';
 import { BackOfficeLayout } from './features/backoffice/BackOfficeLayout';
 import { LoginScreen } from './features/auth/LoginScreen';
@@ -10,7 +10,6 @@ import { useAppStore } from './store/useAppStore';
 export const App: React.FC = () => {
   const [currentAppMode, setCurrentAppMode] = React.useState<'pos' | 'backoffice'>('pos');
   const { currentUser, fetchInitialData, isLoading } = useAppStore();
-  const navigate = useNavigate();
 
   const isStaffManagerOrOwner = currentUser?.role === 'Owner' || currentUser?.role === 'Manager';
 
@@ -170,7 +169,7 @@ export const App: React.FC = () => {
   return (
     <Routes>
       {/* Route for public customers menu, accessible without auth check */}
-      <Route path="/menu" element={<CustomerMenuView onBack={() => navigate('/')} />} />
+      <Route path="/menu" element={<CustomerMenuView />} />
       {/* Staff gate routes */}
       <Route path="*" element={<StaffLayout />} />
     </Routes>

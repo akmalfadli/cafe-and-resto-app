@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { 
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
-  ArrowLeft, ShoppingCart, Check, Clock, CheckCircle
+  ShoppingCart, Check, Clock, CheckCircle
 } from 'lucide-react';
 import type { Product } from '../../types';
 
 interface CustomerMenuViewProps {
-  onBack: () => void;
+  // no-op (back button removed)
 }
 
-export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) => {
+export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
   const { products, categories, ingredients, recipes, tables, submitCustomerOrder } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -164,12 +164,9 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
       {/* HEADER */}
       <header className="h-16 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-4 flex items-center justify-between shrink-0 shadow-sm z-10">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={onBack}
-            className="p-2 hover:bg-stone-100 dark:hover:bg-stone-850 rounded-xl transition text-stone-600 dark:text-stone-300"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          <div className="p-2 bg-coffee-500 text-white rounded-xl flex items-center justify-center">
+            <Coffee className="w-5 h-5" />
+          </div>
           <div>
             <h1 className="text-base font-extrabold text-stone-800 dark:text-stone-100 leading-tight">Daftar Menu Pelanggan</h1>
             <p className="text-[10px] text-stone-400">Silakan pilih menu makanan dan minuman favorit Anda</p>
