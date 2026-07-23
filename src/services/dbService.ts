@@ -145,11 +145,14 @@ export const dbService = {
   },
 
   async saveRecipe(productId: string, items: { ingredientId: string; qty: number }[], notes?: string): Promise<void> {
+    // 1. Delete old recipe references
     await supabase.from('recipes').delete().eq('product_id', productId);
     
+    // 2. Insert new main recipe record
     const { data: recipe, error: recErr } = await supabase.from('recipes').insert({ product_id: productId, notes }).select().single();
     if (recErr) throw recErr;
 
+    // 3. Insert recipe ingredient items mapping
     const recipeItems = items.map((it) => ({
       recipe_id: recipe.id,
       ingredient_id: it.ingredientId,
@@ -158,6 +161,34 @@ export const dbService = {
 
     const { error: itemsErr } = await supabase.from('recipe_items').insert(recipeItems);
     if (itemsErr) throw itemsErr;
+
+    // 4. Calculate total recipe cost from current ingredients table values
+    let totalRecipeCost = 0;
+    if (items.length > 0) {
+      const ingIds = items.map(it => it.ingredientId);
+      const { data: currentIngredients } = await supabase
+        .from('ingredients')
+        .select('id, avg_cost')
+        .in('id', ingIds);
+      
+      if (currentIngredients) {
+        items.forEach((it) => {
+          const matchedIng = currentIngredients.find(i => i.id === it.ingredientId);
+          const unitCost = matchedIng?.avg_cost || 0;
+          totalRecipeCost += unitCost * it.qty;
+        });
+      }
+    }
+
+    // 5. Update the cost_price on public.products table
+    const { error: prodUpdateErr } = await supabase
+      .from('products')
+      .update({ cost_price: totalRecipeCost })
+      .eq('id', productId);
+
+    if (prodUpdateErr) {
+      console.warn('Failed to update product cost_price after saving recipe:', prodUpdateErr.message);
+    }
   },
 
   // Sales
