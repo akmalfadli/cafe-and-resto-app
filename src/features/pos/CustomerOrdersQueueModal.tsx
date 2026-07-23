@@ -25,7 +25,7 @@ export const CustomerOrdersQueueModal: React.FC<CustomerOrdersQueueModalProps> =
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [isOpen, fetchCustomerOrders]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { 
-  Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
+import {
+  Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search,
   ShoppingCart, Check, Clock, CheckCircle
 } from 'lucide-react';
 import type { Product } from '../../types';
@@ -39,8 +39,8 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
 
   const filteredProducts = products.filter((product) => {
     const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          product.sku.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.sku.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch && product.is_available;
   });
 
@@ -132,7 +132,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
           <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
             <CheckCircle className="w-10 h-10" />
           </div>
-          
+
           <div className="space-y-2">
             <h2 className="text-xl font-black text-stone-850 dark:text-stone-100">Pesanan Berhasil Dibuat!</h2>
             <p className="text-xs text-stone-400 font-mono">No. Pesanan: <span className="font-bold text-coffee-600">{submittedOrderNo}</span></p>
@@ -174,7 +174,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={() => setShowOrderSummary(!showOrderSummary)}
             className="relative p-2.5 bg-coffee-50 dark:bg-coffee-950/40 text-coffee-600 dark:text-coffee-400 rounded-xl hover:bg-coffee-100 dark:hover:bg-coffee-950/70 transition flex items-center justify-center"
           >
@@ -204,11 +204,10 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
         <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`text-xs font-bold px-3 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 ${
-              selectedCategory === 'all'
+            className={`text-xs font-bold px-3 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 ${selectedCategory === 'all'
                 ? 'bg-coffee-500 text-white shadow-sm'
                 : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-750'
-            }`}
+              }`}
           >
             <Grid className="w-3.5 h-3.5" />
             <span>Semua</span>
@@ -217,11 +216,10 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`text-xs font-bold px-3 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 ${
-                selectedCategory === cat.id
+              className={`text-xs font-bold px-3 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 ${selectedCategory === cat.id
                   ? 'bg-coffee-500 text-white shadow-sm'
                   : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-750'
-              }`}
+                }`}
             >
               {getCategoryIcon(cat.icon)}
               <span>{cat.name}</span>
@@ -247,13 +245,12 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 <div
                   key={product.id}
                   onClick={() => addToCustomerCart(product)}
-                  className={`bg-white dark:bg-stone-900 border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col relative group select-none ${
-                    isOutOfStock 
-                      ? 'opacity-60 border-stone-200 dark:border-stone-800' 
-                      : cartItem 
-                        ? 'border-coffee-500 ring-2 ring-coffee-500/20' 
+                  className={`bg-white dark:bg-stone-900 border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col relative group select-none ${isOutOfStock
+                      ? 'opacity-60 border-stone-200 dark:border-stone-800'
+                      : cartItem
+                        ? 'border-coffee-500 ring-2 ring-coffee-500/20'
                         : 'border-stone-200 dark:border-stone-800'
-                  }`}
+                    }`}
                 >
                   <div className="h-28 md:h-36 w-full overflow-hidden bg-stone-100 dark:bg-stone-850 relative">
                     <img
@@ -261,7 +258,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-102 transition duration-300"
                     />
-                    
+
                     {product.is_favorite && (
                       <span className="absolute top-2 left-2 bg-coffee-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow">
                         FAVORIT
@@ -337,7 +334,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 </h3>
                 <p className="text-[10px] text-stone-400">Silakan isi detail Anda di bawah ini</p>
               </div>
-              <button 
+              <button
                 onClick={() => setShowOrderSummary(false)}
                 className="text-stone-400 hover:text-stone-600 text-xs font-bold"
               >
@@ -401,9 +398,9 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                     <div className="flex-1 min-w-0">
                       <h4 className="font-extrabold text-stone-800 dark:text-stone-100 truncate">{item.product.name}</h4>
                       <p className="text-[10px] text-coffee-600 font-bold mt-0.5">Rp {item.product.selling_price.toLocaleString('id-ID')}</p>
-                      
-                      <input 
-                        type="text" 
+
+                      <input
+                        type="text"
                         placeholder="Catatan memasak (pedas, manis)..."
                         value={item.notes}
                         onChange={(e) => {
@@ -419,8 +416,8 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                     </div>
 
                     <div className="flex flex-col items-end justify-between shrink-0">
-                      <button 
-                        onClick={() => updateQuantity(item.product.id, -item.quantity)} 
+                      <button
+                        onClick={() => updateQuantity(item.product.id, -item.quantity)}
                         className="text-stone-300 hover:text-red-500 font-bold"
                       >
                         ×
@@ -442,12 +439,12 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 <span className="font-bold text-stone-500">Estimasi Total Bill:</span>
                 <span className="font-black text-sm text-stone-850 dark:text-stone-100">Rp {totalAmount.toLocaleString('id-ID')}</span>
               </div>
-              <button 
+              <button
                 onClick={handleSubmitOrder}
                 disabled={cart.length === 0 || isSubmitting}
                 className="w-full bg-coffee-500 hover:bg-coffee-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition disabled:opacity-50"
               >
-                {isSubmitting ? 'Mengirim...' : 'Pesan & Dapatkan Kode Bayar'}
+                {isSubmitting ? 'Mengirim...' : 'Pesan & Bayar'}
               </button>
             </div>
           </aside>
@@ -461,7 +458,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
             <span className="text-[10px] text-coffee-100 font-bold">{cart.reduce((sum, item) => sum + item.quantity, 0)} item terpilih</span>
             <p className="text-xs font-black">Rp {totalAmount.toLocaleString('id-ID')}</p>
           </div>
-          <button 
+          <button
             onClick={() => setShowOrderSummary(true)}
             className="bg-white text-coffee-700 font-black px-4 py-1.5 rounded-xl text-xs shadow"
           >
