@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { PosScreen } from './features/pos/PosScreen';
-import { BackOfficeLayout } from './features/backoffice/BackOfficeLayout';
 import { LoginScreen } from './features/auth/LoginScreen';
 import { CustomerMenuView } from './features/pos/CustomerMenuView';
 import { CustomerOrdersQueuePage } from './features/pos/CustomerOrdersQueuePage';
 import { RefreshCw } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
+
+// Code-split BackOfficeLayout to reduce initial bundle size for POS screen on slow tablets
+const BackOfficeLayout = React.lazy(() => import('./features/backoffice/BackOfficeLayout').then(m => ({ default: m.BackOfficeLayout })));
 
 // Extracted as a stable top-level component so React never remounts PosScreen
 // due to App re-renders (which previously happened because App subscribed to the
@@ -28,7 +30,14 @@ const StaffLayout: React.FC<{
       {currentAppMode === 'pos' || !isStaffManagerOrOwner ? (
         <PosScreen onSwitchToBackOffice={() => setCurrentAppMode('backoffice')} />
       ) : (
-        <BackOfficeLayout onSwitchToPos={() => setCurrentAppMode('pos')} />
+        <React.Suspense fallback={
+          <div className="h-screen w-screen bg-stone-900 flex flex-col items-center justify-center text-white space-y-4">
+            <RefreshCw className="w-8 h-8 animate-spin text-coffee-400" />
+            <p className="text-xs font-bold">Memuat Back Office...</p>
+          </div>
+        }>
+          <BackOfficeLayout onSwitchToPos={() => setCurrentAppMode('pos')} />
+        </React.Suspense>
       )}
     </div>
   );
