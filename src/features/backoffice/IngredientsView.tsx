@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { ShoppingCart, AlertTriangle, CheckCircle2, Download, Upload, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { supabase } from '../../lib/supabase';
 
 export const IngredientsView: React.FC = () => {
   const { ingredients, suppliers, addIngredient, updateIngredient, fetchInitialData } = useAppStore();
@@ -14,6 +15,21 @@ export const IngredientsView: React.FC = () => {
   const [minStock, setMinStock] = useState('1000');
   const [supplierId, setSupplierId] = useState<string>('');
   const [category, setCategory] = useState<string>('');
+  const [dbCategories, setDbCategories] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    const loadDbCategories = async () => {
+      try {
+        const { data, error } = await supabase.from('ingredient_categories').select('id, name');
+        if (!error && data) {
+          setDbCategories(data);
+        }
+      } catch (e) {
+        console.warn('Failed to load ingredient_categories:', e);
+      }
+    };
+    loadDbCategories();
+  }, [ingredients]);
 
   // Excel import status messaging states
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -286,7 +302,14 @@ export const IngredientsView: React.FC = () => {
           .filter((ing) => {
             if (selectedFilterCategory === 'all') return true;
             if (selectedFilterCategory === 'none') return !ing.category_id;
-            return ing.category_id === selectedFilterCategory;
+
+            // Resolve name from DB Categories if it is a UUID
+            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ing.category_id || '');
+            const categoryName = isUuid 
+              ? dbCategories.find(c => c.id === ing.category_id)?.name || 'Bahan Baku'
+              : ing.category_id || '';
+
+            return categoryName.toLowerCase() === selectedFilterCategory.toLowerCase();
           })
           .map((ing) => {
           const isLowStock = ing.current_stock <= ing.min_stock;
@@ -309,13 +332,22 @@ export const IngredientsView: React.FC = () => {
                       <CheckCircle2 className="w-3.5 h-3.5" /> Aman
                     </span>
                   )}
-                  {ing.category_id && (
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase inline-block ${
-                      ing.category_id === 'Makanan' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {ing.category_id}
-                    </span>
-                  )}
+                  {ing.category_id && (() => {
+                    // Resolve name from DB Categories if it is a UUID
+                    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ing.category_id);
+                    const categoryName = isUuid 
+                      ? dbCategories.find(c => c.id === ing.category_id)?.name || 'Bahan Baku'
+                      : ing.category_id;
+
+                    const isFood = categoryName.toLowerCase().includes('makan');
+                    return (
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase inline-block ${
+                        isFood ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {categoryName}
+                      </span>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -407,8 +439,18 @@ export const IngredientsView: React.FC = () => {
                   className="w-full border border-stone-300 rounded-xl px-3 py-2 mt-1 font-medium text-stone-700 bg-white"
                 >
                   <option value="">-- Tanpa Kategori (Kosong) --</option>
-                  <option value="Makanan">Makanan</option>
-                  <option value="Minuman">Minuman</option>
+                  {dbCategories.length > 0 ? (
+                    dbCategories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="Makanan">Makanan</option>
+                      <option value="Minuman">Minuman</option>
+                    </>
+                  )}
                 </select>
               </div>
 
