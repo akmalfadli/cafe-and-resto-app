@@ -4,7 +4,7 @@ import {
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
   Trash2, Plus, Minus, CreditCard, Clock, User, 
   UtensilsCrossed, ShoppingBag, Truck, Tag, LogOut, DoorOpen,
-  LayoutGrid, List, Shield
+  LayoutGrid, List, Shield, AlertTriangle
 } from 'lucide-react';
 import { PaymentDialog } from './PaymentDialog';
 import { ShiftGateScreen } from './ShiftGateScreen';
@@ -21,6 +21,8 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
     activeShift,
     categories,
     products,
+    ingredients,
+    recipes,
     cart,
     selectedCategory,
     searchQuery,
@@ -238,83 +240,111 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
         <main className={`${showCartOnMobile ? 'hidden' : 'block'} flex-1 p-2 md:p-4 overflow-y-auto bg-stone-50/50`}>
           {viewMode === 'card' ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  onClick={() => addToCart(product)}
-                  className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col touch-active group"
-                >
-                  <div className="h-24 md:h-32 w-full overflow-hidden bg-stone-100 relative">
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                    />
-                    {product.is_favorite && (
-                      <span className="absolute top-1.5 left-1.5 bg-coffee-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow">
-                        ★ Favorit
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-2.5 md:p-3 flex flex-col justify-between flex-1">
-                    <div>
-                      <h3 className="font-bold text-xs md:text-sm text-stone-800 dark:text-stone-100 line-clamp-1">
-                        {product.name}
-                      </h3>
-                      <p className="text-[10px] text-stone-400 font-mono mt-0.5">{product.sku}</p>
-                    </div>
-                    <div className="mt-1.5 md:mt-2 flex justify-between items-center">
-                      <span className="font-extrabold text-xs md:text-sm text-coffee-600 dark:text-coffee-400">
-                        Rp {product.selling_price.toLocaleString('id-ID')}
-                      </span>
-                      <button className="p-1 md:p-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg md:rounded-xl transition">
-                        <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  onClick={() => addToCart(product)}
-                  className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-3 flex items-center justify-between shadow-sm hover:shadow-md transition cursor-pointer touch-active group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+              {filteredProducts.map((product) => {
+                // Calculate if ingredients for this product are out of stock
+                const matchedRecipe = recipes.find(r => r.product_id === product.id);
+                const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
+                  const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
+                  return matchedIng && matchedIng.current_stock <= 0;
+                });
+
+                return (
+                  <div
+                    key={product.id}
+                    onClick={() => addToCart(product)}
+                    className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col touch-active group"
+                  >
+                    <div className="h-24 md:h-32 w-full overflow-hidden bg-stone-100 relative">
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                       />
+                      {product.is_favorite && (
+                        <span className="absolute top-1.5 left-1.5 bg-coffee-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow">
+                          ★ Favorit
+                        </span>
+                      )}
+                      {isOutOfStock && (
+                        <span className="absolute top-1.5 right-1.5 bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow animate-pulse flex items-center gap-0.5 z-10">
+                          <AlertTriangle className="w-2.5 h-2.5" /> Bahan Baku Habis
+                        </span>
+                      )}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">
+                    <div className="p-2.5 md:p-3 flex flex-col justify-between flex-1">
+                      <div>
+                        <h3 className="font-bold text-xs md:text-sm text-stone-800 dark:text-stone-100 line-clamp-1">
                           {product.name}
                         </h3>
-                        {product.is_favorite && (
-                          <span className="bg-coffee-500 text-white text-[8px] font-bold px-1.5 py-0.2 rounded-full">
-                            ★ Favorit
-                          </span>
-                        )}
+                        <p className="text-[10px] text-stone-400 font-mono mt-0.5">{product.sku}</p>
                       </div>
-                      <p className="text-[10px] text-stone-400 font-mono">{product.sku}</p>
+                      <div className="mt-1.5 md:mt-2 flex justify-between items-center">
+                        <span className="font-extrabold text-xs md:text-sm text-coffee-600 dark:text-coffee-400">
+                          Rp {product.selling_price.toLocaleString('id-ID')}
+                        </span>
+                        <button className="p-1 md:p-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg md:rounded-xl transition">
+                          <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="font-extrabold text-sm text-coffee-600 dark:text-coffee-400">
-                      Rp {product.selling_price.toLocaleString('id-ID')}
-                    </span>
-                    <button className="p-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg transition">
-                      <Plus className="w-4 h-4" />
-                    </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {filteredProducts.map((product) => {
+                // Calculate if ingredients for this product are out of stock
+                const matchedRecipe = recipes.find(r => r.product_id === product.id);
+                const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
+                  const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
+                  return matchedIng && matchedIng.current_stock <= 0;
+                });
+
+                return (
+                  <div
+                    key={product.id}
+                    onClick={() => addToCart(product)}
+                    className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-3 flex items-center justify-between shadow-sm hover:shadow-md transition cursor-pointer touch-active group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">
+                            {product.name}
+                          </h3>
+                          {product.is_favorite && (
+                            <span className="bg-coffee-500 text-white text-[8px] font-bold px-1.5 py-0.2 rounded-full">
+                              ★ Favorit
+                            </span>
+                          )}
+                          {isOutOfStock && (
+                            <span className="bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full animate-pulse flex items-center gap-0.5">
+                              <AlertTriangle className="w-2.5 h-2.5" /> Bahan Baku Habis
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-stone-400 font-mono">{product.sku}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="font-extrabold text-sm text-coffee-600 dark:text-coffee-400">
+                        Rp {product.selling_price.toLocaleString('id-ID')}
+                      </span>
+                      <button className="p-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg transition">
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </main>
