@@ -54,21 +54,27 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
   const isCashExact = parsedCash >= grandTotal;
 
   const handleProcessPayment = async () => {
-    const amount = paymentMethod === 'cash' ? parsedCash : grandTotal;
-    const sale = await completeSale(paymentMethod, amount, paymentMethod === 'qris' ? 'QRIS-' + Date.now().toString().slice(-6) : undefined);
-    
-    // Resolve customer orders queue workflow if triggered via QR
-    const pendingOrderId = (window as any)._pendingCustomerOrderId;
-    if (pendingOrderId) {
-      try {
-        await updateCustomerOrderStatus(pendingOrderId, 'paid');
-      } catch (err) {
-        console.warn('Failed to update customer order status to paid:', err);
+    try {
+      const amount = paymentMethod === 'cash' ? parsedCash : grandTotal;
+      const sale = await completeSale(paymentMethod, amount, paymentMethod === 'qris' ? 'QRIS-' + Date.now().toString().slice(-6) : undefined);
+      
+      // Resolve customer orders queue workflow if triggered via QR
+      const pendingOrderId = (window as any)._pendingCustomerOrderId;
+      if (pendingOrderId) {
+        try {
+          await updateCustomerOrderStatus(pendingOrderId, 'paid');
+        } catch (err) {
+          console.warn('Failed to update customer order status to paid:', err);
+        }
+        delete (window as any)._pendingCustomerOrderId;
       }
-      delete (window as any)._pendingCustomerOrderId;
-    }
 
-    setCompletedSale(sale);
+      // Explicitly set completedSale to immediately toggle modal view to Struk Pembayaran
+      setCompletedSale(sale);
+    } catch (err) {
+      console.error('Payment processing failed:', err);
+      alert('Gagal memproses pembayaran. Silakan coba lagi.');
+    }
   };
 
   const handlePrintReceipt = async () => {
