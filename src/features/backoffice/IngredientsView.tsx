@@ -35,6 +35,8 @@ export const IngredientsView: React.FC = () => {
   // Excel import status messaging states
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [duplicateMode, setDuplicateMode] = useState<'add' | 'overwrite' | 'skip'>('add');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Stock Adjustment modal states
@@ -132,6 +134,7 @@ export const IngredientsView: React.FC = () => {
         }
 
         let importCount = 0;
+        let updatedCount = 0;
         let skippedCount = 0;
 
         for (const row of rawRows) {
@@ -171,12 +174,12 @@ export const IngredientsView: React.FC = () => {
             }
           }
 
-          // Check if it already exists to prevent duplicate raw material creations
-          const alreadyExists = ingredients.some(
+          const existingIng = ingredients.find(
             (i) => i.name.toLowerCase() === String(rawName).trim().toLowerCase()
           );
 
-          if (!alreadyExists) {
+          if (!existingIng) {
+            // New ingredient creation
             await addIngredient({
               name: String(rawName).trim(),
               unit: finalUnit as any,
@@ -188,13 +191,30 @@ export const IngredientsView: React.FC = () => {
             });
             importCount++;
           } else {
-            skippedCount++;
+            // Ingredient already exists -> handle based on selected duplicateMode
+            if (duplicateMode === 'add') {
+              const addedStock = (existingIng.current_stock || 0) + (isNaN(rawStock) ? 0 : rawStock);
+              await updateIngredient(existingIng.id, {
+                current_stock: addedStock,
+                avg_cost: !isNaN(rawCost) && rawCost > 0 ? rawCost : existingIng.avg_cost,
+              });
+              updatedCount++;
+            } else if (duplicateMode === 'overwrite') {
+              await updateIngredient(existingIng.id, {
+                current_stock: isNaN(rawStock) ? existingIng.current_stock : rawStock,
+                avg_cost: !isNaN(rawCost) && rawCost > 0 ? rawCost : existingIng.avg_cost,
+                min_stock: !isNaN(rawMin) && rawMin > 0 ? rawMin : existingIng.min_stock,
+              });
+              updatedCount++;
+            } else {
+              skippedCount++;
+            }
           }
         }
 
         setImportStatus({
           type: 'success',
-          message: `Berhasil mengimpor ${importCount} bahan baku baru. (${skippedCount} baris dilewati/sudah ada).`,
+          message: `Proses impor selesai! (${importCount} bahan baru dibuat, ${updatedCount} bahan diperbarui, ${skippedCount} baris dilewati).`,
         });
 
         // Trigger store refresh to pull updated values
@@ -258,9 +278,9 @@ export const IngredientsView: React.FC = () => {
             <span>Format Excel</span>
           </button>
 
-          {/* Upload excel input */}
+          {/* Upload excel button */}
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => setShowImportDialog(true)}
             disabled={isImporting}
             className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-700 text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 transition disabled:opacity-50"
           >
@@ -713,6 +733,117 @@ export const IngredientsView: React.FC = () => {
                 className="flex-1 py-2 bg-coffee-500 text-white rounded-xl font-bold text-xs shadow"
               >
                 Simpan Stok
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Excel Modal Dialog with Duplicate Mode Options */}
+      {showImportDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-stone-200 dark:border-stone-800 p-6 space-y-5">
+            <div className="flex justify-between items-center border-b border-stone-200 dark:border-stone-800 pb-3">
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5 text-coffee-500" />
+                <h3 className="font-extrabold text-sm text-stone-800 dark:text-stone-100">Impor Bahan Baku dari Excel</h3>
+              </div>
+              <button onClick={() => setShowImportDialog(false)} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-bold">
+                ✕
+              </button>
+            </div>
+
+            {/* Option: Behavior for Duplicate Ingredients */}
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-stone-700 dark:text-stone-300 block">
+                Jika nama bahan baku sudah ada di sistem:
+              </label>
+
+              <div className="space-y-2">
+                <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${
+                  duplicateMode === 'add'
+                    ? 'border-coffee-500 bg-coffee-50/50 dark:bg-coffee-950/30'
+                    : 'border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50'
+                }`}>
+                  <input
+                    type="radio"
+                    name="duplicateMode"
+                    value="add"
+                    checked={duplicateMode === 'add'}
+                    onChange={() => setDuplicateMode('add')}
+                    className="mt-0.5 text-coffee-500 focus:ring-coffee-500"
+                  />
+                  <div>
+                    <span className="font-extrabold text-xs text-stone-800 dark:text-stone-100 block">Tambah (Akumulasi) Stok</span>
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 block leading-tight">
+                      Stok di Excel akan ditambahkan (+) ke jumlah stok yang tersimpan di sistem.
+                    </span>
+                  </div>
+                </label>
+
+                <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${
+                  duplicateMode === 'overwrite'
+                    ? 'border-coffee-500 bg-coffee-50/50 dark:bg-coffee-950/30'
+                    : 'border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50'
+                }`}>
+                  <input
+                    type="radio"
+                    name="duplicateMode"
+                    value="overwrite"
+                    checked={duplicateMode === 'overwrite'}
+                    onChange={() => setDuplicateMode('overwrite')}
+                    className="mt-0.5 text-coffee-500 focus:ring-coffee-500"
+                  />
+                  <div>
+                    <span className="font-extrabold text-xs text-stone-800 dark:text-stone-100 block">Update / Timpa (Overwrite) Stok</span>
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 block leading-tight">
+                      Stok lama akan diganti total dengan nilai stok di file Excel baru.
+                    </span>
+                  </div>
+                </label>
+
+                <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${
+                  duplicateMode === 'skip'
+                    ? 'border-coffee-500 bg-coffee-50/50 dark:bg-coffee-950/30'
+                    : 'border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50'
+                }`}>
+                  <input
+                    type="radio"
+                    name="duplicateMode"
+                    value="skip"
+                    checked={duplicateMode === 'skip'}
+                    onChange={() => setDuplicateMode('skip')}
+                    className="mt-0.5 text-coffee-500 focus:ring-coffee-500"
+                  />
+                  <div>
+                    <span className="font-extrabold text-xs text-stone-800 dark:text-stone-100 block">Dilewati (Skip Duplicate)</span>
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 block leading-tight">
+                      Bahan baku dengan nama yang sama tidak diubah dan dilewati.
+                    </span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Upload Action */}
+            <div className="pt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowImportDialog(false)}
+                className="px-4 py-2 border border-stone-300 dark:border-stone-700 rounded-xl text-xs font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowImportDialog(false);
+                  fileInputRef.current?.click();
+                }}
+                className="px-4 py-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl text-xs font-extrabold shadow transition flex items-center gap-1.5"
+              >
+                <Upload className="w-4 h-4" />
+                Pilih File Excel (.xlsx)
               </button>
             </div>
           </div>
