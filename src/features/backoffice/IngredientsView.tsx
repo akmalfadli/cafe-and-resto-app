@@ -294,15 +294,8 @@ export const IngredientsView: React.FC = () => {
             <div key={ing.id} className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-sm text-stone-800 flex items-center gap-1.5">
+                  <h3 className="font-bold text-sm text-stone-800">
                     {ing.name}
-                    {ing.category_id && (
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase ${
-                        ing.category_id === 'Makanan' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {ing.category_id}
-                      </span>
-                    )}
                   </h3>
                   <span className="text-[10px] text-stone-400 font-mono">Rp {ing.avg_cost.toLocaleString('id-ID')} / {ing.unit}</span>
                 </div>
@@ -323,6 +316,17 @@ export const IngredientsView: React.FC = () => {
                   <span className={`text-xs font-extrabold ${isLowStock ? 'text-red-600' : 'text-stone-800'}`}>
                     {ing.current_stock.toLocaleString()} {ing.unit}
                   </span>
+                  
+                  {ing.category_id && (
+                    <span className="block mt-0.5">
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase inline-block ${
+                        ing.category_id === 'Makanan' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        Kategori: {ing.category_id}
+                      </span>
+                    </span>
+                  )}
+
                   {ing.supplier_id && (
                     <span className="text-[9px] text-stone-400 block mt-0.5">
                       Pemasok: {suppliers.find(s => s.id === ing.supplier_id)?.name || 'Pemasok Utama'}
