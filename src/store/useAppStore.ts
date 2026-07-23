@@ -70,7 +70,7 @@ interface AppStore {
   updateProfilePin: (profileId: string, newPin: string) => Promise<void>;
   loginWithOwnerPassword: (email: string, password: string) => Promise<Profile>;
 
-  addCategory: (cat: Omit<Category, 'id'>) => Promise<void>;
+  addCategory: (cat: Omit<Category, 'id'>) => Promise<Category>;
   updateCategory: (id: string, cat: Partial<Category>) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
   updateCategorySortOrders: (categories: { id: string; sort_order: number }[]) => Promise<void>;
@@ -549,8 +549,11 @@ export const useAppStore = create<AppStore>((set, get) => ({
     if (isDatabaseMode) {
       const created = await dbService.createCategory(catData);
       set({ categories: [...get().categories, created].sort((a, b) => a.sort_order - b.sort_order) });
+      return created;
     } else {
-      set({ categories: [...get().categories, { ...catData, id: `cat-${Date.now()}` }].sort((a, b) => a.sort_order - b.sort_order) });
+      const newCat = { ...catData, id: `cat-${Date.now()}` };
+      set({ categories: [...get().categories, newCat].sort((a, b) => a.sort_order - b.sort_order) });
+      return newCat;
     }
   },
 

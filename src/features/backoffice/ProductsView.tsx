@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { Plus, Trash2, Search, Calculator, X, Edit2, Upload } from 'lucide-react';
+import { Plus, Trash2, Search, Calculator, X, Edit2, Upload, FileSpreadsheet } from 'lucide-react';
 import type { Product } from '../../types';
 import { storageService } from '../../services/storageService';
+import { ImportProductsModal } from './ImportProductsModal';
 
 export const RecipeIngredientRow: React.FC<{
   item: { ingredientId: string; qty: number };
@@ -461,34 +462,44 @@ export const ProductsView: React.FC = () => {
   const { products, categories, deleteProduct } = useAppStore();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [activeRecipeProdId, setActiveRecipeProdId] = useState<string | null>(null);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [activeRecipeProdId, setActiveRecipeProdId] = useState<string | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const filtered = products.filter((p) => {
-    const matchCat = selectedCategory === 'all' || p.category_id === selectedCategory;
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || p.category_id === selectedCategory;
+    return matchesSearch && matchesCategory;
   });
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-black text-stone-800">Manajemen Produk & Menu</h1>
-          <p className="text-xs text-stone-500">Atur harga jual, kalkulator HPP resep, dan stok menu</p>
+          <h1 className="text-2xl font-black text-stone-800 dark:text-stone-100">Manajemen Produk & Harga Jual</h1>
+          <p className="text-xs text-stone-500 dark:text-stone-400">Kelola katalog produk, penetapan harga jual, biaya kemasan, dan kalkulasi resep HPP</p>
         </div>
 
-        <button 
-          onClick={() => {
-            setEditingProduct(null);
-            setIsFormOpen(true);
-          }}
-          className="bg-coffee-500 hover:bg-coffee-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-1.5 transition"
-        >
-          <Plus className="w-4 h-4" />
-          Tambah Produk Baru
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-1.5 transition"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Import dari Excel
+          </button>
+          <button 
+            onClick={() => {
+              setEditingProduct(null);
+              setIsFormOpen(true);
+            }}
+            className="bg-coffee-500 hover:bg-coffee-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-1.5 transition"
+          >
+            <Plus className="w-4 h-4" />
+            Tambah Produk Baru
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-4 items-center bg-white p-3 rounded-2xl border border-stone-200">
@@ -601,6 +612,11 @@ export const ProductsView: React.FC = () => {
       {activeRecipeProdId && (
         <RecipeBuilderModal productId={activeRecipeProdId} onClose={() => setActiveRecipeProdId(null)} />
       )}
+
+      <ImportProductsModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+      />
     </div>
   );
 };
