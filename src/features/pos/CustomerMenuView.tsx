@@ -325,6 +325,21 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
               );
             })}
           </div>
+
+          {/* Credits Footer */}
+          <footer className="mt-8 pt-4 pb-2 border-t border-stone-200/60 dark:border-stone-800/60 text-center">
+            <p className="text-[11px] font-medium text-stone-400 dark:text-stone-500">
+              CafePOS created by{' '}
+              <a
+                href="https://akmalfadli.github.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-coffee-600 dark:text-coffee-400 hover:underline transition"
+              >
+                Akmal Fadli
+              </a>
+            </p>
+          </footer>
         </main>
 
         {/* ORDER SUMMARY SIDE BAR */}
