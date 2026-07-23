@@ -50,8 +50,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
     setDiscount,
     pendingSales,
     isDatabaseMode,
-    syncOfflineSales,
-    customerOrders
+    syncOfflineSales
   } = useAppStore();
 
   const navigate = useNavigate();
@@ -185,20 +184,20 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
             {viewMode === 'card' ? <List className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
           </button>
           
-          {/* Antrean Pesanan Button — navigates to full page */}
-          <button
-            onClick={() => navigate('/antrean')}
-            className="relative p-1.5 sm:p-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl transition shrink-0 font-bold flex items-center gap-1 text-xs shadow-sm"
-            title="Antrean Pesanan Pelanggan"
-          >
-            <ClipboardList className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Antrean</span>
-            {customerOrders.filter(o => o.status === 'pending').length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow border border-white animate-bounce">
-                {customerOrders.filter(o => o.status === 'pending').length}
-              </span>
-            )}
-          </button>
+            {/* Antrean Pesanan Button — navigates to full page */}
+            <button
+              onClick={() => navigate('/antrean')}
+              className="relative p-1.5 sm:p-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl transition shrink-0 font-bold flex items-center gap-1 text-xs shadow-sm"
+              title="Antrean Pesanan Pelanggan"
+            >
+              <ClipboardList className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Antrean</span>
+              {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow border border-white">
+                  {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length}
+                </span>
+              )}
+            </button>
         </div>
 
         <div className="flex items-center gap-1.5 md:gap-3 text-xs font-medium text-stone-600 shrink-0">
