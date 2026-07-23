@@ -207,10 +207,11 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
           {onSwitchToBackOffice && (currentUser?.role === 'Owner' || currentUser?.role === 'Manager') && (
             <button
               onClick={onSwitchToBackOffice}
-              className="md:hidden p-1.5 bg-coffee-50 hover:bg-coffee-100 text-coffee-600 rounded-xl border border-coffee-200 transition"
+              className="p-1.5 sm:p-2 bg-coffee-50 hover:bg-coffee-100 text-coffee-600 rounded-xl border border-coffee-200 transition font-bold flex items-center gap-1.5 text-xs"
               title="Ke Back Office"
             >
               <Shield className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Back Office</span>
             </button>
           )}
           <button
