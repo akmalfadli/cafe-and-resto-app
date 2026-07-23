@@ -241,6 +241,56 @@ export const dbService = {
     }));
     await supabase.from('payments').insert(payItems);
 
+    // Deduct ingredient stock dynamically from Supabase database based on recipes
+    try {
+      const productIds = items.map(it => it.product_id);
+      if (productIds.length > 0) {
+        // Fetch all recipes and their items for the sold products
+        const { data: matchedRecipes } = await supabase
+          .from('recipes')
+          .select('product_id, recipe_items(ingredient_id, quantity)')
+          .in('product_id', productIds);
+
+        if (matchedRecipes && matchedRecipes.length > 0) {
+          // Accumulate ingredient deductions
+          const ingredientDeductions: Record<string, number> = {};
+          
+          items.forEach((saleItem) => {
+            const recipeObj = matchedRecipes.find(r => r.product_id === saleItem.product_id);
+            if (recipeObj && recipeObj.recipe_items) {
+              const recipeItemsList = recipeObj.recipe_items as any[];
+              recipeItemsList.forEach((rItem) => {
+                const totalUsed = rItem.quantity * saleItem.quantity;
+                ingredientDeductions[rItem.ingredient_id] = (ingredientDeductions[rItem.ingredient_id] || 0) + totalUsed;
+              });
+            }
+          });
+
+          // Deduct from Supabase ingredients table
+          const uniqueIngIds = Object.keys(ingredientDeductions);
+          if (uniqueIngIds.length > 0) {
+            const { data: currentIngs } = await supabase
+              .from('ingredients')
+              .select('id, current_stock')
+              .in('id', uniqueIngIds);
+
+            if (currentIngs) {
+              for (const ing of currentIngs) {
+                const deductQty = ingredientDeductions[ing.id] || 0;
+                const newStock = Math.max(0, (ing.current_stock || 0) - deductQty);
+                await supabase
+                  .from('ingredients')
+                  .update({ current_stock: newStock })
+                  .eq('id', ing.id);
+              }
+            }
+          }
+        }
+      }
+    } catch (stockErr) {
+      console.warn('Failed to update ingredients stock during sale creation:', stockErr);
+    }
+
     return { ...sale, items: saleItems as any, payments: payItems as any };
   },
 

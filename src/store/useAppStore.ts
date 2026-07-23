@@ -486,15 +486,46 @@ export const useAppStore = create<AppStore>((set, get) => ({
       created_at: new Date().toISOString(),
     };
 
+    // Helper function to deduct ingredient stock from local state
+    const deductLocalStateStock = (soldItems: any[]) => {
+      const { ingredients, recipes } = get();
+      const ingredientDeductions: Record<string, number> = {};
+
+      soldItems.forEach((saleItem) => {
+        const recipeObj = recipes.find(r => r.product_id === saleItem.product_id);
+        if (recipeObj && recipeObj.items) {
+          recipeObj.items.forEach((rItem) => {
+            const totalUsed = rItem.quantity * saleItem.quantity;
+            ingredientDeductions[rItem.ingredient_id] = (ingredientDeductions[rItem.ingredient_id] || 0) + totalUsed;
+          });
+        }
+      });
+
+      if (Object.keys(ingredientDeductions).length > 0) {
+        const updatedIngredients = ingredients.map((ing) => {
+          if (ingredientDeductions[ing.id]) {
+            return {
+              ...ing,
+              current_stock: Math.max(0, (ing.current_stock || 0) - ingredientDeductions[ing.id])
+            };
+          }
+          return ing;
+        });
+        set({ ingredients: updatedIngredients });
+      }
+    };
+
     if (isDatabaseMode) {
       try {
         const savedSale = await dbService.createSale(newSaleData);
+        deductLocalStateStock(saleItems);
         set({ sales: [savedSale, ...get().sales], cart: [], discountValue: 0 });
         return savedSale;
       } catch (dbErr) {
         console.warn('Database save failed, falling back to offline pending transaction:', dbErr);
         const updatedPending = [...get().pendingSales, newSaleData];
         localStorage.setItem('cafepos_pending_sales', JSON.stringify(updatedPending));
+        deductLocalStateStock(saleItems);
         set({
           pendingSales: updatedPending,
           sales: [newSaleData, ...get().sales],
@@ -506,6 +537,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     } else {
       const updatedPending = [...get().pendingSales, newSaleData];
       localStorage.setItem('cafepos_pending_sales', JSON.stringify(updatedPending));
+      deductLocalStateStock(saleItems);
       set({
         pendingSales: updatedPending,
         sales: [newSaleData, ...get().sales],
