@@ -146,11 +146,22 @@ export const IngredientsView: React.FC = () => {
           const finalUnit = validUnits.includes(rawUnit) ? rawUnit : 'gram';
 
           // Validate Category constraints
-          let finalCat: string | undefined = undefined;
+          let finalCatName = '';
           if (rawCat.toLowerCase().includes('makan')) {
-            finalCat = 'Makanan';
+            finalCatName = 'Makanan';
           } else if (rawCat.toLowerCase().includes('minum')) {
-            finalCat = 'Minuman';
+            finalCatName = 'Minuman';
+          }
+
+          // Map string name to database UUID category record
+          let finalCatId: string | undefined = undefined;
+          if (finalCatName) {
+            const foundCategory = dbCategories.find(
+              (c) => c.name.toLowerCase() === finalCatName.toLowerCase()
+            );
+            if (foundCategory) {
+              finalCatId = foundCategory.id;
+            }
           }
 
           // Check if it already exists to prevent duplicate raw material creations
@@ -164,7 +175,7 @@ export const IngredientsView: React.FC = () => {
               unit: finalUnit as any,
               avg_cost: isNaN(rawCost) ? 0 : rawCost,
               min_stock: isNaN(rawMin) ? 0 : rawMin,
-              category_id: finalCat,
+              category_id: finalCatId,
               supplier_id: suppliers[0]?.id,
             });
             importCount++;
