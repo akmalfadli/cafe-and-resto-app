@@ -167,7 +167,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                           </span>
                           {getPaymentBadge(sale)}
                           <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">
-                            {sale.order_type === 'dine_in' ? `Meja ${sale.table_number || '-'}` : sale.order_type}
+                            {sale.order_type === 'dine_in' ? (enableTableNumber && sale.table_number ? `Meja ${sale.table_number}` : 'Dine In') : sale.order_type}
                           </span>
                         </div>
 
