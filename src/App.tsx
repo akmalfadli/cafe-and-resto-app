@@ -61,12 +61,12 @@ export const App: React.FC = () => {
       useAppStore.getState().syncOfflineSales();
     }
 
-    // Auto POS syncer background loop every 15 seconds
+    // Auto POS syncer background loop every 35 seconds
     const interval = setInterval(() => {
       if (navigator.onLine) {
         useAppStore.getState().syncOfflineSales();
       }
-    }, 15000);
+    }, 35000);
 
     return () => {
       window.removeEventListener('online', handleOnline);

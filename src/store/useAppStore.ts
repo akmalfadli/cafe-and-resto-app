@@ -434,33 +434,14 @@ export const useAppStore = create<AppStore>((set, get) => ({
       total_price: item.product.selling_price * item.quantity,
     }));
 
-    // Calculate sequential number for today
+    // Calculate sequential receipt number instantly from combined local state (sales + pendingSales)
     const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     const dateCode = todayStr.replace(/-/g, ''); // YYYYMMDD
-    let nextNum = 1;
-
-    try {
-      if (isDatabaseMode) {
-        // Query database count for sales today
-        const { data, error } = await supabase
-          .from('sales')
-          .select('id')
-          .gte('created_at', `${todayStr}T00:00:00.000Z`)
-          .lte('created_at', `${todayStr}T23:59:59.999Z`);
-        
-        if (!error && data) {
-          nextNum = data.length + 1;
-        }
-      } else {
-        // Local calculation fallback
-        const todaySalesCount = localSales.filter(s => s.created_at && s.created_at.startsWith(todayStr)).length;
-        nextNum = todaySalesCount + 1;
-      }
-    } catch (e) {
-      console.error('Failed to get sequential order number, using fallback:', e);
-      nextNum = Math.floor(100 + Math.random() * 900);
-    }
-
+    const { pendingSales: currentPending } = get();
+    const todayAllSales = [...localSales, ...currentPending].filter(
+      s => s.created_at && s.created_at.startsWith(todayStr)
+    );
+    const nextNum = todayAllSales.length + 1;
     const paddedNum = String(nextNum).padStart(3, '0');
     const receiptNumber = `INV-${dateCode}-${paddedNum}`;
     const uniqueSaleId = `sale-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
@@ -522,39 +503,26 @@ export const useAppStore = create<AppStore>((set, get) => ({
       }
     };
 
+    // Optimistic completion: deduct stock & update local state instantly (< 1ms)
+    deductLocalStateStock(saleItems);
+    const updatedPending = [...currentPending, newSaleData];
+    localStorage.setItem('cafepos_pending_sales', JSON.stringify(updatedPending));
+
+    set({
+      pendingSales: updatedPending,
+      sales: [newSaleData, ...get().sales],
+      cart: [],
+      discountValue: 0
+    });
+
+    // Trigger background upload if online without blocking UI thread
     if (isDatabaseMode) {
-      try {
-        const savedSale = await dbService.createSale(newSaleData);
-        deductLocalStateStock(saleItems);
-        // Guarantee returned sale contains items array for receipt printing UI
-        const fullSaleObj = { ...savedSale, items: savedSale.items || saleItems };
-        set({ sales: [fullSaleObj, ...get().sales], cart: [], discountValue: 0 });
-        return fullSaleObj;
-      } catch (dbErr) {
-        console.warn('Database save failed, falling back to offline pending transaction:', dbErr);
-        const updatedPending = [...get().pendingSales, newSaleData];
-        localStorage.setItem('cafepos_pending_sales', JSON.stringify(updatedPending));
-        deductLocalStateStock(saleItems);
-        set({
-          pendingSales: updatedPending,
-          sales: [newSaleData, ...get().sales],
-          cart: [],
-          discountValue: 0
-        });
-        return newSaleData;
-      }
-    } else {
-      const updatedPending = [...get().pendingSales, newSaleData];
-      localStorage.setItem('cafepos_pending_sales', JSON.stringify(updatedPending));
-      deductLocalStateStock(saleItems);
-      set({
-        pendingSales: updatedPending,
-        sales: [newSaleData, ...get().sales],
-        cart: [],
-        discountValue: 0
-      });
-      return newSaleData;
+      setTimeout(() => {
+        get().syncOfflineSales();
+      }, 50);
     }
+
+    return newSaleData;
   },
 
   addTable: async (tableData) => {

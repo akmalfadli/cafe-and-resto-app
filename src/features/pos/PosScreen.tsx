@@ -72,7 +72,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
   React.useEffect(() => {
     const doFetch = () => useAppStore.getState().fetchCustomerOrders();
     doFetch();
-    const interval = setInterval(doFetch, 12000);
+    const interval = setInterval(doFetch, 30000);
     return () => clearInterval(interval);
   }, []);
 
