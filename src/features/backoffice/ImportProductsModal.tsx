@@ -17,7 +17,7 @@ export const downloadTemplateExcel = () => {
       Harga_Jual: 18000,
       Biaya_Kemasan: 1000,
       Biaya_Layanan: 500,
-      URL_Gambar: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600',
+      URL_Gambar: '',
       Favorit: 'YA'
     },
     {
@@ -27,7 +27,7 @@ export const downloadTemplateExcel = () => {
       Harga_Jual: 22000,
       Biaya_Kemasan: 500,
       Biaya_Layanan: 0,
-      URL_Gambar: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600',
+      URL_Gambar: '',
       Favorit: 'TIDAK'
     }
   ];

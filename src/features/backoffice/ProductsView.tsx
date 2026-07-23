@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { Plus, Trash2, Search, Calculator, X, Edit2, Upload, FileSpreadsheet, Download } from 'lucide-react';
+import { Plus, Trash2, Search, Calculator, X, Edit2, Upload, FileSpreadsheet } from 'lucide-react';
 import type { Product } from '../../types';
 import { storageService } from '../../services/storageService';
-import { ImportProductsModal, downloadTemplateExcel } from './ImportProductsModal';
+import { ImportProductsModal } from './ImportProductsModal';
 
 export const RecipeIngredientRow: React.FC<{
   item: { ingredientId: string; qty: number };
@@ -483,14 +483,6 @@ export const ProductsView: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={downloadTemplateExcel}
-            className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-bold px-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 flex items-center gap-1.5 transition"
-            title="Unduh Format Excel / Template Import Produk"
-          >
-            <Download className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            Format Import Excel
-          </button>
           <button
             onClick={() => setShowImportModal(true)}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-1.5 transition"
