@@ -248,8 +248,8 @@ export const ProductFormModal: React.FC<{
   const [sku, setSku] = useState(product?.sku || `DRK-${Date.now().toString().slice(-4)}`);
   const [categoryId, setCategoryId] = useState(product?.category_id || categories[0]?.id || '');
   const [sellingPrice, setSellingPrice] = useState(product?.selling_price?.toString() || '30000');
-  const [packagingCost, setPackagingCost] = useState(product?.packaging_cost?.toString() || '1000');
-  const [serviceCost, setServiceCost] = useState(product?.service_cost?.toString() || '500');
+  const [packagingCost, setPackagingCost] = useState(product?.packaging_cost?.toString() || '0');
+  const [serviceCost, setServiceCost] = useState(product?.service_cost?.toString() || '0');
   const [imageUrl, setImageUrl] = useState(product?.image_url || 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=600&q=80');
   const [isFavorite, setIsFavorite] = useState(product?.is_favorite || false);
   const [isAvailable, setIsAvailable] = useState(product?.is_available ?? true);
