@@ -3,9 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
 import { 
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
-  Trash2, Plus, Minus, CreditCard, Clock, User, 
+  Trash2, Plus, Minus, CreditCard, User, 
   UtensilsCrossed, ShoppingBag, Truck, Tag, LogOut, DoorOpen,
-  LayoutGrid, List, Shield, AlertTriangle, ClipboardList, History
+  LayoutGrid, List, Shield, AlertTriangle, ClipboardList, History, MoreVertical
 } from 'lucide-react';
 import { PaymentDialog } from './PaymentDialog';
 import { ShiftGateScreen } from './ShiftGateScreen';
@@ -60,6 +60,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [showCloseShift, setShowCloseShift] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [tempDiscount, setTempDiscount] = useState<string>('0');
   const [modalDiscType, setModalDiscType] = useState<'fixed' | 'percentage'>('fixed');
   const [showCartOnMobile, setShowCartOnMobile] = useState(false);
@@ -135,116 +136,194 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
             <Coffee className="w-4 h-4" />
             <span className="hidden xs:inline">CafePOS</span>
           </div>
-          <span className={`hidden sm:inline-block text-[10px] md:text-xs px-2.5 py-1 rounded-full font-semibold border ${
-            activeShift 
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-              : 'bg-amber-50 text-amber-700 border-amber-200'
-          }`}>
-            {activeShift ? (
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Shift Aktif ({activeShift.cashier_name})
-              </span>
-            ) : 'Belum Ada Shift'}
-          </span>
+          
           <span className={`text-[10px] md:text-xs px-2 py-1 rounded-lg font-bold border transition flex items-center gap-1 ${
             isDatabaseMode 
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800' 
               : 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
           }`}>
             <span className={`w-1.5 h-1.5 rounded-full ${isDatabaseMode ? 'bg-emerald-500' : 'bg-amber-500 animate-ping'}`} />
-            {isDatabaseMode ? 'Online' : 'Offline'}
+            <span className="hidden xs:inline">{isDatabaseMode ? 'Online' : 'Offline'}</span>
           </span>
+
           {pendingSales.length > 0 && (
             <button
               onClick={() => syncOfflineSales()}
-              className="text-[9px] md:text-[10px] bg-coffee-50 border border-coffee-200 text-coffee-700 px-2 py-1 rounded-lg font-extrabold hover:bg-coffee-100 transition animate-bounce flex items-center gap-1"
+              className="text-[9px] md:text-[10px] bg-coffee-50 border border-coffee-200 text-coffee-700 px-2 py-1 rounded-lg font-extrabold hover:bg-coffee-100 transition flex items-center gap-1"
               title="Sinkronkan Transaksi Offline"
             >
-              🔄 {pendingSales.length} Sync Pending
+              🔄 {pendingSales.length}
             </button>
           )}
         </div>
 
+        {/* Search & Main Action Controls */}
         <div className="relative flex-1 max-w-xs sm:max-w-md flex items-center gap-1.5">
           <div className="relative flex-1">
             <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400" />
             <input
               type="text"
-              placeholder="Cari..."
+              placeholder="Cari menu..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 focus:outline-none focus:ring-2 focus:ring-coffee-500"
             />
           </div>
+
           <button
             onClick={toggleViewMode}
-            className="p-1.5 sm:p-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl border border-stone-200 transition shrink-0"
+            className="p-1.5 sm:p-2 bg-stone-100 hover:bg-stone-200 text-stone-600 dark:bg-stone-800 dark:hover:bg-stone-700 dark:text-stone-300 rounded-xl border border-stone-200 dark:border-stone-700 transition shrink-0"
             title={viewMode === 'card' ? 'Ubah ke Mode List' : 'Ubah ke Mode Grid'}
           >
             {viewMode === 'card' ? <List className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
           </button>
           
-          <button
-            onClick={() => navigate('/antrean')}
-            className="relative p-1.5 sm:p-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl transition shrink-0 font-bold flex items-center gap-1 text-xs shadow-sm"
-            title="Antrean Pesanan Pelanggan"
-          >
-            <ClipboardList className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Antrean</span>
-            {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow border border-white">
-                {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length}
-              </span>
-            )}
-          </button>
+          {/* Desktop Direct Action Buttons */}
+          <div className="hidden md:flex items-center gap-1.5">
+            <button
+              onClick={() => navigate('/antrean')}
+              className="relative p-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl transition shrink-0 font-bold flex items-center gap-1.5 text-xs shadow-sm"
+              title="Antrean Pesanan Pelanggan"
+            >
+              <ClipboardList className="w-3.5 h-3.5" />
+              <span>Antrean</span>
+              {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow border border-white">
+                  {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length}
+                </span>
+              )}
+            </button>
 
-          <button
-            onClick={() => setShowHistoryModal(true)}
-            className="p-1.5 sm:p-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl border border-stone-200 transition shrink-0 font-bold flex items-center gap-1 text-xs"
-            title="Riwayat Transaksi"
-          >
-            <History className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Riwayat</span>
-          </button>
+            <button
+              onClick={() => setShowHistoryModal(true)}
+              className="p-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 rounded-xl border border-stone-200 dark:border-stone-700 transition shrink-0 font-bold flex items-center gap-1.5 text-xs"
+              title="Riwayat Transaksi"
+            >
+              <History className="w-3.5 h-3.5 text-coffee-500" />
+              <span>Riwayat</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5 md:gap-3 text-xs font-medium text-stone-600 shrink-0">
-          <div className="hidden md:flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-coffee-500" />
-            <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-          </div>
-          <div className="hidden sm:flex items-center gap-1.5 bg-stone-100 px-2.5 py-1.5 rounded-xl border border-stone-200">
+        {/* Right Desktop Info & Actions */}
+        <div className="hidden md:flex items-center gap-2 md:gap-3 text-xs font-medium text-stone-600 shrink-0">
+          <div className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 px-2.5 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700">
             <User className="w-3.5 h-3.5 text-coffee-500" />
-            <span className="font-bold text-stone-800 truncate max-w-[80px]">{currentUser?.full_name}</span>
+            <span className="font-bold text-stone-800 dark:text-stone-200 truncate max-w-[80px]">{currentUser?.full_name}</span>
           </div>
+
           {activeShift && (
             <button
               onClick={() => setShowCloseShift(true)}
-              className="flex items-center gap-1 p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition text-[10px] sm:text-xs font-semibold"
+              className="flex items-center gap-1 p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition text-xs font-semibold"
               title="Tutup Shift"
             >
               <DoorOpen className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Tutup Shift</span>
+              <span>Tutup Shift</span>
             </button>
           )}
+
           {onSwitchToBackOffice && (currentUser?.role === 'Owner' || currentUser?.role === 'Manager') && (
             <button
               onClick={onSwitchToBackOffice}
-              className="p-1.5 sm:p-2 bg-coffee-50 hover:bg-coffee-100 text-coffee-600 rounded-xl border border-coffee-200 transition font-bold flex items-center gap-1.5 text-xs"
+              className="p-2 bg-coffee-50 hover:bg-coffee-100 text-coffee-600 rounded-xl border border-coffee-200 transition font-bold flex items-center gap-1.5 text-xs"
               title="Ke Back Office"
             >
               <Shield className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Back Office</span>
+              <span>Back Office</span>
             </button>
           )}
+
           <button
             onClick={logout}
-            className="p-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl border border-stone-200 transition"
+            className="p-2 bg-stone-100 hover:bg-stone-200 text-stone-600 dark:bg-stone-800 dark:hover:bg-stone-700 dark:text-stone-300 rounded-xl border border-stone-200 dark:border-stone-700 transition"
             title="Keluar Kasir"
           >
             <LogOut className="w-4 h-4" />
           </button>
+        </div>
+
+        {/* Mobile 3-Dots Menu Dropdown Button */}
+        <div className="relative md:hidden shrink-0">
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="p-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 rounded-xl border border-stone-200 dark:border-stone-700 transition flex items-center justify-center relative"
+            title="Menu Lainnya"
+          >
+            <MoreVertical className="w-4 h-4" />
+            {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length > 0 && (
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-600 rounded-full border border-white" />
+            )}
+          </button>
+
+          {/* Mobile Dropdown Menu Popover */}
+          {showMobileMenu && (
+            <>
+              <div 
+                className="fixed inset-0 z-40" 
+                onClick={() => setShowMobileMenu(false)} 
+              />
+              <div className="absolute right-0 top-12 w-52 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xl z-50 p-2 space-y-1 animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-3 py-2 border-b border-stone-100 dark:border-stone-800 mb-1">
+                  <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Kasir Saat Ini</p>
+                  <p className="text-xs font-extrabold text-stone-800 dark:text-stone-100 truncate">{currentUser?.full_name}</p>
+                </div>
+
+                <button
+                  onClick={() => { setShowMobileMenu(false); navigate('/antrean'); }}
+                  className="w-full px-3 py-2 text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-coffee-50 dark:hover:bg-stone-800 rounded-xl flex items-center justify-between transition"
+                >
+                  <span className="flex items-center gap-2">
+                    <ClipboardList className="w-4 h-4 text-coffee-500" />
+                    <span>Antrean Pesanan</span>
+                  </span>
+                  {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length > 0 && (
+                    <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                      {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => { setShowMobileMenu(false); setShowHistoryModal(true); }}
+                  className="w-full px-3 py-2 text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-coffee-50 dark:hover:bg-stone-800 rounded-xl flex items-center gap-2 transition"
+                >
+                  <History className="w-4 h-4 text-coffee-500" />
+                  <span>Riwayat Transaksi</span>
+                </button>
+
+                {activeShift && (
+                  <button
+                    onClick={() => { setShowMobileMenu(false); setShowCloseShift(true); }}
+                    className="w-full px-3 py-2 text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-xl flex items-center gap-2 transition"
+                  >
+                    <DoorOpen className="w-4 h-4" />
+                    <span>Tutup Shift & Kas</span>
+                  </button>
+                )}
+
+                {onSwitchToBackOffice && (currentUser?.role === 'Owner' || currentUser?.role === 'Manager') && (
+                  <button
+                    onClick={() => { setShowMobileMenu(false); onSwitchToBackOffice(); }}
+                    className="w-full px-3 py-2 text-xs font-bold text-coffee-600 dark:text-coffee-400 hover:bg-coffee-50 dark:hover:bg-stone-800 rounded-xl flex items-center gap-2 transition"
+                  >
+                    <Shield className="w-4 h-4" />
+                    <span>Back Office</span>
+                  </button>
+                )}
+
+                <div className="border-t border-stone-100 dark:border-stone-800 pt-1 mt-1">
+                  <button
+                    onClick={() => { setShowMobileMenu(false); logout(); }}
+                    className="w-full px-3 py-2 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl flex items-center gap-2 transition"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Keluar</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </header>
 
