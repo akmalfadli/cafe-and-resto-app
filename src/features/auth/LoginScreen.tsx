@@ -116,7 +116,7 @@ export const LoginScreen: React.FC = () => {
 
   return (
     <div className="h-screen w-screen bg-stone-900 flex items-center justify-center p-4 font-sans select-none">
-      <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-stone-800 flex flex-col">
+      <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-stone-200 dark:border-stone-800 flex flex-col">
         
         {/* Header */}
         <div className="bg-coffee-500 p-6 text-white text-center space-y-2">
@@ -131,59 +131,59 @@ export const LoginScreen: React.FC = () => {
         {isRegisterMode ? (
           <form onSubmit={handleRegisterOwner} className="p-6 space-y-3.5 text-xs">
             <div className="text-center space-y-1">
-              <h2 className="font-bold text-base text-stone-800">Pendaftaran Akun Pemilik (Owner)</h2>
-              <p className="text-stone-400">Daftarkan akun utama resto untuk mengelola akun kasir & manajer</p>
+              <h2 className="font-bold text-base text-stone-800 dark:text-stone-100">Pendaftaran Akun Pemilik (Owner)</h2>
+              <p className="text-stone-400 dark:text-stone-500">Daftarkan akun utama resto untuk mengelola akun kasir & manajer</p>
             </div>
 
-            {error && <p className="p-2 bg-red-50 text-red-600 rounded-xl text-center font-bold">{error}</p>}
+            {error && <p className="p-2 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-xl text-center font-bold">{error}</p>}
 
             <div>
-              <label className="font-semibold text-stone-600 block mb-1">Nama Lengkap Pemilik</label>
+              <label className="font-semibold text-stone-600 dark:text-stone-400 block mb-1">Nama Lengkap Pemilik</label>
               <input
                 type="text"
                 required
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
-                className="w-full border border-stone-300 rounded-xl px-3 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500"
                 placeholder="Contoh: Budi Santoso"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-stone-600 block mb-1">Email Resto / Usaha</label>
+              <label className="font-semibold text-stone-600 dark:text-stone-400 block mb-1">Email Resto / Usaha</label>
               <input
                 type="email"
                 required
                 value={ownerEmail}
                 onChange={(e) => setOwnerEmail(e.target.value)}
-                className="w-full border border-stone-300 rounded-xl px-3 py-2 font-medium focus:outline-none"
+                className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 font-medium focus:outline-none"
                 placeholder="owner@cafepos.com"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="font-semibold text-stone-600 block mb-1">Kata Sandi (Password)</label>
+                <label className="font-semibold text-stone-600 dark:text-stone-400 block mb-1">Kata Sandi (Password)</label>
                 <input
                   type="password"
                   required
                   minLength={6}
                   value={ownerPassword}
                   onChange={(e) => setOwnerPassword(e.target.value)}
-                  className="w-full border border-stone-300 rounded-xl px-3 py-2 font-medium focus:outline-none"
+                  className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 font-medium focus:outline-none"
                   placeholder="••••••••"
                 />
               </div>
 
               <div>
-                <label className="font-semibold text-stone-600 block mb-1">PIN Kasir (6 Digit)</label>
+                <label className="font-semibold text-stone-600 dark:text-stone-400 block mb-1">PIN Kasir (6 Digit)</label>
                 <input
                   type="password"
                   maxLength={6}
                   required
                   value={ownerPin}
                   onChange={(e) => setOwnerPin(e.target.value)}
-                  className="w-full border border-stone-300 rounded-xl px-3 py-2 font-mono text-center font-bold text-base focus:outline-none"
+                  className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 font-mono text-center font-bold text-base focus:outline-none"
                   placeholder="••••••"
                 />
               </div>
@@ -201,7 +201,7 @@ export const LoginScreen: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsRegisterMode(false)}
-                  className="w-full py-2 text-stone-500 font-semibold hover:underline"
+                  className="w-full py-2 text-stone-500 dark:text-stone-400 font-semibold hover:underline"
                 >
                   Kembali ke Pilihan Akun
                 </button>
@@ -213,12 +213,12 @@ export const LoginScreen: React.FC = () => {
           !selectedUser ? (
             <div className="p-6 space-y-4">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                   Pilih Akun
                 </label>
                 <button
                   onClick={() => setIsRegisterMode(true)}
-                  className="text-xs text-coffee-600 font-bold hover:underline flex items-center gap-1"
+                  className="text-xs text-coffee-600 dark:text-coffee-400 font-bold hover:underline flex items-center gap-1"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   Daftar Pemilik Baru
@@ -226,11 +226,11 @@ export const LoginScreen: React.FC = () => {
               </div>
 
               {profiles.length === 0 ? (
-                <div className="p-6 text-center space-y-3 bg-stone-50 rounded-2xl border border-dashed border-stone-300">
+                <div className="p-6 text-center space-y-3 bg-stone-50 dark:bg-stone-800/40 rounded-2xl border border-dashed border-stone-300 dark:border-stone-700">
                   <Shield className="w-8 h-8 text-coffee-500 mx-auto" />
                   <div>
-                    <h3 className="font-bold text-sm text-stone-800">Belum Ada Akun Terdaftar</h3>
-                    <p className="text-xs text-stone-500">Daftarkan akun Pemilik (Owner) pertama untuk resto Anda.</p>
+                    <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">Belum Ada Akun Terdaftar</h3>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">Daftarkan akun Pemilik (Owner) pertama untuk resto Anda.</p>
                   </div>
                   <button
                     onClick={() => setIsRegisterMode(true)}
@@ -249,7 +249,7 @@ export const LoginScreen: React.FC = () => {
                       <>
                         {mgmt.length > 0 && (
                           <div>
-                            <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5 px-1">
+                            <p className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-1.5 px-1">
                               Manajemen
                             </p>
                             <div className="space-y-2">
@@ -257,21 +257,21 @@ export const LoginScreen: React.FC = () => {
                                 <button
                                   key={u.id}
                                   onClick={() => setSelectedUser(u)}
-                                  className="w-full p-3.5 rounded-2xl border border-coffee-200 bg-coffee-50/40 hover:border-coffee-500 hover:bg-coffee-50 transition flex items-center justify-between group touch-active text-left"
+                                  className="w-full p-3.5 rounded-2xl border border-coffee-200 dark:border-coffee-900/40 bg-coffee-50/40 dark:bg-coffee-950/10 hover:border-coffee-500 dark:hover:border-coffee-500 hover:bg-coffee-50 dark:hover:bg-coffee-950/20 transition flex items-center justify-between group touch-active text-left"
                                 >
                                   <div className="flex items-center gap-3">
                                     <div className="w-9 h-9 rounded-xl bg-coffee-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
                                       {u.full_name.charAt(0)}
                                     </div>
                                     <div>
-                                      <h3 className="font-bold text-sm text-stone-800">{u.full_name}</h3>
-                                      <p className="text-xs text-stone-400 font-medium">{u.email}</p>
+                                      <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">{u.full_name}</h3>
+                                      <p className="text-xs text-stone-400 dark:text-stone-500 font-medium">{u.email}</p>
                                     </div>
                                   </div>
                                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase shrink-0 ${
                                     u.role === 'Owner'
-                                      ? 'bg-amber-100 text-amber-700'
-                                      : 'bg-blue-100 text-blue-700'
+                                      ? 'bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400'
+                                      : 'bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400'
                                   }`}>
                                     {u.role}
                                   </span>
@@ -283,18 +283,18 @@ export const LoginScreen: React.FC = () => {
 
                         {/* No management accounts — show prompt */}
                         {mgmt.length === 0 && (
-                          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-xs">
+                          <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-950/10 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-3.5 text-xs">
                             <Shield className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                             <div>
-                              <p className="font-bold text-amber-800 mb-0.5">Belum ada akun Owner / Manager</p>
-                              <p className="text-amber-600">Klik <strong>"Daftar Pemilik Baru"</strong> di atas untuk membuat akun manajemen pertama.</p>
+                              <p className="font-bold text-amber-800 dark:text-amber-400 mb-0.5">Belum ada akun Owner / Manager</p>
+                              <p className="text-amber-600 dark:text-amber-500">Klik <strong>"Daftar Pemilik Baru"</strong> di atas untuk membuat akun manajemen pertama.</p>
                             </div>
                           </div>
                         )}
 
                         {cashiers.length > 0 && (
                           <div>
-                            <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5 px-1">
+                            <p className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-1.5 px-1">
                               Kasir & Dapur
                             </p>
                             <div className="space-y-2">
@@ -302,18 +302,18 @@ export const LoginScreen: React.FC = () => {
                                 <button
                                   key={u.id}
                                   onClick={() => setSelectedUser(u)}
-                                  className="w-full p-3.5 rounded-2xl border border-stone-200 hover:border-coffee-500 hover:bg-coffee-50/50 transition flex items-center justify-between group touch-active text-left"
+                                  className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-coffee-500 dark:hover:border-coffee-500 hover:bg-coffee-50/50 dark:hover:bg-coffee-950/10 transition flex items-center justify-between group touch-active text-left"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-xl bg-stone-100 group-hover:bg-coffee-500 group-hover:text-white flex items-center justify-center transition font-bold text-stone-700 shrink-0">
+                                    <div className="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 group-hover:bg-coffee-500 group-hover:text-white flex items-center justify-center transition font-bold text-stone-700 dark:text-stone-300 shrink-0">
                                       <User className="w-4 h-4" />
                                     </div>
                                     <div>
-                                      <h3 className="font-bold text-sm text-stone-800">{u.full_name}</h3>
-                                      <p className="text-xs text-stone-400 font-medium">{u.email}</p>
+                                      <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">{u.full_name}</h3>
+                                      <p className="text-xs text-stone-400 dark:text-stone-500 font-medium">{u.email}</p>
                                     </div>
                                   </div>
-                                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase bg-stone-100 text-stone-600 group-hover:bg-coffee-100 group-hover:text-coffee-800 shrink-0">
+                                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 group-hover:bg-coffee-100 dark:group-hover:bg-coffee-900 group-hover:text-coffee-800 dark:group-hover:text-coffee-300 shrink-0">
                                     {u.role}
                                   </span>
                                 </button>
@@ -330,10 +330,10 @@ export const LoginScreen: React.FC = () => {
           ) : selectedUser.role === 'Owner' ? (
             /* Owner Password Entry Step */
             <form onSubmit={handleOwnerPasswordSubmit} className="p-6 space-y-4 text-xs">
-              <div className="flex items-center justify-between border-b pb-3 border-stone-100">
+              <div className="flex items-center justify-between border-b pb-3 border-stone-100 dark:border-stone-800">
                 <div>
-                  <span className="text-[10px] text-stone-400 font-bold uppercase">Masuk sebagai Owner</span>
-                  <h3 className="font-bold text-sm text-stone-800">{selectedUser.full_name}</h3>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500 font-bold uppercase">Masuk sebagai Owner</span>
+                  <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">{selectedUser.full_name}</h3>
                 </div>
                 <button
                   type="button"
@@ -342,14 +342,14 @@ export const LoginScreen: React.FC = () => {
                     setPasswordInput('');
                     setError('');
                   }}
-                  className="text-xs text-coffee-600 font-semibold hover:underline"
+                  className="text-xs text-coffee-600 dark:text-coffee-400 font-semibold hover:underline"
                 >
                   Ganti Akun
                 </button>
               </div>
 
               <div>
-                <label className="font-semibold text-stone-600 block mb-1">Masukkan Kata Sandi Akun</label>
+                <label className="font-semibold text-stone-600 dark:text-stone-400 block mb-1">Masukkan Kata Sandi Akun</label>
                 <input
                   type="password"
                   required
@@ -359,12 +359,12 @@ export const LoginScreen: React.FC = () => {
                     setPasswordInput(e.target.value);
                     setError('');
                   }}
-                  className="w-full border border-stone-300 rounded-xl px-3.5 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm"
+                  className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3.5 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm"
                   placeholder="••••••••"
                 />
               </div>
 
-              {error && <p className="text-xs text-red-500 font-semibold">{error}</p>}
+              {error && <p className="text-xs text-red-500 dark:text-red-400 font-semibold">{error}</p>}
 
               <button
                 type="submit"
@@ -377,10 +377,10 @@ export const LoginScreen: React.FC = () => {
           ) : (
             /* Staff / Manager PIN Entry Step */
             <div className="p-6 space-y-5">
-              <div className="flex items-center justify-between border-b pb-3 border-stone-100">
+              <div className="flex items-center justify-between border-b pb-3 border-stone-100 dark:border-stone-800">
                 <div>
-                  <span className="text-[10px] text-stone-400 font-bold uppercase">Masuk sebagai</span>
-                  <h3 className="font-bold text-sm text-stone-800">{selectedUser.full_name}</h3>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500 font-bold uppercase">Masuk sebagai</span>
+                  <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">{selectedUser.full_name}</h3>
                 </div>
                 <button
                   onClick={() => {
@@ -388,14 +388,14 @@ export const LoginScreen: React.FC = () => {
                     setPin('');
                     setError('');
                   }}
-                  className="text-xs text-coffee-600 font-semibold hover:underline"
+                  className="text-xs text-coffee-600 dark:text-coffee-400 font-semibold hover:underline"
                 >
                   Ganti Akun
                 </button>
               </div>
 
               <div className="text-center space-y-2">
-                <label className="text-xs font-semibold text-stone-500">Masukkan 6 Digit PIN Keamanan</label>
+                <label className="text-xs font-semibold text-stone-500 dark:text-stone-400">Masukkan 6 Digit PIN Keamanan</label>
                 <div className="flex justify-center gap-3 py-2">
                   {[0, 1, 2, 3, 4, 5].map((idx) => (
                     <div
@@ -403,15 +403,15 @@ export const LoginScreen: React.FC = () => {
                       className={`w-4 h-4 rounded-full border-2 transition-all ${
                         pin.length > idx
                           ? 'bg-coffee-500 border-coffee-500 scale-110'
-                          : 'border-stone-300 bg-stone-100'
+                          : 'border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800'
                       }`}
                     />
                   ))}
                 </div>
-                {error && <p className="text-xs text-red-500 font-semibold animate-shake">{error}</p>}
+                {error && <p className="text-xs text-red-500 dark:text-red-400 font-semibold animate-shake">{error}</p>}
                 
                 {lockUntil && (
-                  <div className="p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-2xl text-[11px] font-bold mt-2 border border-red-200/50">
+                  <div className="p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-2xl text-[11px] font-bold mt-2 border border-red-200/50 dark:border-red-900/55">
                     Akun terkunci. Coba lagi dalam: {Math.floor(secondsRemaining / 60)}m {secondsRemaining % 60}d
                   </div>
                 )}
@@ -419,14 +419,14 @@ export const LoginScreen: React.FC = () => {
 
               <div className="grid grid-cols-3 gap-3 pt-2 relative">
                 {lockUntil && (
-                  <div className="absolute inset-0 bg-white/40 dark:bg-stone-900/40 backdrop-blur-[1px] z-10 rounded-2xl cursor-not-allowed" />
+                  <div className="absolute inset-0 bg-white/40 dark:bg-stone-900/60 backdrop-blur-[1px] z-10 rounded-2xl cursor-not-allowed" />
                 )}
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
                   <button
                     key={digit}
                     onClick={() => handlePinPress(digit)}
                     disabled={!!lockUntil}
-                    className="h-14 rounded-2xl bg-stone-50 hover:bg-coffee-50 hover:border-coffee-300 border border-stone-200 text-lg font-bold text-stone-800 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
+                    className="h-14 rounded-2xl bg-stone-50 dark:bg-stone-800 hover:bg-coffee-50 dark:hover:bg-coffee-950/30 hover:border-coffee-300 dark:hover:border-coffee-500 border border-stone-200 dark:border-stone-750 text-lg font-bold text-stone-800 dark:text-stone-100 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
                   >
                     {digit}
                   </button>
@@ -435,14 +435,14 @@ export const LoginScreen: React.FC = () => {
                 <button
                   onClick={() => handlePinPress('0')}
                   disabled={!!lockUntil}
-                  className="h-14 rounded-2xl bg-stone-50 hover:bg-coffee-50 hover:border-coffee-300 border border-stone-200 text-lg font-bold text-stone-800 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
+                  className="h-14 rounded-2xl bg-stone-50 dark:bg-stone-800 hover:bg-coffee-50 dark:hover:bg-coffee-950/30 hover:border-coffee-300 dark:hover:border-coffee-500 border border-stone-200 dark:border-stone-750 text-lg font-bold text-stone-800 dark:text-stone-100 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
                 >
                   0
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={!!lockUntil}
-                  className="h-14 rounded-2xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-600 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
+                  className="h-14 rounded-2xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-750 text-stone-600 dark:text-stone-300 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
                 >
                   <Delete className="w-5 h-5" />
                 </button>
