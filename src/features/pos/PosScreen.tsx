@@ -52,8 +52,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
     pendingSales,
     isDatabaseMode,
     syncOfflineSales,
-    customerOrders,
-    fetchCustomerOrders
+    customerOrders
   } = useAppStore();
 
   const navigate = useNavigate();
@@ -70,13 +69,13 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
   });
 
   // Periodically fetch customer orders in background at parent screen level
+  // Use getState() for a stable reference — avoids re-render loops
   React.useEffect(() => {
-    fetchCustomerOrders();
-    const interval = setInterval(() => {
-      fetchCustomerOrders();
-    }, 5000);
+    const doFetch = () => useAppStore.getState().fetchCustomerOrders();
+    doFetch();
+    const interval = setInterval(doFetch, 5000);
     return () => clearInterval(interval);
-  }, [fetchCustomerOrders]);
+  }, []);
 
   const toggleViewMode = () => {
     const nextMode = viewMode === 'card' ? 'list' : 'card';
