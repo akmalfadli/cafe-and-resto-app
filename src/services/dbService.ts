@@ -184,8 +184,9 @@ export const dbService = {
     if (!isShiftUuid) {
       delete (mainSale as any).shift_id;
     }
-    
-    const { data: sale, error: saleErr } = await supabase.from('sales').insert(mainSale).select().single();
+    const { id, ...saleToInsert } = mainSale as any;
+
+    const { data: sale, error: saleErr } = await supabase.from('sales').insert(saleToInsert).select().single();
     if (saleErr) throw saleErr;
 
     const saleItems = items.map((it) => ({
