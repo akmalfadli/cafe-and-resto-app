@@ -8,11 +8,38 @@ import { CustomerOrdersQueuePage } from './features/pos/CustomerOrdersQueuePage'
 import { RefreshCw } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
 
+// Extracted as a stable top-level component so React never remounts PosScreen
+// due to App re-renders (which previously happened because App subscribed to the
+// entire Zustand store, causing StaffLayout's component identity to change on
+// every store mutation and destroying PosScreen's local state like isPaymentOpen).
+const StaffLayout: React.FC<{
+  currentAppMode: 'pos' | 'backoffice';
+  setCurrentAppMode: (mode: 'pos' | 'backoffice') => void;
+}> = ({ currentAppMode, setCurrentAppMode }) => {
+  const currentUser = useAppStore(s => s.currentUser);
+  const isStaffManagerOrOwner = currentUser?.role === 'Owner' || currentUser?.role === 'Manager';
+
+  if (!currentUser) {
+    return <LoginScreen />;
+  }
+
+  return (
+    <div className="relative h-screen w-screen overflow-hidden font-sans">
+      {currentAppMode === 'pos' || !isStaffManagerOrOwner ? (
+        <PosScreen onSwitchToBackOffice={() => setCurrentAppMode('backoffice')} />
+      ) : (
+        <BackOfficeLayout onSwitchToPos={() => setCurrentAppMode('pos')} />
+      )}
+    </div>
+  );
+};
+
 export const App: React.FC = () => {
   const [currentAppMode, setCurrentAppMode] = React.useState<'pos' | 'backoffice'>('pos');
-  const { currentUser, fetchInitialData, isLoading } = useAppStore();
-
-  const isStaffManagerOrOwner = currentUser?.role === 'Owner' || currentUser?.role === 'Manager';
+  // Fine-grained selectors: only subscribe to what App actually needs
+  const currentUser = useAppStore(s => s.currentUser);
+  const fetchInitialData = useAppStore(s => s.fetchInitialData);
+  const isLoading = useAppStore(s => s.isLoading);
 
   // Network Status and Auto Syncer loop hook
 
@@ -61,24 +88,6 @@ export const App: React.FC = () => {
     );
   }
 
-  // Master Layout component for staff-only areas
-  const StaffLayout = () => {
-    if (!currentUser) {
-      return <LoginScreen />;
-    }
-
-    return (
-      <div className="relative h-screen w-screen overflow-hidden font-sans">
-
-        {currentAppMode === 'pos' || !isStaffManagerOrOwner ? (
-          <PosScreen onSwitchToBackOffice={() => setCurrentAppMode('backoffice')} />
-        ) : (
-          <BackOfficeLayout onSwitchToPos={() => setCurrentAppMode('pos')} />
-        )}
-      </div>
-    );
-  };
-
   return (
     <Routes>
       {/* Route for public customers menu, accessible without auth check */}
@@ -86,9 +95,10 @@ export const App: React.FC = () => {
       {/* Staff-only queue page (requires login via StaffLayout parent guard) */}
       <Route path="/antrean" element={currentUser ? <CustomerOrdersQueuePage /> : <LoginScreen />} />
       {/* Staff gate routes */}
-      <Route path="*" element={<StaffLayout />} />
+      <Route path="*" element={<StaffLayout currentAppMode={currentAppMode} setCurrentAppMode={setCurrentAppMode} />} />
     </Routes>
   );
 };
 
 export default App;
+
