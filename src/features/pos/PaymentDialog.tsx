@@ -32,12 +32,14 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
   const [cashTendered, setCashTendered] = useState<string>('');
   const [completedSale, setCompletedSale] = useState<Sale | null>(null);
 
-  // Reset internal state when dialog closes or opens freshly
+  // Track previous isOpen state to only reset when transition goes from open (true) to closed (false)
+  const prevIsOpenRef = React.useRef(isOpen);
   React.useEffect(() => {
-    if (!isOpen) {
+    if (prevIsOpenRef.current && !isOpen) {
       setCompletedSale(null);
       setCashTendered('');
     }
+    prevIsOpenRef.current = isOpen;
   }, [isOpen]);
 
   if (!isOpen) return null;
