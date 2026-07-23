@@ -175,14 +175,6 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
           >
             {viewMode === 'card' ? <List className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
           </button>
-          <button
-            onClick={() => navigate('/menu')}
-            className="p-1.5 sm:p-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl border border-stone-250 transition shrink-0 font-bold flex items-center gap-1 text-xs"
-            title="Buka Menu Pelanggan"
-          >
-            <ShoppingBag className="w-3.5 h-3.5 text-coffee-600" />
-            <span className="hidden sm:inline">Menu Pelanggan</span>
-          </button>
           
           {/* Antrean Pesanan Button — navigates to full page */}
           <button
