@@ -18,6 +18,11 @@ export const IngredientsView: React.FC = () => {
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Stock Adjustment modal states
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+  const [selectedAdjustIng, setSelectedAdjustIng] = useState<any | null>(null);
+  const [adjustQty, setAdjustQty] = useState('1000');
+
   const handleCreate = async () => {
     if (!name) return;
     const ingPayload = {
@@ -255,19 +260,31 @@ export const IngredientsView: React.FC = () => {
                     {ing.current_stock.toLocaleString()} {ing.unit}
                   </span>
                 </div>
-                <button
-                  onClick={() => {
-                    setEditingIngredient(ing);
-                    setName(ing.name);
-                    setUnit(ing.unit);
-                    setAvgCost(String(ing.avg_cost));
-                    setMinStock(String(ing.min_stock));
-                    setShowModal(true);
-                  }}
-                  className="px-2.5 py-1 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg text-[10px] font-bold text-stone-600 transition"
-                >
-                  Ubah
-                </button>
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={() => {
+                      setSelectedAdjustIng(ing);
+                      setAdjustQty('1000');
+                      setAdjustModalOpen(true);
+                    }}
+                    className="px-2 py-1 bg-emerald-50 hover:bg-emerald-500 hover:text-white rounded-lg text-[10px] font-bold text-emerald-700 transition"
+                  >
+                    + Stok
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingIngredient(ing);
+                      setName(ing.name);
+                      setUnit(ing.unit);
+                      setAvgCost(String(ing.avg_cost));
+                      setMinStock(String(ing.min_stock));
+                      setShowModal(true);
+                    }}
+                    className="px-2.5 py-1 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg text-[10px] font-bold text-stone-600 transition"
+                  >
+                    Ubah
+                  </button>
+                </div>
               </div>
             </div>
           );
@@ -346,6 +363,58 @@ export const IngredientsView: React.FC = () => {
               </button>
               <button onClick={handleCreate} className="flex-1 py-2 bg-coffee-500 text-white rounded-xl font-bold text-xs shadow">
                 Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {adjustModalOpen && selectedAdjustIng && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-xl border border-stone-200">
+            <div>
+              <h3 className="font-bold text-base text-stone-800">Tambah Stok Bahan Baku</h3>
+              <p className="text-[11px] text-stone-400 mt-0.5">Menambah jumlah persediaan untuk: <strong className="text-stone-700">{selectedAdjustIng.name}</strong></p>
+            </div>
+            
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-stone-600 block mb-1">Jumlah Tambahan ({selectedAdjustIng.unit})</label>
+                <input
+                  type="number"
+                  value={adjustQty}
+                  onChange={(e) => setAdjustQty(e.target.value)}
+                  className="w-full border border-stone-300 rounded-xl px-3 py-2 font-extrabold text-base focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                  placeholder="Contoh: 1000"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button 
+                onClick={() => {
+                  setAdjustModalOpen(false);
+                  setSelectedAdjustIng(null);
+                }} 
+                className="flex-1 py-2 border rounded-xl font-semibold text-xs"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={async () => {
+                  const qtyToAdd = parseFloat(adjustQty) || 0;
+                  if (qtyToAdd > 0) {
+                    const currentStock = selectedAdjustIng.current_stock || 0;
+                    await updateIngredient(selectedAdjustIng.id, {
+                      current_stock: currentStock + qtyToAdd
+                    });
+                  }
+                  setAdjustModalOpen(false);
+                  setSelectedAdjustIng(null);
+                }} 
+                className="flex-1 py-2 bg-coffee-500 text-white rounded-xl font-bold text-xs shadow"
+              >
+                Simpan Stok
               </button>
             </div>
           </div>
