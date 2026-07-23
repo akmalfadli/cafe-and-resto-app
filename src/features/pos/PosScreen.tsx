@@ -226,7 +226,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
               title="Ke Back Office"
             >
               <Shield className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Back Office</span>
+              <span className="hidden md:inline">Back Office</span>
             </button>
           )}
           <button
