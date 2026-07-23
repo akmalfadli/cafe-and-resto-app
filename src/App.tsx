@@ -15,39 +15,38 @@ export const App: React.FC = () => {
   const isStaffManagerOrOwner = currentUser?.role === 'Owner' || currentUser?.role === 'Manager';
 
   // Network Status and Auto Syncer loop hook
-  const { setDatabaseMode, syncOfflineSales } = useAppStore();
 
   useEffect(() => {
     const handleOnline = () => {
-      setDatabaseMode(true);
-      syncOfflineSales();
+      useAppStore.getState().setDatabaseMode(true);
+      useAppStore.getState().syncOfflineSales();
     };
     const handleOffline = () => {
-      setDatabaseMode(false);
+      useAppStore.getState().setDatabaseMode(false);
     };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
     // Initial check
-    setDatabaseMode(navigator.onLine);
+    useAppStore.getState().setDatabaseMode(navigator.onLine);
     if (navigator.onLine) {
-      syncOfflineSales();
+      useAppStore.getState().syncOfflineSales();
     }
 
-    // Auto POS syncer background loop every 10 seconds
+    // Auto POS syncer background loop every 15 seconds
     const interval = setInterval(() => {
       if (navigator.onLine) {
-        syncOfflineSales();
+        useAppStore.getState().syncOfflineSales();
       }
-    }, 10000);
+    }, 15000);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       clearInterval(interval);
     };
-  }, [setDatabaseMode, syncOfflineSales]);
+  }, []);
 
   useEffect(() => {
     fetchInitialData();
