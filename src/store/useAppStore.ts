@@ -750,8 +750,11 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
 
   fetchCustomerOrders: async () => {
-    if ((useAppStore as any)._isFetchingCustomerOrders) return;
+    const now = Date.now();
+    const lastFetch = (useAppStore as any)._lastCustomerOrdersFetchTime || 0;
+    if ((useAppStore as any)._isFetchingCustomerOrders || (now - lastFetch < 10000)) return;
     (useAppStore as any)._isFetchingCustomerOrders = true;
+    (useAppStore as any)._lastCustomerOrdersFetchTime = now;
     try {
       const customerOrders = await dbService.getCustomerOrders();
       set({ customerOrders });
