@@ -81,10 +81,10 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
     if (state?.openPayment) {
       setShowCartOnMobile(true);
       setIsPaymentOpen(true);
-      // Clear the state so it doesn't re-trigger
-      window.history.replaceState({}, '');
+      // Clear location state cleanly through react-router to prevent re-triggering loop
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state]);
+  }, [location.state, navigate, location.pathname]);
 
   const toggleViewMode = () => {
     const nextMode = viewMode === 'card' ? 'list' : 'card';
