@@ -13,6 +13,7 @@ export const IngredientsView: React.FC = () => {
   const [avgCost, setAvgCost] = useState('150');
   const [minStock, setMinStock] = useState('1000');
   const [supplierId, setSupplierId] = useState<string>('');
+  const [category, setCategory] = useState<string>('');
 
   // Excel import status messaging states
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -31,7 +32,7 @@ export const IngredientsView: React.FC = () => {
       unit,
       avg_cost: parseFloat(avgCost) || 0,
       min_stock: parseFloat(minStock) || 0,
-      category_id: undefined,
+      category_id: category ? category : undefined,
       supplier_id: supplierId ? supplierId : undefined,
     };
 
@@ -43,6 +44,7 @@ export const IngredientsView: React.FC = () => {
 
     setName('');
     setSupplierId('');
+    setCategory('');
     setEditingIngredient(null);
     setShowModal(false);
   };
@@ -52,21 +54,24 @@ export const IngredientsView: React.FC = () => {
     const headers = [
       {
         'Nama Bahan': 'Biji Kopi Arabika',
+        'Kategori (Makanan/Minuman)': 'Minuman',
         'Satuan (gram/ml/pcs/pack/slice)': 'gram',
         'Biaya Rata-rata (Rp)': 120,
         'Minimum Stok': 1000,
       },
       {
         'Nama Bahan': 'Susu Segar UHT',
+        'Kategori (Makanan/Minuman)': 'Minuman',
         'Satuan (gram/ml/pcs/pack/slice)': 'ml',
         'Biaya Rata-rata (Rp)': 25,
         'Minimum Stok': 2000,
       },
       {
-        'Nama Bahan': 'Sedotan Plastik',
-        'Satuan (gram/ml/pcs/pack/slice)': 'pcs',
-        'Biaya Rata-rata (Rp)': 150,
-        'Minimum Stok': 100,
+        'Nama Bahan': 'Daging Slice',
+        'Kategori (Makanan/Minuman)': 'Makanan',
+        'Satuan (gram/ml/pcs/pack/slice)': 'slice',
+        'Biaya Rata-rata (Rp)': 2500,
+        'Minimum Stok': 50,
       }
     ];
 
@@ -105,6 +110,7 @@ export const IngredientsView: React.FC = () => {
 
         for (const row of rawRows) {
           const rawName = row['Nama Bahan'];
+          const rawCat = String(row['Kategori (Makanan/Minuman)'] || '').trim();
           const rawUnit = String(row['Satuan (gram/ml/pcs/pack/slice)'] || '').trim().toLowerCase();
           const rawCost = parseFloat(row['Biaya Rata-rata (Rp)']);
           const rawMin = parseFloat(row['Minimum Stok']);
@@ -119,6 +125,14 @@ export const IngredientsView: React.FC = () => {
           const validUnits = ['gram', 'ml', 'pcs', 'pack', 'slice'];
           const finalUnit = validUnits.includes(rawUnit) ? rawUnit : 'gram';
 
+          // Validate Category constraints
+          let finalCat: string | undefined = undefined;
+          if (rawCat.toLowerCase().includes('makan')) {
+            finalCat = 'Makanan';
+          } else if (rawCat.toLowerCase().includes('minum')) {
+            finalCat = 'Minuman';
+          }
+
           // Check if it already exists to prevent duplicate raw material creations
           const alreadyExists = ingredients.some(
             (i) => i.name.toLowerCase() === String(rawName).trim().toLowerCase()
@@ -130,7 +144,7 @@ export const IngredientsView: React.FC = () => {
               unit: finalUnit as any,
               avg_cost: isNaN(rawCost) ? 0 : rawCost,
               min_stock: isNaN(rawMin) ? 0 : rawMin,
-              category_id: undefined,
+              category_id: finalCat,
               supplier_id: suppliers[0]?.id,
             });
             importCount++;
@@ -209,6 +223,8 @@ export const IngredientsView: React.FC = () => {
               setUnit('gram');
               setAvgCost('150');
               setMinStock('1000');
+              setSupplierId('');
+              setCategory('');
               setShowModal(true);
             }}
             className="bg-coffee-500 hover:bg-coffee-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-1.5 transition"
@@ -241,7 +257,16 @@ export const IngredientsView: React.FC = () => {
             <div key={ing.id} className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-sm text-stone-800">{ing.name}</h3>
+                  <h3 className="font-bold text-sm text-stone-800 flex items-center gap-1.5">
+                    {ing.name}
+                    {ing.category_id && (
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase ${
+                        ing.category_id === 'Makanan' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {ing.category_id}
+                      </span>
+                    )}
+                  </h3>
                   <span className="text-[10px] text-stone-400 font-mono">Rp {ing.avg_cost.toLocaleString('id-ID')} / {ing.unit}</span>
                 </div>
                 {isLowStock ? (
@@ -286,6 +311,7 @@ export const IngredientsView: React.FC = () => {
                       setAvgCost(String(ing.avg_cost));
                       setMinStock(String(ing.min_stock));
                       setSupplierId(ing.supplier_id || '');
+                      setCategory(ing.category_id || '');
                       setShowModal(true);
                     }}
                     className="px-2.5 py-1 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg text-[10px] font-bold text-stone-600 transition"
@@ -330,6 +356,19 @@ export const IngredientsView: React.FC = () => {
                   <option value="pcs">pcs</option>
                   <option value="slice">slice</option>
                   <option value="pack">pack</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="font-semibold text-stone-600">Kategori (Makanan/Minuman) - Opsional</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full border border-stone-300 rounded-xl px-3 py-2 mt-1 font-medium text-stone-700 bg-white"
+                >
+                  <option value="">-- Tanpa Kategori (Kosong) --</option>
+                  <option value="Makanan">Makanan</option>
+                  <option value="Minuman">Minuman</option>
                 </select>
               </div>
 
@@ -381,6 +420,7 @@ export const IngredientsView: React.FC = () => {
                   setAvgCost('150');
                   setMinStock('1000');
                   setSupplierId('');
+                  setCategory('');
                 }} 
                 className="flex-1 py-2 border rounded-xl font-semibold text-xs"
               >
