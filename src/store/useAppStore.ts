@@ -750,11 +750,15 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
 
   fetchCustomerOrders: async () => {
+    if ((useAppStore as any)._isFetchingCustomerOrders) return;
+    (useAppStore as any)._isFetchingCustomerOrders = true;
     try {
       const customerOrders = await dbService.getCustomerOrders();
       set({ customerOrders });
     } catch (e) {
       console.warn('Failed to fetch customer orders:', e);
+    } finally {
+      (useAppStore as any)._isFetchingCustomerOrders = false;
     }
   },
 

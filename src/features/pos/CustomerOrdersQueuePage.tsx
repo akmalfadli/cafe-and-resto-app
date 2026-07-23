@@ -23,7 +23,7 @@ export const CustomerOrdersQueuePage: React.FC = () => {
   useEffect(() => {
     const doFetch = () => useAppStore.getState().fetchCustomerOrders();
     doFetch();
-    const interval = setInterval(doFetch, 5000);
+    const interval = setInterval(doFetch, 12000);
     return () => clearInterval(interval);
   }, []);
 
