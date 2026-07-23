@@ -89,11 +89,15 @@ export const DashboardView: React.FC = () => {
   const itemsPerPage = 10;
   const totalPages = Math.ceil(sales.length / itemsPerPage) || 1;
 
-  // Slice sales for pagination
+  // Slice sales for pagination - sort desc by date
+  const sortedSales = React.useMemo(() => {
+    return [...sales].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [sales]);
+
   const paginatedSales = React.useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return sales.slice(startIndex, startIndex + itemsPerPage);
-  }, [sales, currentPage]);
+    return sortedSales.slice(startIndex, startIndex + itemsPerPage);
+  }, [sortedSales, currentPage]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -244,6 +248,7 @@ export const DashboardView: React.FC = () => {
             <thead>
               <tr className="border-b border-stone-200 text-stone-400 uppercase font-semibold">
                 <th className="pb-2">No. Struk</th>
+                <th className="pb-2">Tanggal & Waktu</th>
                 <th className="pb-2">Kasir</th>
                 <th className="pb-2">Tipe</th>
                 <th className="pb-2">Item</th>
@@ -252,20 +257,36 @@ export const DashboardView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {paginatedSales.map((sale) => (
-                <tr key={sale.id} className="hover:bg-stone-50">
-                  <td className="py-3 font-mono font-bold text-coffee-600">{sale.receipt_number}</td>
-                  <td className="py-3 font-medium text-stone-700">{sale.cashier_name}</td>
-                  <td className="py-3 uppercase font-bold text-stone-500">{sale.order_type}</td>
-                  <td className="py-3 text-stone-600">{sale.items.length} item</td>
-                  <td className="py-3 font-bold text-stone-800">Rp {sale.grand_total.toLocaleString('id-ID')}</td>
-                  <td className="py-3">
-                    <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md font-bold text-[10px]">
-                      Selesai
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {paginatedSales.map((sale) => {
+                const dateObj = new Date(sale.created_at);
+                const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                });
+                const formattedTime = dateObj.toLocaleTimeString('id-ID', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+
+                return (
+                  <tr key={sale.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/40">
+                    <td className="py-3 font-mono font-bold text-coffee-600 dark:text-coffee-400">{sale.receipt_number}</td>
+                    <td className="py-3 font-medium text-stone-600 dark:text-stone-300">
+                      {formattedDate} <span className="text-[10px] text-stone-400 font-mono ml-1">{formattedTime}</span>
+                    </td>
+                    <td className="py-3 font-medium text-stone-700 dark:text-stone-300">{sale.cashier_name}</td>
+                    <td className="py-3 uppercase font-bold text-stone-500">{sale.order_type}</td>
+                    <td className="py-3 text-stone-600 dark:text-stone-400">{sale.items.length} item</td>
+                    <td className="py-3 font-bold text-stone-800 dark:text-stone-200">Rp {sale.grand_total.toLocaleString('id-ID')}</td>
+                    <td className="py-3">
+                      <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400 px-2 py-0.5 rounded-md font-bold text-[10px]">
+                        Selesai
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
