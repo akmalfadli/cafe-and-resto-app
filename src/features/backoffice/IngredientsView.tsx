@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { ShoppingCart, AlertTriangle, CheckCircle2, Download, Upload, FileSpreadsheet, Search } from 'lucide-react';
+import { ShoppingCart, AlertTriangle, CheckCircle2, Download, Upload, FileSpreadsheet, Search, Grid, List } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { supabase } from '../../lib/supabase';
 
@@ -345,29 +345,18 @@ export const IngredientsView: React.FC = () => {
             })}
           </div>
 
-          {/* View Mode Switcher (Layout toggle button group) */}
-          <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl border border-stone-250 shrink-0">
-            <button
-              onClick={() => setViewMode('card')}
-              className={`text-[10px] font-extrabold px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
-                viewMode === 'card'
-                  ? 'bg-white text-stone-850 shadow'
-                  : 'text-stone-400 hover:text-stone-700'
-              }`}
-            >
-              Cards
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`text-[10px] font-extrabold px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
-                viewMode === 'list'
-                  ? 'bg-white text-stone-850 shadow'
-                  : 'text-stone-400 hover:text-stone-700'
-              }`}
-            >
-              Listile
-            </button>
-          </div>
+          {/* View Mode Switcher (Single Icon Toggle Button) */}
+          <button
+            onClick={() => setViewMode(viewMode === 'card' ? 'list' : 'card')}
+            className="p-2.5 bg-stone-100 hover:bg-stone-200 border border-stone-250 rounded-xl transition text-stone-700 hover:text-stone-900 shrink-0 flex items-center justify-center"
+            title={viewMode === 'card' ? 'Tampilkan sebagai List' : 'Tampilkan sebagai Card'}
+          >
+            {viewMode === 'card' ? (
+              <List className="w-4 h-4" />
+            ) : (
+              <Grid className="w-4 h-4" />
+            )}
+          </button>
         </div>
       </div>
 
