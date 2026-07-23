@@ -23,7 +23,7 @@ export const RecipeIngredientRow: React.FC<{
   );
 
   return (
-    <div className="flex items-center gap-3 bg-stone-50 p-2.5 rounded-xl border border-stone-200 text-xs">
+    <div className="flex items-center gap-3 bg-stone-50 dark:bg-stone-800/60 p-2.5 rounded-xl border border-stone-200 dark:border-stone-700/60 text-xs">
       {/* Searchable Custom Dropdown Replacement for Select Option */}
       <div className="flex-1 relative">
         <button
@@ -48,15 +48,15 @@ export const RecipeIngredientRow: React.FC<{
                 setDropSearch('');
               }} 
             />
-            <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-850 rounded-xl shadow-xl z-40 max-h-56 overflow-y-auto p-2 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
-              <div className="relative sticky top-0 bg-white dark:bg-stone-900 pb-1.5 z-10 border-b border-stone-100 dark:border-stone-850">
+            <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl shadow-xl z-40 max-h-56 overflow-y-auto p-2 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="relative sticky top-0 bg-white dark:bg-stone-900 pb-1.5 z-10 border-b border-stone-100 dark:border-stone-800">
                 <Search className="w-3.5 h-3.5 absolute left-2.5 top-2 text-stone-400" />
                 <input
                   type="text"
                   placeholder="Cari bahan baku..."
                   value={dropSearch}
                   onChange={(e) => setDropSearch(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 text-[11px] bg-stone-50 dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-700 focus:outline-none focus:ring-1 focus:ring-coffee-500"
+                  className="w-full pl-8 pr-3 py-1.5 text-[11px] bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-lg border border-stone-200 dark:border-stone-700 focus:outline-none focus:ring-1 focus:ring-coffee-500"
                   autoFocus
                 />
               </div>
@@ -78,7 +78,7 @@ export const RecipeIngredientRow: React.FC<{
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] transition flex justify-between items-center ${
                         item.ingredientId === i.id 
                           ? 'bg-coffee-500 text-white font-bold' 
-                          : 'text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-850'
+                          : 'text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800'
                       }`}
                     >
                       <span className="truncate">{i.name}</span>
@@ -103,7 +103,7 @@ export const RecipeIngredientRow: React.FC<{
             updated[idx].qty = parseFloat(e.target.value) || 0;
             setRecipeItems(updated);
           }}
-          className="w-20 bg-white dark:bg-stone-850 border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-100 rounded-lg px-2 py-1.5 font-bold text-center"
+          className="w-20 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-100 rounded-lg px-2 py-1.5 font-bold text-center"
         />
         <span className="text-stone-500 dark:text-stone-400 font-semibold w-10">{ing?.unit}</span>
       </div>
@@ -160,7 +160,7 @@ export const RecipeBuilderModal: React.FC<{ productId: string; onClose: () => vo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-stone-900 rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-stone-200">
+      <div className="bg-white dark:bg-stone-900 rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-stone-200 dark:border-stone-800">
         
         <div className="bg-coffee-500 text-white p-5 flex justify-between items-center">
           <div>
@@ -176,12 +176,12 @@ export const RecipeBuilderModal: React.FC<{ productId: string; onClose: () => vo
           
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="text-xs font-bold text-stone-700 uppercase tracking-wider">
+              <label className="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider">
                 Bahan Baku Resep
               </label>
               <button
                 onClick={handleAddItem}
-                className="text-xs bg-coffee-50 text-coffee-600 font-bold px-3 py-1 rounded-lg border border-coffee-200 hover:bg-coffee-100 transition flex items-center gap-1"
+                className="text-xs bg-coffee-50 dark:bg-coffee-950/40 text-coffee-600 dark:text-coffee-300 font-bold px-3 py-1 rounded-lg border border-coffee-200 dark:border-coffee-800 hover:bg-coffee-100 dark:hover:bg-coffee-900/50 transition flex items-center gap-1"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Tambah Bahan Baku
@@ -189,7 +189,7 @@ export const RecipeBuilderModal: React.FC<{ productId: string; onClose: () => vo
             </div>
 
             {recipeItems.length === 0 ? (
-              <div className="p-6 text-center text-xs text-stone-400 bg-stone-50 rounded-xl border border-dashed border-stone-200">
+              <div className="p-6 text-center text-xs text-stone-400 dark:text-stone-500 bg-stone-50 dark:bg-stone-800/40 rounded-xl border border-dashed border-stone-200 dark:border-stone-800">
                 Belum ada bahan baku yang dihubungkan ke produk ini.
               </div>
             ) : (
@@ -209,36 +209,36 @@ export const RecipeBuilderModal: React.FC<{ productId: string; onClose: () => vo
             )}
           </div>
 
-          <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-600 flex items-center gap-1.5">
+          <div className="bg-stone-50 dark:bg-stone-800/50 p-4 rounded-xl border border-stone-200 dark:border-stone-700/60 space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
               <Calculator className="w-4 h-4 text-coffee-500" />
               Rincian Biaya HPP Otomatis
             </h3>
             
             <div className="grid grid-cols-2 gap-4 text-xs">
-              <div className="space-y-1">
-                <div className="flex justify-between"><span>Biaya Bahan Baku:</span><span className="font-bold">Rp {calculatedMaterialCost.toLocaleString('id-ID')}</span></div>
-                <div className="flex justify-between"><span>Biaya Kemasan:</span><span className="font-bold">Rp {packagingCost.toLocaleString('id-ID')}</span></div>
-                <div className="flex justify-between"><span>Biaya Layanan:</span><span className="font-bold">Rp {serviceCost.toLocaleString('id-ID')}</span></div>
-                <div className="flex justify-between pt-1 border-t border-stone-300 font-extrabold text-stone-900">
+              <div className="space-y-1 text-stone-600 dark:text-stone-300">
+                <div className="flex justify-between"><span>Biaya Bahan Baku:</span><span className="font-bold text-stone-800 dark:text-stone-100">Rp {calculatedMaterialCost.toLocaleString('id-ID')}</span></div>
+                <div className="flex justify-between"><span>Biaya Kemasan:</span><span className="font-bold text-stone-800 dark:text-stone-100">Rp {packagingCost.toLocaleString('id-ID')}</span></div>
+                <div className="flex justify-between"><span>Biaya Layanan:</span><span className="font-bold text-stone-800 dark:text-stone-100">Rp {serviceCost.toLocaleString('id-ID')}</span></div>
+                <div className="flex justify-between pt-1 border-t border-stone-300 dark:border-stone-700 font-extrabold text-stone-900 dark:text-stone-100">
                   <span>TOTAL HPP:</span>
-                  <span>Rp {totalCost.toLocaleString('id-ID')}</span>
+                  <span className="text-stone-900 dark:text-stone-100">Rp {totalCost.toLocaleString('id-ID')}</span>
                 </div>
               </div>
 
-              <div className="space-y-1 border-l border-stone-200 pl-4">
-                <div className="flex justify-between"><span>Harga Jual:</span><span className="font-bold text-coffee-600">Rp {sellingPrice.toLocaleString('id-ID')}</span></div>
-                <div className="flex justify-between"><span>Laba Kotor:</span><span className={`font-bold ${profit > 0 ? 'text-accent' : 'text-red-500'}`}>Rp {profit.toLocaleString('id-ID')}</span></div>
-                <div className="flex justify-between"><span>Persentase Margin:</span><span className="font-bold">{marginPct}%</span></div>
-                <div className="flex justify-between"><span>Persentase Markup:</span><span className="font-bold">{markupPct}%</span></div>
+              <div className="space-y-1 border-l border-stone-200 dark:border-stone-700/60 pl-4 text-stone-600 dark:text-stone-300">
+                <div className="flex justify-between"><span>Harga Jual:</span><span className="font-bold text-coffee-600 dark:text-coffee-400">Rp {sellingPrice.toLocaleString('id-ID')}</span></div>
+                <div className="flex justify-between"><span>Laba Kotor:</span><span className={`font-bold ${profit > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>Rp {profit.toLocaleString('id-ID')}</span></div>
+                <div className="flex justify-between"><span>Persentase Margin:</span><span className="font-bold text-stone-800 dark:text-stone-100">{marginPct}%</span></div>
+                <div className="flex justify-between"><span>Persentase Markup:</span><span className="font-bold text-stone-800 dark:text-stone-100">{markupPct}%</span></div>
               </div>
             </div>
           </div>
 
         </div>
 
-        <div className="bg-stone-100 p-4 flex justify-end gap-3 border-t border-stone-200">
-          <button onClick={onClose} className="px-4 py-2 border border-stone-300 rounded-xl text-xs font-semibold hover:bg-white">
+        <div className="bg-stone-100 dark:bg-stone-800/80 p-4 flex justify-end gap-3 border-t border-stone-200 dark:border-stone-800">
+          <button onClick={onClose} className="px-4 py-2 border border-stone-300 dark:border-stone-700 rounded-xl text-xs font-semibold hover:bg-white dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200">
             Batal
           </button>
           <button onClick={handleSave} className="px-5 py-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl text-xs font-bold shadow">
