@@ -390,4 +390,53 @@ export const dbService = {
     const { error } = await supabase.from('settings').upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
     if (error) throw error;
   },
+
+  // Customer Orders Queue Workflow
+  async getCustomerOrders(): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('customer_orders')
+      .select('*, customer_order_items(*)')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('Failed to fetch customer_orders (schema might need DB push):', error.message);
+      return [];
+    }
+    return (data || []).map((o: any) => ({
+      ...o,
+      items: o.customer_order_items || [],
+    }));
+  },
+
+  async createCustomerOrder(orderData: any): Promise<any> {
+    const { items, ...mainOrder } = orderData;
+    const { data: order, error: orderErr } = await supabase
+      .from('customer_orders')
+      .insert(mainOrder)
+      .select()
+      .single();
+    if (orderErr) throw orderErr;
+
+    const orderItems = items.map((it: any) => ({
+      order_id: order.id,
+      product_id: it.product_id,
+      product_name: it.product_name,
+      quantity: it.quantity,
+      unit_price: it.unit_price,
+      notes: it.notes,
+      total_price: it.total_price,
+    }));
+
+    const { error: itemsErr } = await supabase.from('customer_order_items').insert(orderItems);
+    if (itemsErr) throw itemsErr;
+
+    return { ...order, items: orderItems };
+  },
+
+  async updateCustomerOrderStatus(id: string, status: 'pending' | 'approved' | 'rejected' | 'paid'): Promise<void> {
+    const { error } = await supabase
+      .from('customer_orders')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', id);
+    if (error) throw error;
+  },
 };

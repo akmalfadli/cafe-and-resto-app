@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { 
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
-  ArrowLeft, ShoppingCart, Check
+  ArrowLeft, ShoppingCart, Check, Clock, CheckCircle
 } from 'lucide-react';
 import type { Product } from '../../types';
 
@@ -11,11 +11,20 @@ interface CustomerMenuViewProps {
 }
 
 export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) => {
-  const { products, categories, ingredients, recipes } = useAppStore();
+  const { products, categories, ingredients, recipes, tables, submitCustomerOrder } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<{ product: Product; quantity: number; notes: string }[]>([]);
   const [showOrderSummary, setShowOrderSummary] = useState(false);
+
+  // Customer Form details
+  const [custName, setCustName] = useState('');
+  const [custTable, setCustTable] = useState('T-01');
+  const [custNotes, setCustNotes] = useState('');
+
+  // Submit Order Workflow State
+  const [submittedOrderNo, setSubmittedOrderNo] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getCategoryIcon = (iconName?: string) => {
     switch (iconName) {
@@ -36,14 +45,13 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
   });
 
   const addToCustomerCart = (product: Product) => {
-    // Check if ingredient stock is empty
     const matchedRecipe = recipes.find(r => r.product_id === product.id);
     const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
       const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
       return matchedIng && matchedIng.current_stock <= 0;
     });
 
-    if (isOutOfStock) return; // Prevent adding if out of stock
+    if (isOutOfStock) return;
 
     const existingIndex = cart.findIndex((item) => item.product.id === product.id);
     if (existingIndex > -1) {
@@ -71,6 +79,86 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
 
   const totalAmount = cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
 
+  const handleSubmitOrder = async () => {
+    if (!custName.trim()) {
+      alert('Silakan masukkan nama Anda terlebih dahulu.');
+      return;
+    }
+    if (cart.length === 0) return;
+
+    setIsSubmitting(true);
+    try {
+      const prefix = 'CUST';
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      const orderNumber = `${prefix}-${Date.now().toString().slice(-6)}-${rand}`;
+
+      const payload = {
+        order_number: orderNumber,
+        customer_name: custName.trim(),
+        table_number: custTable,
+        order_type: 'dine_in',
+        subtotal: totalAmount,
+        tax_amount: 0,
+        service_charge: 0,
+        grand_total: totalAmount,
+        status: 'pending',
+        notes: custNotes,
+        items: cart.map(item => ({
+          product_id: item.product.id,
+          product_name: item.product.name,
+          quantity: item.quantity,
+          unit_price: item.product.selling_price,
+          notes: item.notes,
+          total_price: item.product.selling_price * item.quantity
+        }))
+      };
+
+      await submitCustomerOrder(payload);
+      setSubmittedOrderNo(orderNumber);
+      setCart([]);
+      setShowOrderSummary(false);
+    } catch (e: any) {
+      alert('Gagal mengirim pesanan: ' + e?.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Success Confirmation Screen
+  if (submittedOrderNo) {
+    return (
+      <div className="h-screen w-screen bg-stone-50 dark:bg-stone-950 flex flex-col items-center justify-center p-6 text-center select-none font-sans">
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-3xl shadow-xl max-w-md w-full space-y-6 animate-in zoom-in-95 duration-200">
+          <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
+            <CheckCircle className="w-10 h-10" />
+          </div>
+          
+          <div className="space-y-2">
+            <h2 className="text-xl font-black text-stone-850 dark:text-stone-100">Pesanan Berhasil Dibuat!</h2>
+            <p className="text-xs text-stone-400 font-mono">No. Pesanan: <span className="font-bold text-coffee-600">{submittedOrderNo}</span></p>
+          </div>
+
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 p-4 rounded-2xl text-stone-700 dark:text-stone-300 text-xs font-bold space-y-2 leading-relaxed">
+            <Clock className="w-5 h-5 text-amber-500 mx-auto animate-bounce" />
+            <p>Silakan menuju ke Kasir untuk melakukan pembayaran.</p>
+            <p className="text-[10px] text-stone-400 font-medium">Beri tahu kasir nama Anda (<span className="font-bold">{custName}</span>) atau tunjukkan nomor pesanan di atas.</p>
+          </div>
+
+          <button
+            onClick={() => {
+              setSubmittedOrderNo(null);
+              setCustName('');
+              setCustNotes('');
+            }}
+            className="w-full bg-coffee-500 hover:bg-coffee-600 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md"
+          >
+            Buat Pesanan Baru
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen w-screen flex flex-col bg-stone-50 dark:bg-stone-950 font-sans overflow-hidden">
       {/* HEADER */}
@@ -89,7 +177,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Cart Icon & Indicator */}
           <button 
             onClick={() => setShowOrderSummary(!showOrderSummary)}
             className="relative p-2.5 bg-coffee-50 dark:bg-coffee-950/40 text-coffee-600 dark:text-coffee-400 rounded-xl hover:bg-coffee-100 dark:hover:bg-coffee-950/70 transition flex items-center justify-center"
@@ -106,7 +193,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
 
       {/* FILTER & SEARCH */}
       <div className="bg-white dark:bg-stone-900 p-3 border-b border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-        {/* Search */}
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
@@ -118,7 +204,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
           />
         </div>
 
-        {/* Categories Tab selector */}
         <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           <button
             onClick={() => setSelectedCategory('all')}
@@ -153,7 +238,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
         <main className="flex-1 p-3 md:p-6 overflow-y-auto bg-stone-100/50 dark:bg-stone-950/20">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 pb-20">
             {filteredProducts.map((product) => {
-              // Check out of stock
               const matchedRecipe = recipes.find(r => r.product_id === product.id);
               const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
                 const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
@@ -174,7 +258,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
                         : 'border-stone-200 dark:border-stone-800'
                   }`}
                 >
-                  {/* Photo Container */}
                   <div className="h-28 md:h-36 w-full overflow-hidden bg-stone-100 dark:bg-stone-850 relative">
                     <img
                       src={product.image_url}
@@ -201,7 +284,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
                     ) : null}
                   </div>
 
-                  {/* Detail Info */}
                   <div className="p-2.5 md:p-3 flex flex-col justify-between flex-1 space-y-2">
                     <div>
                       <h4 className="font-extrabold text-xs md:text-sm text-stone-800 dark:text-stone-100 line-clamp-2">
@@ -247,17 +329,16 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
           </div>
         </main>
 
-        {/* ORDER SUMMARY SIDE BAR (Overlay on mobile, sidebar on desktop) */}
+        {/* ORDER SUMMARY SIDE BAR */}
         {showOrderSummary && (
           <aside className="absolute md:static right-0 top-0 bottom-0 z-20 w-80 md:w-96 bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 flex flex-col shadow-2xl animate-in slide-in-from-right duration-250 shrink-0">
-            {/* Summary Header */}
             <div className="p-4 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center bg-stone-50 dark:bg-stone-900/60">
               <div>
                 <h3 className="font-extrabold text-sm text-stone-800 dark:text-stone-100 flex items-center gap-1.5">
                   <ShoppingCart className="w-4 h-4 text-coffee-500" />
                   Pesanan Saya
                 </h3>
-                <p className="text-[10px] text-stone-400">Daftar item terpilih untuk dipesan</p>
+                <p className="text-[10px] text-stone-400">Silakan isi detail Anda di bawah ini</p>
               </div>
               <button 
                 onClick={() => setShowOrderSummary(false)}
@@ -265,6 +346,45 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
               >
                 Tutup
               </button>
+            </div>
+
+            {/* Customer Information Inputs */}
+            <div className="p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50/50 space-y-3">
+              <div>
+                <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Nama Anda *</label>
+                <input
+                  type="text"
+                  placeholder="Masukkan nama Anda..."
+                  value={custName}
+                  onChange={(e) => setCustName(e.target.value)}
+                  className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">No. Meja</label>
+                  <select
+                    value={custTable}
+                    onChange={(e) => setCustTable(e.target.value)}
+                    className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-2.5 py-2 text-xs font-bold focus:outline-none"
+                  >
+                    {tables.map(t => (
+                      <option key={t.id} value={t.table_number}>Meja {t.table_number}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Catatan Tambahan</label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: Sendok 2..."
+                    value={custNotes}
+                    onChange={(e) => setCustNotes(e.target.value)}
+                    className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* List Order Items */}
@@ -283,7 +403,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
                       <h4 className="font-extrabold text-stone-800 dark:text-stone-100 truncate">{item.product.name}</h4>
                       <p className="text-[10px] text-coffee-600 font-bold mt-0.5">Rp {item.product.selling_price.toLocaleString('id-ID')}</p>
                       
-                      {/* Note Input */}
                       <input 
                         type="text" 
                         placeholder="Catatan memasak (pedas, manis)..."
@@ -325,13 +444,11 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
                 <span className="font-black text-sm text-stone-850 dark:text-stone-100">Rp {totalAmount.toLocaleString('id-ID')}</span>
               </div>
               <button 
-                onClick={() => {
-                  alert('Silakan tunjukkan layar pesanan ini ke Kasir / Waiter untuk dicatat dan diselesaikan pembayarannya.');
-                }}
-                disabled={cart.length === 0}
+                onClick={handleSubmitOrder}
+                disabled={cart.length === 0 || isSubmitting}
                 className="w-full bg-coffee-500 hover:bg-coffee-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition disabled:opacity-50"
               >
-                Pesan & Hubungi Waiter
+                {isSubmitting ? 'Mengirim...' : 'Pesan & Dapatkan Kode Bayar'}
               </button>
             </div>
           </aside>
@@ -356,3 +473,4 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = ({ onBack }) =>
     </div>
   );
 };
+

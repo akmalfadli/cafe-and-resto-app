@@ -163,3 +163,30 @@ export interface TableItem {
   capacity: number;
   status: 'available' | 'occupied' | 'reserved';
 }
+
+export interface CustomerOrderItem {
+  id: string;
+  order_id: string;
+  product_id: string;
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+  notes?: string;
+  total_price: number;
+}
+
+export interface CustomerOrder {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  table_number?: string;
+  order_type: OrderType;
+  subtotal: number;
+  tax_amount: number;
+  service_charge: number;
+  grand_total: number;
+  status: 'pending' | 'approved' | 'rejected' | 'paid';
+  notes?: string;
+  created_at: string;
+  items?: CustomerOrderItem[];
+}

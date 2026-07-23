@@ -13,7 +13,7 @@ interface PaymentDialogProps {
 }
 
 export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose }) => {
-  const { cart, products, categories, discountType, discountValue, taxRate, serviceRate, completeSale, receiptHeader, receiptFooter, receiptLogo, enableTableNumber, enableTax } = useAppStore();
+  const { cart, products, categories, discountType, discountValue, taxRate, serviceRate, completeSale, updateCustomerOrderStatus, receiptHeader, receiptFooter, receiptLogo, enableTableNumber, enableTax } = useAppStore();
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'qris' | 'transfer' | 'split'>('cash');
   const [cashTendered, setCashTendered] = useState<string>('');
   const [completedSale, setCompletedSale] = useState<Sale | null>(null);
@@ -34,6 +34,18 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
   const handleProcessPayment = async () => {
     const amount = paymentMethod === 'cash' ? parsedCash : grandTotal;
     const sale = await completeSale(paymentMethod, amount, paymentMethod === 'qris' ? 'QRIS-' + Date.now().toString().slice(-6) : undefined);
+    
+    // Resolve customer orders queue workflow if triggered via QR
+    const pendingOrderId = (window as any)._pendingCustomerOrderId;
+    if (pendingOrderId) {
+      try {
+        await updateCustomerOrderStatus(pendingOrderId, 'paid');
+      } catch (err) {
+        console.warn('Failed to update customer order status to paid:', err);
+      }
+      delete (window as any)._pendingCustomerOrderId;
+    }
+
     setCompletedSale(sale);
   };
 

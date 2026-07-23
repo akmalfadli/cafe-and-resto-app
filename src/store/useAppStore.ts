@@ -26,8 +26,12 @@ interface AppStore {
   tables: TableItem[];
   activeShift: CashShift | null;
   pendingSales: any[];
+  customerOrders: any[];
   setDatabaseMode: (mode: boolean) => void;
   syncOfflineSales: () => Promise<void>;
+  fetchCustomerOrders: () => Promise<void>;
+  submitCustomerOrder: (orderData: any) => Promise<any>;
+  updateCustomerOrderStatus: (id: string, status: 'pending' | 'approved' | 'rejected' | 'paid') => Promise<void>;
 
   // POS State
   cart: CartItem[];
@@ -130,6 +134,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   shifts: [],
   tables: [],
   activeShift: null,
+  customerOrders: [],
 
   cart: [],
   selectedCategory: 'all',
@@ -165,7 +170,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   fetchInitialData: async () => {
     set({ isLoading: true, errorMsg: null });
     try {
-      const [categories, products, ingredients, suppliers, recipes, sales, activeShift, tables, profiles, dbSettings] = await Promise.all([
+      const [categories, products, ingredients, suppliers, recipes, sales, activeShift, tables, profiles, dbSettings, customerOrders] = await Promise.all([
         dbService.getCategories(),
         dbService.getProducts(),
         dbService.getIngredients(),
@@ -176,6 +181,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
         dbService.getTables(),
         dbService.getProfiles(),
         dbService.getSettings(),
+        dbService.getCustomerOrders(),
       ]);
 
       set({
@@ -188,6 +194,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
         activeShift: activeShift || null,
         tables,
         profiles,
+        customerOrders,
         // Restore session: find profile by saved ID in localStorage
         currentUser: (() => {
           const savedId = localStorage.getItem('cafepos_session_user_id');
@@ -740,5 +747,30 @@ export const useAppStore = create<AppStore>((set, get) => ({
         console.warn('Could not refresh sales list after sync:', e);
       }
     }
+  },
+
+  fetchCustomerOrders: async () => {
+    try {
+      const customerOrders = await dbService.getCustomerOrders();
+      set({ customerOrders });
+    } catch (e) {
+      console.warn('Failed to fetch customer orders:', e);
+    }
+  },
+
+  submitCustomerOrder: async (orderData: any) => {
+    const newOrder = await dbService.createCustomerOrder(orderData);
+    const { customerOrders } = get();
+    set({ customerOrders: [newOrder, ...customerOrders] });
+    return newOrder;
+  },
+
+  updateCustomerOrderStatus: async (id: string, status: 'pending' | 'approved' | 'rejected' | 'paid') => {
+    await dbService.updateCustomerOrderStatus(id, status);
+    const { customerOrders } = get();
+    const updated = customerOrders.map((o) => (o.id === id ? { ...o, status } : o));
+    set({ customerOrders: updated });
+
+    // If paid/approved, we can also refresh local sales if needed.
   },
 }));

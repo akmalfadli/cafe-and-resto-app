@@ -5,11 +5,12 @@ import {
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
   Trash2, Plus, Minus, CreditCard, Clock, User, 
   UtensilsCrossed, ShoppingBag, Truck, Tag, LogOut, DoorOpen,
-  LayoutGrid, List, Shield, AlertTriangle
+  LayoutGrid, List, Shield, AlertTriangle, ClipboardList
 } from 'lucide-react';
 import { PaymentDialog } from './PaymentDialog';
 import { ShiftGateScreen } from './ShiftGateScreen';
 import { CloseShiftModal } from './CloseShiftModal';
+import { CustomerOrdersQueueModal } from './CustomerOrdersQueueModal';
 
 interface PosScreenProps {
   onSwitchToBackOffice?: () => void;
@@ -50,7 +51,8 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
     setDiscount,
     pendingSales,
     isDatabaseMode,
-    syncOfflineSales
+    syncOfflineSales,
+    customerOrders
   } = useAppStore();
 
   const navigate = useNavigate();
@@ -58,6 +60,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [showCloseShift, setShowCloseShift] = useState(false);
+  const [showOrdersQueue, setShowOrdersQueue] = useState(false);
   const [tempDiscount, setTempDiscount] = useState<string>('0');
   const [modalDiscType, setModalDiscType] = useState<'fixed' | 'percentage'>('fixed');
   const [showCartOnMobile, setShowCartOnMobile] = useState(false);
@@ -159,11 +162,26 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
           </button>
           <button
             onClick={() => navigate('/menu')}
-            className="p-1.5 sm:p-2 bg-coffee-50 hover:bg-coffee-100 text-coffee-600 rounded-xl border border-coffee-200 transition shrink-0 font-bold flex items-center gap-1 text-xs"
+            className="p-1.5 sm:p-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl border border-stone-250 transition shrink-0 font-bold flex items-center gap-1 text-xs"
             title="Buka Menu Pelanggan"
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
+            <ShoppingBag className="w-3.5 h-3.5 text-coffee-600" />
             <span className="hidden sm:inline">Menu Pelanggan</span>
+          </button>
+          
+          {/* Antrean Pesanan Button */}
+          <button
+            onClick={() => setShowOrdersQueue(true)}
+            className="relative p-1.5 sm:p-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl transition shrink-0 font-bold flex items-center gap-1 text-xs shadow-sm"
+            title="Antrean Pesanan Pelanggan"
+          >
+            <ClipboardList className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Antrean</span>
+            {customerOrders.filter(o => o.status === 'pending').length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow border border-white animate-bounce">
+                {customerOrders.filter(o => o.status === 'pending').length}
+              </span>
+            )}
           </button>
         </div>
 
@@ -644,6 +662,44 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
           </div>
         </div>
       )}
+
+      {/* Customer Orders Queue Modal (Cashier review/pay screen) */}
+      <CustomerOrdersQueueModal
+        isOpen={showOrdersQueue}
+        onClose={() => setShowOrdersQueue(false)}
+        onApproveOrder={async (order) => {
+          // 1. Populate cashier cart with the customer's QR order items
+          clearCart();
+          setCustomerName(order.customer_name);
+          if (order.table_number) {
+            setSelectedTable(order.table_number);
+          }
+          setOrderType(order.order_type);
+
+          // Map items to cart
+          for (const item of order.items || []) {
+            const prod = products.find(p => p.id === item.product_id);
+            if (prod) {
+              // Add to POS cashier cart
+              addToCart(prod);
+              // Wait a tiny bit or directly update item quantity & notes
+              updateCartQty(prod.id, item.quantity);
+              if (item.notes) {
+                updateCartNotes(prod.id, item.notes);
+              }
+            }
+          }
+
+          // 2. Open payment dialog directly for cashiers to input cash amount/QRIS and finalize
+          setShowOrdersQueue(false);
+          
+          // Setup hook so that when they complete the POS sale, the status is set to paid in Supabase.
+          // Since completeSale is triggered on PaymentDialog, we can save the pending customer order ID.
+          (window as any)._pendingCustomerOrderId = order.id;
+
+          setIsPaymentOpen(true);
+        }}
+      />
 
     </div>
   );
