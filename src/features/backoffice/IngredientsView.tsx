@@ -430,30 +430,30 @@ export const IngredientsView: React.FC = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full space-y-4 shadow-xl border border-stone-200">
-            <h3 className="font-bold text-base text-stone-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-4">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-xl border border-stone-200 dark:border-stone-800">
+            <h3 className="font-bold text-base text-stone-800 dark:text-stone-100">
               {editingIngredient ? 'Ubah Bahan Baku' : 'Tambah Bahan Baku Baru'}
             </h3>
             
             <div className="space-y-3 text-xs">
               <div>
-                <label className="font-semibold text-stone-600">Nama Bahan</label>
+                <label className="font-semibold text-stone-600 dark:text-stone-400">Nama Bahan</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full border border-stone-300 rounded-xl px-3 py-2 mt-1 font-bold"
+                  className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 mt-1 font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500"
                   placeholder="Contoh: Kopi Arabika"
                 />
               </div>
 
               <div>
-                <label className="font-semibold text-stone-600">Satuan Unit</label>
+                <label className="font-semibold text-stone-600 dark:text-stone-400">Satuan Unit</label>
                 <select
                   value={unit}
                   onChange={(e) => setUnit(e.target.value as any)}
-                  className="w-full border border-stone-300 rounded-xl px-3 py-2 mt-1"
+                  className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 mt-1"
                 >
                   <option value="gram">gram</option>
                   <option value="ml">ml</option>
@@ -464,11 +464,11 @@ export const IngredientsView: React.FC = () => {
               </div>
 
               <div>
-                <label className="font-semibold text-stone-600">Kategori (Makanan/Minuman) - Opsional</label>
+                <label className="font-semibold text-stone-600 dark:text-stone-400">Kategori (Makanan/Minuman) - Opsional</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full border border-stone-300 rounded-xl px-3 py-2 mt-1 font-medium text-stone-700 bg-white"
+                  className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 mt-1 font-medium"
                 >
                   <option value="">-- Tanpa Kategori (Kosong) --</option>
                   {dbCategories.length > 0 ? (
@@ -487,11 +487,11 @@ export const IngredientsView: React.FC = () => {
               </div>
 
               <div>
-                <label className="font-semibold text-stone-600">Pemasok (Supplier) - Opsional</label>
+                <label className="font-semibold text-stone-600 dark:text-stone-400">Pemasok (Supplier) - Opsional</label>
                 <select
                   value={supplierId}
                   onChange={(e) => setSupplierId(e.target.value)}
-                  className="w-full border border-stone-300 rounded-xl px-3 py-2 mt-1 font-medium text-stone-700 bg-white"
+                  className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 mt-1 font-medium"
                 >
                   <option value="">-- Tanpa Pemasok (Kosong) --</option>
                   {suppliers.map((s) => (
@@ -504,21 +504,21 @@ export const IngredientsView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-semibold text-stone-600">Biaya Rata-rata (Rp)</label>
+                  <label className="font-semibold text-stone-600 dark:text-stone-400">Biaya Rata-rata (Rp)</label>
                   <input
                     type="number"
                     value={avgCost}
                     onChange={(e) => setAvgCost(e.target.value)}
-                    className="w-full border border-stone-300 rounded-xl px-3 py-2 mt-1 font-bold"
+                    className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 mt-1 font-bold"
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-stone-600">Minimum Stok</label>
+                  <label className="font-semibold text-stone-600 dark:text-stone-400">Minimum Stok</label>
                   <input
                     type="number"
                     value={minStock}
                     onChange={(e) => setMinStock(e.target.value)}
-                    className="w-full border border-stone-300 rounded-xl px-3 py-2 mt-1 font-bold"
+                    className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 mt-1 font-bold"
                   />
                 </div>
               </div>
@@ -536,7 +536,7 @@ export const IngredientsView: React.FC = () => {
                   setSupplierId('');
                   setCategory('');
                 }} 
-                className="flex-1 py-2 border rounded-xl font-semibold text-xs"
+                className="flex-1 py-2 border rounded-xl font-semibold text-xs text-stone-700 dark:text-stone-300 border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 Batal
               </button>
@@ -549,21 +549,21 @@ export const IngredientsView: React.FC = () => {
       )}
 
       {adjustModalOpen && selectedAdjustIng && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-xl border border-stone-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-4">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-xl border border-stone-200 dark:border-stone-800">
             <div>
-              <h3 className="font-bold text-base text-stone-800">Tambah Stok Bahan Baku</h3>
-              <p className="text-[11px] text-stone-400 mt-0.5">Menambah jumlah persediaan untuk: <strong className="text-stone-700">{selectedAdjustIng.name}</strong></p>
+              <h3 className="font-bold text-base text-stone-800 dark:text-stone-100">Tambah Stok Bahan Baku</h3>
+              <p className="text-[11px] text-stone-400 dark:text-stone-500 mt-0.5">Menambah jumlah persediaan untuk: <strong className="text-stone-700 dark:text-stone-300">{selectedAdjustIng.name}</strong></p>
             </div>
             
             <div className="space-y-3 text-xs">
               <div>
-                <label className="font-semibold text-stone-600 block mb-1">Jumlah Tambahan ({selectedAdjustIng.unit})</label>
+                <label className="font-semibold text-stone-600 dark:text-stone-400 block mb-1">Jumlah Tambahan ({selectedAdjustIng.unit})</label>
                 <input
                   type="number"
                   value={adjustQty}
                   onChange={(e) => setAdjustQty(e.target.value)}
-                  className="w-full border border-stone-300 rounded-xl px-3 py-2 font-extrabold text-base focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                  className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3 py-2 font-extrabold text-base focus:outline-none focus:ring-2 focus:ring-coffee-500"
                   placeholder="Contoh: 1000"
                 />
               </div>
@@ -575,7 +575,7 @@ export const IngredientsView: React.FC = () => {
                   setAdjustModalOpen(false);
                   setSelectedAdjustIng(null);
                 }} 
-                className="flex-1 py-2 border rounded-xl font-semibold text-xs"
+                className="flex-1 py-2 border rounded-xl font-semibold text-xs text-stone-700 dark:text-stone-300 border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 Batal
               </button>
