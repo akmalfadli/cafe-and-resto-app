@@ -5,11 +5,12 @@ import {
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
   Trash2, Plus, Minus, CreditCard, Clock, User, 
   UtensilsCrossed, ShoppingBag, Truck, Tag, LogOut, DoorOpen,
-  LayoutGrid, List, Shield, AlertTriangle, ClipboardList
+  LayoutGrid, List, Shield, AlertTriangle, ClipboardList, History
 } from 'lucide-react';
 import { PaymentDialog } from './PaymentDialog';
 import { ShiftGateScreen } from './ShiftGateScreen';
 import { CloseShiftModal } from './CloseShiftModal';
+import { TransactionHistoryModal } from './TransactionHistoryModal';
 
 interface PosScreenProps {
   onSwitchToBackOffice?: () => void;
@@ -58,6 +59,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [showCloseShift, setShowCloseShift] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [tempDiscount, setTempDiscount] = useState<string>('0');
   const [modalDiscType, setModalDiscType] = useState<'fixed' | 'percentage'>('fixed');
   const [showCartOnMobile, setShowCartOnMobile] = useState(false);
@@ -183,20 +185,28 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
             {viewMode === 'card' ? <List className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
           </button>
           
-            {/* Antrean Pesanan Button — navigates to full page */}
-            <button
-              onClick={() => navigate('/antrean')}
-              className="relative p-1.5 sm:p-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl transition shrink-0 font-bold flex items-center gap-1 text-xs shadow-sm"
-              title="Antrean Pesanan Pelanggan"
-            >
-              <ClipboardList className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Antrean</span>
-              {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow border border-white">
-                  {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length}
-                </span>
-              )}
-            </button>
+          <button
+            onClick={() => navigate('/antrean')}
+            className="relative p-1.5 sm:p-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl transition shrink-0 font-bold flex items-center gap-1 text-xs shadow-sm"
+            title="Antrean Pesanan Pelanggan"
+          >
+            <ClipboardList className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Antrean</span>
+            {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow border border-white">
+                {useAppStore.getState().customerOrders.filter(o => o.status === 'pending').length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setShowHistoryModal(true)}
+            className="p-1.5 sm:p-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl border border-stone-200 transition shrink-0 font-bold flex items-center gap-1 text-xs"
+            title="Riwayat Transaksi"
+          >
+            <History className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Riwayat</span>
+          </button>
         </div>
 
         <div className="flex items-center gap-1.5 md:gap-3 text-xs font-medium text-stone-600 shrink-0">
@@ -243,6 +253,9 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
 
       {/* Close Shift Modal */}
       <CloseShiftModal isOpen={showCloseShift} onClose={() => setShowCloseShift(false)} />
+      
+      {/* Transaction History Modal */}
+      <TransactionHistoryModal isOpen={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
 
       {/* MAIN LAYOUT */}
       <div className="flex-1 flex overflow-hidden relative">
@@ -285,7 +298,6 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
           {viewMode === 'card' ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
               {filteredProducts.map((product) => {
-                // Calculate if ingredients for this product are out of stock
                 const matchedRecipe = recipes.find(r => r.product_id === product.id);
                 const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
                   const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
@@ -338,7 +350,6 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
           ) : (
             <div className="flex flex-col gap-2">
               {filteredProducts.map((product) => {
-                // Calculate if ingredients for this product are out of stock
                 const matchedRecipe = recipes.find(r => r.product_id === product.id);
                 const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
                   const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
@@ -677,8 +688,6 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
           </div>
         </div>
       )}
-
-
 
     </div>
   );
