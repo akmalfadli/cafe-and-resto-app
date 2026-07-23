@@ -78,6 +78,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
   // Auto-open payment dialog when returning from /antrean with openPayment flag
   React.useEffect(() => {
     if (searchParams.get('openPayment') === '1') {
+      setShowCartOnMobile(true);
       setIsPaymentOpen(true);
       setSearchParams({}, { replace: true });
     }
