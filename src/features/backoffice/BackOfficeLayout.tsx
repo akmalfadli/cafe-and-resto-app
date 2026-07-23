@@ -25,8 +25,15 @@ export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPo
   const { currentUser, logout } = useAppStore();
   const [activeTab, setActiveTab] = useState<
     'dashboard' | 'products' | 'categories' | 'tables' | 'ingredients' | 'suppliers' | 'reports' | 'shifts' | 'users' | 'settings'
-  >('dashboard');
+  >(() => {
+    return (localStorage.getItem('cafepos_backoffice_tab') as any) || 'dashboard';
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleTabChange = (tab: any) => {
+    setActiveTab(tab);
+    localStorage.setItem('cafepos_backoffice_tab', tab);
+  };
 
   const sidebarItems = [
     { id: 'dashboard', label: 'Dasbor Eksekutif', icon: LayoutDashboard },
@@ -111,7 +118,7 @@ export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPo
                 <button
                   key={item.id}
                   onClick={() => {
-                    setActiveTab(item.id as any);
+                    handleTabChange(item.id as any);
                     setIsMobileMenuOpen(false);
                   }}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
