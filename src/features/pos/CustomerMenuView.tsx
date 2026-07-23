@@ -237,8 +237,15 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
 
       {/* BODY MENU & PRODUCT GRID */}
       <div className="flex-1 flex overflow-hidden relative">
-        <main className="flex-1 p-3 md:p-6 overflow-y-auto bg-stone-100/50 dark:bg-stone-950/20">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 pb-20">
+        <main className="flex-1 p-3 md:p-6 overflow-y-auto bg-stone-100/50 dark:bg-stone-950/20 flex flex-col justify-between min-h-full">
+          <div className="flex-1">
+            {filteredProducts.length === 0 ? (
+              <div className="h-64 flex flex-col items-center justify-center text-center text-stone-400 space-y-2">
+                <p className="text-xs font-bold">Tidak ada produk ditemukan</p>
+                <p className="text-[10px]">Coba cari dengan kata kunci lain atau pilih kategori lain.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 pb-8">
             {filteredProducts.map((product) => {
               const matchedRecipe = recipes.find(r => r.product_id === product.id);
               const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
@@ -325,6 +332,8 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
               );
             })}
           </div>
+        )}
+      </div>
 
           {/* Credits Footer */}
           <footer className="mt-8 pt-4 pb-2 border-t border-stone-200/60 dark:border-stone-800/60 text-center">
