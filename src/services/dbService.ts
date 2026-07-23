@@ -174,10 +174,15 @@ export const dbService = {
   async createSale(saleData: Omit<Sale, 'id'>): Promise<Sale> {
     const { items, payments, ...mainSale } = saleData;
 
-    // Ensure cashier_id is a valid UUID or omit it
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(mainSale.cashier_id || '');
-    if (!isUuid) {
+    // Ensure cashier_id and shift_id are valid UUIDs or omit them
+    const isCashierUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(mainSale.cashier_id || '');
+    if (!isCashierUuid) {
       delete (mainSale as any).cashier_id;
+    }
+
+    const isShiftUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(mainSale.shift_id || '');
+    if (!isShiftUuid) {
+      delete (mainSale as any).shift_id;
     }
     
     const { data: sale, error: saleErr } = await supabase.from('sales').insert(mainSale).select().single();
