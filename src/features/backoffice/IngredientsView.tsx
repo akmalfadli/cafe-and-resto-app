@@ -4,9 +4,10 @@ import { ShoppingCart, AlertTriangle, CheckCircle2, Download, Upload, FileSpread
 import * as XLSX from 'xlsx';
 
 export const IngredientsView: React.FC = () => {
-  const { ingredients, suppliers, addIngredient, fetchInitialData } = useAppStore();
+  const { ingredients, suppliers, addIngredient, updateIngredient, fetchInitialData } = useAppStore();
   
   const [showModal, setShowModal] = useState(false);
+  const [editingIngredient, setEditingIngredient] = useState<any | null>(null);
   const [name, setName] = useState('');
   const [unit, setUnit] = useState<'gram' | 'ml' | 'pcs' | 'pack' | 'slice'>('gram');
   const [avgCost, setAvgCost] = useState('150');
@@ -19,15 +20,23 @@ export const IngredientsView: React.FC = () => {
 
   const handleCreate = async () => {
     if (!name) return;
-    await addIngredient({
+    const ingPayload = {
       name,
       unit,
       avg_cost: parseFloat(avgCost) || 0,
       min_stock: parseFloat(minStock) || 0,
       category_id: undefined,
       supplier_id: suppliers[0]?.id,
-    });
+    };
+
+    if (editingIngredient) {
+      await updateIngredient(editingIngredient.id, ingPayload);
+    } else {
+      await addIngredient(ingPayload);
+    }
+
     setName('');
+    setEditingIngredient(null);
     setShowModal(false);
   };
 
@@ -187,7 +196,14 @@ export const IngredientsView: React.FC = () => {
           />
 
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              setEditingIngredient(null);
+              setName('');
+              setUnit('gram');
+              setAvgCost('150');
+              setMinStock('1000');
+              setShowModal(true);
+            }}
             className="bg-coffee-500 hover:bg-coffee-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-1.5 transition"
           >
             <ShoppingCart className="w-4 h-4" />
@@ -232,11 +248,26 @@ export const IngredientsView: React.FC = () => {
                 )}
               </div>
 
-              <div className="pt-2 border-t border-stone-100 flex justify-between items-baseline">
-                <span className="text-xs text-stone-500">Stok Saat Ini:</span>
-                <span className={`text-base font-extrabold ${isLowStock ? 'text-red-600' : 'text-stone-800'}`}>
-                  {ing.current_stock.toLocaleString()} {ing.unit}
-                </span>
+              <div className="pt-2 border-t border-stone-100 flex justify-between items-center">
+                <div>
+                  <span className="text-[10px] text-stone-400 block">Stok Saat Ini:</span>
+                  <span className={`text-xs font-extrabold ${isLowStock ? 'text-red-600' : 'text-stone-800'}`}>
+                    {ing.current_stock.toLocaleString()} {ing.unit}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingIngredient(ing);
+                    setName(ing.name);
+                    setUnit(ing.unit);
+                    setAvgCost(String(ing.avg_cost));
+                    setMinStock(String(ing.min_stock));
+                    setShowModal(true);
+                  }}
+                  className="px-2.5 py-1 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg text-[10px] font-bold text-stone-600 transition"
+                >
+                  Ubah
+                </button>
               </div>
             </div>
           );
@@ -246,7 +277,9 @@ export const IngredientsView: React.FC = () => {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full space-y-4 shadow-xl border border-stone-200">
-            <h3 className="font-bold text-base text-stone-800">Tambah Bahan Baku Baru</h3>
+            <h3 className="font-bold text-base text-stone-800">
+              {editingIngredient ? 'Ubah Bahan Baku' : 'Tambah Bahan Baku Baru'}
+            </h3>
             
             <div className="space-y-3 text-xs">
               <div>
@@ -298,7 +331,17 @@ export const IngredientsView: React.FC = () => {
             </div>
 
             <div className="flex gap-3 pt-2">
-              <button onClick={() => setShowModal(false)} className="flex-1 py-2 border rounded-xl font-semibold text-xs">
+              <button 
+                onClick={() => {
+                  setShowModal(false);
+                  setEditingIngredient(null);
+                  setName('');
+                  setUnit('gram');
+                  setAvgCost('150');
+                  setMinStock('1000');
+                }} 
+                className="flex-1 py-2 border rounded-xl font-semibold text-xs"
+              >
                 Batal
               </button>
               <button onClick={handleCreate} className="flex-1 py-2 bg-coffee-500 text-white rounded-xl font-bold text-xs shadow">
