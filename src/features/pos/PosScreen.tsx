@@ -54,6 +54,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [showCloseShift, setShowCloseShift] = useState(false);
   const [tempDiscount, setTempDiscount] = useState<string>('0');
+  const [modalDiscType, setModalDiscType] = useState<'fixed' | 'percentage'>('fixed');
   const [showCartOnMobile, setShowCartOnMobile] = useState(false);
   const [viewMode, setViewMode] = useState<'card' | 'list'>(() => {
     return (localStorage.getItem('cafepos_menu_view_mode') as 'card' | 'list') || 'card';
@@ -472,6 +473,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
               <button
                 onClick={() => {
                   setTempDiscount(discountValue.toString());
+                  setModalDiscType(discountType);
                   setShowDiscountModal(true);
                 }}
                 className="flex-1 py-1.5 border border-stone-300 rounded-lg text-[11px] font-semibold text-stone-700 hover:bg-white flex items-center justify-center gap-1"
@@ -529,81 +531,78 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
 
       <PaymentDialog isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} />
 
-      {showDiscountModal && (() => {
-        const [modalDiscType, setModalDiscType] = useState<'fixed' | 'percentage'>(discountType);
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-4">
-            <div className="bg-white dark:bg-stone-900 rounded-2xl p-5 max-w-xs w-full space-y-4 shadow-xl border border-stone-200 dark:border-stone-800">
-              <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">Terapkan Diskon Pesanan</h3>
-              
-              {/* Mode Selector Toggle */}
-              <div className="grid grid-cols-2 p-1 bg-stone-100 dark:bg-stone-800 rounded-xl">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setModalDiscType('percentage');
-                    if (modalDiscType !== 'percentage') setTempDiscount('10');
-                  }}
-                  className={`py-1.5 rounded-lg text-xs font-bold transition ${
-                    modalDiscType === 'percentage'
-                      ? 'bg-white dark:bg-stone-700 text-coffee-600 dark:text-white shadow-sm'
-                      : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
-                  }`}
-                >
-                  Persentase (%)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setModalDiscType('fixed');
-                    if (modalDiscType !== 'fixed') setTempDiscount('5000');
-                  }}
-                  className={`py-1.5 rounded-lg text-xs font-bold transition ${
-                    modalDiscType === 'fixed'
-                      ? 'bg-white dark:bg-stone-700 text-coffee-600 dark:text-white shadow-sm'
-                      : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
-                  }`}
-                >
-                  Nominal (Rp)
-                </button>
-              </div>
+      {showDiscountModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-4">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl p-5 max-w-xs w-full space-y-4 shadow-xl border border-stone-200 dark:border-stone-800">
+            <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">Terapkan Diskon Pesanan</h3>
+            
+            {/* Mode Selector Toggle */}
+            <div className="grid grid-cols-2 p-1 bg-stone-100 dark:bg-stone-800 rounded-xl">
+              <button
+                type="button"
+                onClick={() => {
+                  setModalDiscType('percentage');
+                  if (modalDiscType !== 'percentage') setTempDiscount('10');
+                }}
+                className={`py-1.5 rounded-lg text-xs font-bold transition ${
+                  modalDiscType === 'percentage'
+                    ? 'bg-white dark:bg-stone-700 text-coffee-600 dark:text-white shadow-sm'
+                    : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                }`}
+              >
+                Persentase (%)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setModalDiscType('fixed');
+                  if (modalDiscType !== 'fixed') setTempDiscount('5000');
+                }}
+                className={`py-1.5 rounded-lg text-xs font-bold transition ${
+                  modalDiscType === 'fixed'
+                    ? 'bg-white dark:bg-stone-700 text-coffee-600 dark:text-white shadow-sm'
+                    : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                }`}
+              >
+                Nominal (Rp)
+              </button>
+            </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-stone-500 dark:text-stone-400">
-                  {modalDiscType === 'percentage' ? 'Persen Diskon (%)' : 'Jumlah Nominal (Rp)'}
-                </label>
-                <input
-                  type="number"
-                  value={tempDiscount}
-                  onChange={(e) => setTempDiscount(e.target.value)}
-                  className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-850 text-stone-800 dark:text-stone-100 px-3 py-2 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500"
-                  placeholder={modalDiscType === 'percentage' ? 'Contoh: 10' : 'Contoh: 10000'}
-                  min="0"
-                  max={modalDiscType === 'percentage' ? '100' : undefined}
-                />
-              </div>
-              <div className="flex gap-2.5">
-                <button
-                  onClick={() => setShowDiscountModal(false)}
-                  className="flex-1 py-2 border border-stone-300 dark:border-stone-700 rounded-xl text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={() => {
-                    const val = parseFloat(tempDiscount) || 0;
-                    setDiscount(modalDiscType, val);
-                    setShowDiscountModal(false);
-                  }}
-                  className="flex-1 py-2 bg-coffee-500 text-white rounded-xl text-xs font-bold shadow-md hover:bg-coffee-600 transition"
-                >
-                  Terapkan
-                </button>
-              </div>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-stone-500 dark:text-stone-400">
+                {modalDiscType === 'percentage' ? 'Persen Diskon (%)' : 'Jumlah Nominal (Rp)'}
+              </label>
+              <input
+                type="number"
+                value={tempDiscount}
+                onChange={(e) => setTempDiscount(e.target.value)}
+                className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-850 text-stone-800 dark:text-stone-100 px-3 py-2 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                placeholder={modalDiscType === 'percentage' ? 'Contoh: 10' : 'Contoh: 10000'}
+                min="0"
+                max={modalDiscType === 'percentage' ? '100' : undefined}
+              />
+            </div>
+            <div className="flex gap-2.5">
+              <button
+                onClick={() => setShowDiscountModal(false)}
+                className="flex-1 py-2 border border-stone-300 dark:border-stone-700 rounded-xl text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  const val = parseFloat(tempDiscount) || 0;
+                  setDiscount(modalDiscType, val);
+                  setShowDiscountModal(false);
+                }}
+                className="flex-1 py-2 bg-coffee-500 text-white rounded-xl text-xs font-bold shadow-md hover:bg-coffee-600 transition"
+              >
+                Terapkan
+              </button>
             </div>
           </div>
-        );
-      })()}
+        </div>
+      )}
 
     </div>
   );
