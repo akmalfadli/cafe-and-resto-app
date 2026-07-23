@@ -109,7 +109,7 @@ export const ShiftsView: React.FC = () => {
       </div>
 
       {/* Shift List */}
-      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden">
         {shifts.length === 0 ? (
           <div className="text-center py-16 text-stone-400">
             <Clock className="w-10 h-10 mx-auto mb-3 opacity-30" />
@@ -117,15 +117,16 @@ export const ShiftsView: React.FC = () => {
             <p className="text-xs mt-1">Shift akan muncul setelah kasir membuka shift pertama</p>
           </div>
         ) : (
-          <div className="divide-y divide-stone-100">
-            {/* Table Header */}
-            <div className="grid grid-cols-6 px-5 py-3 bg-stone-50 text-xs font-bold text-stone-500 uppercase tracking-wide">
-              <div className="col-span-2">Kasir</div>
-              <div>Waktu Buka</div>
-              <div>Durasi</div>
-              <div>Modal Awal</div>
-              <div>Status</div>
-            </div>
+          <div className="overflow-x-auto">
+            <div className="min-w-[650px] divide-y divide-stone-100 dark:divide-stone-800">
+              {/* Table Header */}
+              <div className="grid grid-cols-6 px-5 py-3 bg-stone-50 dark:bg-stone-800/60 text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide">
+                <div className="col-span-2">Kasir</div>
+                <div>Waktu Buka</div>
+                <div>Durasi</div>
+                <div>Modal Awal</div>
+                <div>Status</div>
+              </div>
 
             {shifts.map((shift) => {
               const isExpanded = expandedId === shift.id;
@@ -241,6 +242,7 @@ export const ShiftsView: React.FC = () => {
               );
             })}
           </div>
+        </div>
         )}
       </div>
     </div>

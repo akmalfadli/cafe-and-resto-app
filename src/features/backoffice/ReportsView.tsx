@@ -67,7 +67,8 @@ export const ReportsView: React.FC = () => {
         </div>
       ) : (
         <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
-          <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[600px]">
             <thead className="bg-stone-50 dark:bg-stone-800/60 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
               <tr>
                 <th className="p-3">No. Struk / Item</th>
@@ -95,8 +96,8 @@ export const ReportsView: React.FC = () => {
             </tbody>
           </table>
         </div>
+      </div>
       )}
     </div>
   );
 };
-

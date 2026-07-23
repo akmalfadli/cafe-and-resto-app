@@ -118,8 +118,9 @@ export const CategoriesView: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-        <table className="w-full text-left text-xs">
+      <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs min-w-[550px]">
           <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase">
             <tr>
               <th className="p-3 w-28">Urutan Struk</th>
@@ -173,6 +174,7 @@ export const CategoriesView: React.FC = () => {
           </tbody>
         </table>
       </div>
+    </div>
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
