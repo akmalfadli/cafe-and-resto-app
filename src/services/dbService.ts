@@ -113,7 +113,7 @@ export const dbService = {
     return data || [];
   },
 
-  async createIngredient(ing: Omit<Ingredient, 'id' | 'current_stock'>): Promise<Ingredient> {
+  async createIngredient(ing: Omit<Ingredient, 'id' | 'current_stock'> & { current_stock?: number }): Promise<Ingredient> {
     const { data, error } = await supabase.from('ingredients').insert(ing).select().single();
     if (error) throw error;
     return data;

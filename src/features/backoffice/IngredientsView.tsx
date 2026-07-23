@@ -79,6 +79,7 @@ export const IngredientsView: React.FC = () => {
         'Nama Bahan': 'Biji Kopi Arabika',
         'Kategori (Makanan/Minuman)': 'Minuman',
         'Satuan (gram/ml/pcs/pack/slice)': 'gram',
+        'Stok Saat Ini': 5000,
         'Biaya Rata-rata (Rp)': 120,
         'Minimum Stok': 1000,
       },
@@ -86,6 +87,7 @@ export const IngredientsView: React.FC = () => {
         'Nama Bahan': 'Susu Segar UHT',
         'Kategori (Makanan/Minuman)': 'Minuman',
         'Satuan (gram/ml/pcs/pack/slice)': 'ml',
+        'Stok Saat Ini': 10000,
         'Biaya Rata-rata (Rp)': 25,
         'Minimum Stok': 2000,
       },
@@ -93,6 +95,7 @@ export const IngredientsView: React.FC = () => {
         'Nama Bahan': 'Daging Slice',
         'Kategori (Makanan/Minuman)': 'Makanan',
         'Satuan (gram/ml/pcs/pack/slice)': 'slice',
+        'Stok Saat Ini': 200,
         'Biaya Rata-rata (Rp)': 2500,
         'Minimum Stok': 50,
       }
@@ -135,6 +138,7 @@ export const IngredientsView: React.FC = () => {
           const rawName = row['Nama Bahan'];
           const rawCat = String(row['Kategori (Makanan/Minuman)'] || '').trim();
           const rawUnit = String(row['Satuan (gram/ml/pcs/pack/slice)'] || '').trim().toLowerCase();
+          const rawStock = parseFloat(row['Stok Saat Ini'] || row['Stok'] || row['Stok Awal'] || '0');
           const rawCost = parseFloat(row['Biaya Rata-rata (Rp)']);
           const rawMin = parseFloat(row['Minimum Stok']);
 
@@ -176,6 +180,7 @@ export const IngredientsView: React.FC = () => {
             await addIngredient({
               name: String(rawName).trim(),
               unit: finalUnit as any,
+              current_stock: isNaN(rawStock) ? 0 : rawStock,
               avg_cost: isNaN(rawCost) ? 0 : rawCost,
               min_stock: isNaN(rawMin) ? 0 : rawMin,
               category_id: finalCatId,

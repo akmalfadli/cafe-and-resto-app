@@ -94,7 +94,7 @@ interface AppStore {
   deleteProduct: (id: string) => Promise<void>;
   
   addSupplier: (sup: Omit<Supplier, 'id'>) => Promise<void>;
-  addIngredient: (ing: Omit<Ingredient, 'id' | 'current_stock'>) => Promise<void>;
+  addIngredient: (ing: Omit<Ingredient, 'id' | 'current_stock'> & { current_stock?: number }) => Promise<void>;
   updateIngredient: (id: string, ing: Partial<Ingredient>) => Promise<void>;
   saveRecipe: (productId: string, items: { ingredientId: string; qty: number }[], notes?: string) => Promise<void>;
 }
@@ -634,7 +634,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       const created = await dbService.createIngredient(ingData);
       set({ ingredients: [...get().ingredients, created] });
     } else {
-      set({ ingredients: [...get().ingredients, { ...ingData, id: `ing-${Date.now()}`, current_stock: 0 }] });
+      set({ ingredients: [...get().ingredients, { ...ingData, id: `ing-${Date.now()}`, current_stock: ingData.current_stock ?? 0 }] });
     }
   },
 
