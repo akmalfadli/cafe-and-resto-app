@@ -1,13 +1,16 @@
 import React, { useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { PosScreen } from './features/pos/PosScreen';
 import { BackOfficeLayout } from './features/backoffice/BackOfficeLayout';
 import { LoginScreen } from './features/auth/LoginScreen';
+import { CustomerMenuView } from './features/pos/CustomerMenuView';
 import { Shield, Monitor, RefreshCw } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
 
 export const App: React.FC = () => {
   const [currentAppMode, setCurrentAppMode] = React.useState<'pos' | 'backoffice'>('pos');
   const { currentUser, fetchInitialData, isLoading } = useAppStore();
+  const navigate = useNavigate();
 
   const isStaffManagerOrOwner = currentUser?.role === 'Owner' || currentUser?.role === 'Manager';
 
@@ -114,51 +117,63 @@ export const App: React.FC = () => {
     );
   }
 
-  if (!currentUser) {
-    return <LoginScreen />;
-  }
+  // Master Layout component for staff-only areas
+  const StaffLayout = () => {
+    if (!currentUser) {
+      return <LoginScreen />;
+    }
 
-  return (
-    <div className="relative h-screen w-screen overflow-hidden font-sans">
-      {/* Floating Toolbar (Only visible on tablet/desktop md:flex, hidden on mobile) */}
-      <div 
-        onMouseDown={handleMouseDown}
-        style={{ left: `${position.x}px`, top: `${position.y}px` }}
-        className={`hidden md:flex fixed z-50 bg-stone-900/90 backdrop-blur-md text-white p-1.5 rounded-2xl shadow-2xl border border-stone-700 items-center gap-1 cursor-move select-none touch-none ${
-          isDragging ? 'opacity-70 scale-95' : 'transition-transform duration-150 hover:scale-102'
-        }`}
-      >
-        <button
-          onClick={() => setCurrentAppMode('pos')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition pointer-events-auto ${currentAppMode === 'pos'
-              ? 'bg-coffee-500 text-white shadow'
-              : 'text-stone-400 hover:text-white'
-            }`}
+    return (
+      <div className="relative h-screen w-screen overflow-hidden font-sans">
+        {/* Floating Toolbar (Only visible on tablet/desktop md:flex, hidden on mobile) */}
+        <div 
+          onMouseDown={handleMouseDown}
+          style={{ left: `${position.x}px`, top: `${position.y}px` }}
+          className={`hidden md:flex fixed z-50 bg-stone-900/90 backdrop-blur-md text-white p-1.5 rounded-2xl shadow-2xl border border-stone-700 items-center gap-1 cursor-move select-none touch-none ${
+            isDragging ? 'opacity-70 scale-95' : 'transition-transform duration-150 hover:scale-102'
+          }`}
         >
-          <Monitor className="w-3.5 h-3.5" />
-          <span>Kasir POS</span>
-        </button>
-
-        {isStaffManagerOrOwner && (
           <button
-            onClick={() => setCurrentAppMode('backoffice')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition pointer-events-auto ${currentAppMode === 'backoffice'
+            onClick={() => setCurrentAppMode('pos')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition pointer-events-auto ${currentAppMode === 'pos'
                 ? 'bg-coffee-500 text-white shadow'
                 : 'text-stone-400 hover:text-white'
               }`}
           >
-            <Shield className="w-3.5 h-3.5" />
-            <span>Back Office</span>
+            <Monitor className="w-3.5 h-3.5" />
+            <span>Kasir POS</span>
           </button>
+
+          {isStaffManagerOrOwner && (
+            <button
+              onClick={() => setCurrentAppMode('backoffice')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition pointer-events-auto ${currentAppMode === 'backoffice'
+                  ? 'bg-coffee-500 text-white shadow'
+                  : 'text-stone-400 hover:text-white'
+                }`}
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Back Office</span>
+            </button>
+          )}
+        </div>
+
+        {currentAppMode === 'pos' || !isStaffManagerOrOwner ? (
+          <PosScreen onSwitchToBackOffice={() => setCurrentAppMode('backoffice')} />
+        ) : (
+          <BackOfficeLayout onSwitchToPos={() => setCurrentAppMode('pos')} />
         )}
       </div>
+    );
+  };
 
-      {currentAppMode === 'pos' || !isStaffManagerOrOwner ? (
-        <PosScreen onSwitchToBackOffice={() => setCurrentAppMode('backoffice')} />
-      ) : (
-        <BackOfficeLayout onSwitchToPos={() => setCurrentAppMode('pos')} />
-      )}
-    </div>
+  return (
+    <Routes>
+      {/* Route for public customers menu, accessible without auth check */}
+      <Route path="/menu" element={<CustomerMenuView onBack={() => navigate('/')} />} />
+      {/* Staff gate routes */}
+      <Route path="*" element={<StaffLayout />} />
+    </Routes>
   );
 };
 
