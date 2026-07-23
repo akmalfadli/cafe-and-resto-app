@@ -45,6 +45,9 @@ export const IngredientsView: React.FC = () => {
   // Filter category state
   const [selectedFilterCategory, setSelectedFilterCategory] = useState<string>('all');
 
+  // Layout view mode state (card vs list)
+  const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
+
   const handleCreate = async () => {
     if (!name) return;
     const ingPayload = {
@@ -211,6 +214,26 @@ export const IngredientsView: React.FC = () => {
     reader.readAsBinaryString(file);
   };
 
+  const filteredIngredients = ingredients.filter((ing) => {
+    // Apply Search Query matching filter
+    if (searchQuery) {
+      const matchesSearch = ing.name.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+    }
+
+    // Apply Category filter
+    if (selectedFilterCategory === 'all') return true;
+    if (selectedFilterCategory === 'none') return !ing.category_id;
+
+    // Resolve name from DB Categories if it is a UUID
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ing.category_id || '');
+    const categoryName = isUuid 
+      ? dbCategories.find(c => c.id === ing.category_id)?.name || 'Bahan Baku'
+      : ing.category_id || '';
+
+    return categoryName.toLowerCase() === selectedFilterCategory.toLowerCase();
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -295,139 +318,239 @@ export const IngredientsView: React.FC = () => {
           />
         </div>
 
-        {/* Category Filter Controls */}
-        <div className="flex flex-wrap gap-1.5 items-center shrink-0">
-          <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mr-1">Kategori:</span>
-          {[
-            { id: 'all', label: 'Semua' },
-            { id: 'Makanan', label: 'Makanan' },
-            { id: 'Minuman', label: 'Minuman' },
-            { id: 'none', label: 'Tanpa Kategori' },
-          ].map((tab) => {
-            const isActive = selectedFilterCategory === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedFilterCategory(tab.id)}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${
-                  isActive 
-                    ? 'bg-coffee-500 text-white shadow' 
-                    : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+        {/* Category Filter and View Mode Switcher Controls */}
+        <div className="flex flex-wrap gap-3 items-center justify-between md:justify-end shrink-0">
+          <div className="flex flex-wrap gap-1.5 items-center">
+            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mr-1">Kategori:</span>
+            {[
+              { id: 'all', label: 'Semua' },
+              { id: 'Makanan', label: 'Makanan' },
+              { id: 'Minuman', label: 'Minuman' },
+              { id: 'none', label: 'Tanpa Kategori' },
+            ].map((tab) => {
+              const isActive = selectedFilterCategory === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedFilterCategory(tab.id)}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${
+                    isActive 
+                      ? 'bg-coffee-500 text-white shadow' 
+                      : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* View Mode Switcher (Layout toggle button group) */}
+          <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl border border-stone-250 shrink-0">
+            <button
+              onClick={() => setViewMode('card')}
+              className={`text-[10px] font-extrabold px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
+                viewMode === 'card'
+                  ? 'bg-white text-stone-850 shadow'
+                  : 'text-stone-400 hover:text-stone-700'
+              }`}
+            >
+              Cards
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`text-[10px] font-extrabold px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
+                viewMode === 'list'
+                  ? 'bg-white text-stone-850 shadow'
+                  : 'text-stone-400 hover:text-stone-700'
+              }`}
+            >
+              Listile
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {ingredients
-          .filter((ing) => {
-            // Apply Search Query matching filter
-            if (searchQuery) {
-              const matchesSearch = ing.name.toLowerCase().includes(searchQuery.toLowerCase());
-              if (!matchesSearch) return false;
-            }
-
-            // Apply Category filter
-            if (selectedFilterCategory === 'all') return true;
-            if (selectedFilterCategory === 'none') return !ing.category_id;
-
-            // Resolve name from DB Categories if it is a UUID
-            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ing.category_id || '');
-            const categoryName = isUuid 
-              ? dbCategories.find(c => c.id === ing.category_id)?.name || 'Bahan Baku'
-              : ing.category_id || '';
-
-            return categoryName.toLowerCase() === selectedFilterCategory.toLowerCase();
-          })
-          .map((ing) => {
-          const isLowStock = ing.current_stock <= ing.min_stock;
-          return (
-            <div key={ing.id} className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-bold text-sm text-stone-800">
-                    {ing.name}
-                  </h3>
-                  <span className="text-[10px] text-stone-400 font-mono">Rp {ing.avg_cost.toLocaleString('id-ID')} / {ing.unit}</span>
-                </div>
-                <div className="flex flex-col items-end gap-1 shrink-0">
-                  {isLowStock ? (
-                    <span className="p-1 bg-red-100 text-red-600 rounded-lg flex items-center gap-1 text-[10px] font-bold">
-                      <AlertTriangle className="w-3.5 h-3.5" /> Stok Rendah
-                    </span>
-                  ) : (
-                    <span className="p-1 bg-emerald-100 text-emerald-600 rounded-lg flex items-center gap-1 text-[10px] font-bold">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Aman
-                    </span>
-                  )}
-                  {ing.category_id && (() => {
-                    // Resolve name from DB Categories if it is a UUID
-                    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ing.category_id);
-                    const categoryName = isUuid 
-                      ? dbCategories.find(c => c.id === ing.category_id)?.name || 'Bahan Baku'
-                      : ing.category_id;
-
-                    const isFood = categoryName.toLowerCase().includes('makan');
-                    return (
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase inline-block ${
-                        isFood ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {categoryName}
+      {viewMode === 'card' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {filteredIngredients.map((ing) => {
+            const isLowStock = ing.current_stock <= ing.min_stock;
+            return (
+              <div key={ing.id} className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-sm text-stone-800">
+                      {ing.name}
+                    </h3>
+                    <span className="text-[10px] text-stone-400 font-mono">Rp {ing.avg_cost.toLocaleString('id-ID')} / {ing.unit}</span>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    {isLowStock ? (
+                      <span className="p-1 bg-red-100 text-red-600 rounded-lg flex items-center gap-1 text-[10px] font-bold">
+                        <AlertTriangle className="w-3.5 h-3.5" /> Stok Rendah
                       </span>
-                    );
-                  })()}
+                    ) : (
+                      <span className="p-1 bg-emerald-100 text-emerald-600 rounded-lg flex items-center gap-1 text-[10px] font-bold">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Aman
+                      </span>
+                    )}
+                    {ing.category_id && (() => {
+                      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ing.category_id);
+                      const categoryName = isUuid 
+                        ? dbCategories.find(c => c.id === ing.category_id)?.name || 'Bahan Baku'
+                        : ing.category_id;
+
+                      const isFood = categoryName.toLowerCase().includes('makan');
+                      return (
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase inline-block ${
+                          isFood ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {categoryName}
+                        </span>
+                      );
+                    })()}
+                  </div>
                 </div>
-              </div>
 
-              <div className="pt-2 border-t border-stone-100 flex justify-between items-center">
-                <div>
-                  <span className="text-[10px] text-stone-400 block">Stok Saat Ini:</span>
-                  <span className={`text-xs font-extrabold ${isLowStock ? 'text-red-600' : 'text-stone-800'}`}>
-                    {ing.current_stock.toLocaleString()} {ing.unit}
-                  </span>
-
-                  {ing.supplier_id && (
-                    <span className="text-[9px] text-stone-400 block mt-0.5">
-                      Pemasok: {suppliers.find(s => s.id === ing.supplier_id)?.name || 'Pemasok Utama'}
+                <div className="pt-2 border-t border-stone-100 flex justify-between items-center">
+                  <div>
+                    <span className="text-[10px] text-stone-400 block">Stok Saat Ini:</span>
+                    <span className={`text-xs font-extrabold ${isLowStock ? 'text-red-600' : 'text-stone-800'}`}>
+                      {ing.current_stock.toLocaleString()} {ing.unit}
                     </span>
-                  )}
-                </div>
-                <div className="flex gap-1.5">
-                  <button
-                    onClick={() => {
-                      setSelectedAdjustIng(ing);
-                      setAdjustQty('1000');
-                      setAdjustModalOpen(true);
-                    }}
-                    className="px-2 py-1 bg-emerald-50 hover:bg-emerald-500 hover:text-white rounded-lg text-[10px] font-bold text-emerald-700 transition"
-                  >
-                    + Stok
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditingIngredient(ing);
-                      setName(ing.name);
-                      setUnit(ing.unit);
-                      setAvgCost(String(ing.avg_cost));
-                      setMinStock(String(ing.min_stock));
-                      setSupplierId(ing.supplier_id || '');
-                      setCategory(ing.category_id || '');
-                      setShowModal(true);
-                    }}
-                    className="px-2.5 py-1 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg text-[10px] font-bold text-stone-600 transition"
-                  >
-                    Ubah
-                  </button>
+
+                    {ing.supplier_id && (
+                      <span className="text-[9px] text-stone-400 block mt-0.5">
+                        Pemasok: {suppliers.find(s => s.id === ing.supplier_id)?.name || 'Pemasok Utama'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => {
+                        setSelectedAdjustIng(ing);
+                        setAdjustQty('1000');
+                        setAdjustModalOpen(true);
+                      }}
+                      className="px-2 py-1 bg-emerald-50 hover:bg-emerald-500 hover:text-white rounded-lg text-[10px] font-bold text-emerald-700 transition"
+                    >
+                      + Stok
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingIngredient(ing);
+                        setName(ing.name);
+                        setUnit(ing.unit);
+                        setAvgCost(String(ing.avg_cost));
+                        setMinStock(String(ing.min_stock));
+                        setSupplierId(ing.supplier_id || '');
+                        setCategory(ing.category_id || '');
+                        setShowModal(true);
+                      }}
+                      className="px-2.5 py-1 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg text-[10px] font-bold text-stone-600 transition"
+                    >
+                      Ubah
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase">
+              <tr>
+                <th className="p-3">Nama Bahan</th>
+                <th className="p-3">Kategori</th>
+                <th className="p-3">Stok Saat Ini</th>
+                <th className="p-3">Stok Minimum</th>
+                <th className="p-3">Biaya Rata-rata</th>
+                <th className="p-3">Pemasok</th>
+                <th className="p-3">Status</th>
+                <th className="p-3 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {filteredIngredients.map((ing) => {
+                const isLowStock = ing.current_stock <= ing.min_stock;
+                
+                const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ing.category_id || '');
+                const categoryName = ing.category_id 
+                  ? (isUuid ? dbCategories.find(c => c.id === ing.category_id)?.name || 'Bahan Baku' : ing.category_id)
+                  : '-';
+                const isFood = categoryName.toLowerCase().includes('makan');
+
+                return (
+                  <tr key={ing.id} className="hover:bg-stone-50 transition">
+                    <td className="p-3 font-bold text-stone-850">{ing.name}</td>
+                    <td className="p-3 font-semibold text-stone-600">
+                      {ing.category_id ? (
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase inline-block ${
+                          isFood ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {categoryName}
+                        </span>
+                      ) : '-'}
+                    </td>
+                    <td className="p-3">
+                      <span className={`font-bold ${isLowStock ? 'text-red-600' : 'text-stone-800'}`}>
+                        {ing.current_stock.toLocaleString()} {ing.unit}
+                      </span>
+                    </td>
+                    <td className="p-3 text-stone-600 font-medium">{ing.min_stock.toLocaleString()} {ing.unit}</td>
+                    <td className="p-3 text-stone-600 font-medium">Rp {ing.avg_cost.toLocaleString('id-ID')}</td>
+                    <td className="p-3 text-stone-500 font-medium">
+                      {ing.supplier_id ? (suppliers.find(s => s.id === ing.supplier_id)?.name || 'Pemasok Utama') : '-'}
+                    </td>
+                    <td className="p-3">
+                      {isLowStock ? (
+                        <span className="px-2 py-0.5 bg-red-100 text-red-600 rounded-md font-bold text-[9px] inline-flex items-center gap-0.5">
+                          <AlertTriangle className="w-2.5 h-2.5" /> Stok Rendah
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded-md font-bold text-[9px] inline-flex items-center gap-0.5">
+                          <CheckCircle2 className="w-2.5 h-2.5" /> Aman
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedAdjustIng(ing);
+                            setAdjustQty('1000');
+                            setAdjustModalOpen(true);
+                          }}
+                          className="px-2 py-1 bg-emerald-50 hover:bg-emerald-500 hover:text-white rounded-lg text-[10px] font-bold text-emerald-700 transition"
+                        >
+                          + Stok
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingIngredient(ing);
+                            setName(ing.name);
+                            setUnit(ing.unit);
+                            setAvgCost(String(ing.avg_cost));
+                            setMinStock(String(ing.min_stock));
+                            setSupplierId(ing.supplier_id || '');
+                            setCategory(ing.category_id || '');
+                            setShowModal(true);
+                          }}
+                          className="px-2.5 py-1 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg text-[10px] font-bold text-stone-600 transition"
+                        >
+                          Ubah
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-4">
