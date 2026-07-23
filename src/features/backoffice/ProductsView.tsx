@@ -154,8 +154,9 @@ export const RecipeBuilderModal: React.FC<{ productId: string; onClose: () => vo
     setRecipeItems(recipeItems.filter((_, idx) => idx !== index));
   };
 
-  const handleSave = () => {
-    saveRecipe(productId, recipeItems, notes);
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    await saveRecipe(productId, recipeItems, notes);
     onClose();
   };
 
@@ -242,7 +243,7 @@ export const RecipeBuilderModal: React.FC<{ productId: string; onClose: () => vo
           <button onClick={onClose} className="px-4 py-2 border border-stone-300 dark:border-stone-700 rounded-xl text-xs font-semibold hover:bg-white dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200">
             Batal
           </button>
-          <button onClick={handleSave} className="px-5 py-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl text-xs font-bold shadow">
+          <button type="button" onClick={handleSave} className="px-5 py-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl text-xs font-bold shadow">
             Simpan Resep & Hitung HPP
           </button>
         </div>
