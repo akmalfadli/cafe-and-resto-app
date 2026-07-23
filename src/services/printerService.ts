@@ -183,16 +183,16 @@ export const printerService = {
       const footerText = customFooter || `Terima Kasih Atas Kunjungan Anda!`;
 
       // Initialize Printer
-      await writeCharacteristic.writeValue(INIT);
-      await writeCharacteristic.writeValue(ALIGN_CENTER);
+      await this.sendInChunks(writeCharacteristic, INIT, 20);
+      await this.sendInChunks(writeCharacteristic, ALIGN_CENTER, 20);
 
       // Print Logo if available (catch logo conversion errors without breaking text print)
       if (logoUrl) {
         try {
           const logoRaster = await this.imageToEscPosRaster(logoUrl, 192);
           if (logoRaster) {
-            await this.sendInChunks(writeCharacteristic, logoRaster, 128);
-            await writeCharacteristic.writeValue(encoder.encode(`\n`));
+            await this.sendInChunks(writeCharacteristic, logoRaster, 20);
+            await this.sendInChunks(writeCharacteristic, encoder.encode(`\n`), 20);
           }
         } catch (e) {
           console.warn('Gagal mencetak logo bitmap:', e);
@@ -201,9 +201,9 @@ export const printerService = {
 
       // Header Section (Centered)
       if (headerText) {
-        await writeCharacteristic.writeValue(encoder.encode(`${headerText}\n`));
+        await this.sendInChunks(writeCharacteristic, encoder.encode(`${headerText}\n`), 20);
       }
-      await writeCharacteristic.writeValue(encoder.encode(`==============================\n`));
+      await this.sendInChunks(writeCharacteristic, encoder.encode(`==============================\n`), 20);
 
       // Helper to format a 32-column line with aligned colon and right-aligned value
       const formatRow = (label: string, value: string, colonPos = 14, totalWidth = 32): string => {
@@ -215,7 +215,7 @@ export const printerService = {
       };
 
       // Transaction Meta (Aligned Colons)
-      await writeCharacteristic.writeValue(ALIGN_LEFT);
+      await this.sendInChunks(writeCharacteristic, ALIGN_LEFT, 20);
       let metaText = formatRow('No. Struk', sale.receipt_number);
       metaText += formatRow('Tanggal', new Date(sale.created_at).toLocaleDateString('id-ID'));
       metaText += formatRow('Kasir', sale.cashier_name);
@@ -227,7 +227,7 @@ export const printerService = {
         metaText += formatRow('Meja', sale.table_number);
       }
       metaText += `------------------------------\n`;
-      await writeCharacteristic.writeValue(encoder.encode(metaText));
+      await this.sendInChunks(writeCharacteristic, encoder.encode(metaText), 20);
 
       // Items List (Sorted by Category Order, Right Aligned Prices)
       let itemsText = '';
@@ -255,7 +255,7 @@ export const printerService = {
         itemsText += `  ${itemPrice}${rightAlignedTotal}\n`;
       });
       itemsText += `------------------------------\n`;
-      await writeCharacteristic.writeValue(encoder.encode(itemsText));
+      await this.sendInChunks(writeCharacteristic, encoder.encode(itemsText), 20);
 
       // Financial Summary (Aligned Colons & Right-Aligned Amounts)
       const { taxRate, serviceRate } = useAppStore.getState();
@@ -277,12 +277,15 @@ export const printerService = {
         summaryText += formatRow('KEMBALIAN', `Rp ${(p.change_amount || 0).toLocaleString('id-ID')}`);
       }
       summaryText += `==============================\n`;
-      await writeCharacteristic.writeValue(encoder.encode(summaryText));
+      await this.sendInChunks(writeCharacteristic, encoder.encode(summaryText), 20);
 
       // Footer Section (Centered)
-      await writeCharacteristic.writeValue(ALIGN_CENTER);
-      await writeCharacteristic.writeValue(encoder.encode(`${footerText}\n\n\n`));
-      await writeCharacteristic.writeValue(PAPER_CUT);
+      await this.sendInChunks(writeCharacteristic, ALIGN_CENTER, 20);
+      await this.sendInChunks(writeCharacteristic, encoder.encode(`${footerText}\n\n\n`), 20);
+      
+      // Safety delay before paper cut to allow buffer cleanups
+      await new Promise((r) => setTimeout(r, 100));
+      await this.sendInChunks(writeCharacteristic, PAPER_CUT, 20);
 
       return true;
     } catch (err: any) {
