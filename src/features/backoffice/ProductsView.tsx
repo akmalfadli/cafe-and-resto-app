@@ -467,6 +467,18 @@ export const ProductsView: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [activeRecipeProdId, setActiveRecipeProdId] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+
+  const confirmDeleteProduct = async () => {
+    if (!productToDelete) return;
+    try {
+      await deleteProduct(productToDelete.id);
+    } catch (err: any) {
+      alert('Gagal menghapus produk: ' + (err.message || 'Terjadi kesalahan'));
+    } finally {
+      setProductToDelete(null);
+    }
+  };
 
   const filtered = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
@@ -587,7 +599,11 @@ export const ProductsView: React.FC = () => {
                         <Calculator className="w-3.5 h-3.5" />
                         <span className="text-[10px]">Resep</span>
                       </button>
-                      <button onClick={() => deleteProduct(p.id)} className="p-1.5 text-stone-400 hover:text-red-500 rounded-lg">
+                      <button
+                        onClick={() => setProductToDelete(p)}
+                        className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition"
+                        title="Hapus Produk"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -618,6 +634,40 @@ export const ProductsView: React.FC = () => {
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
       />
+
+      {/* Delete Confirmation Modal */}
+      {productToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-stone-200 dark:border-stone-800 p-6 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-extrabold text-stone-800 dark:text-stone-100">Hapus Produk Ini?</h3>
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+                Apakah Anda yakin ingin menghapus produk <span className="font-bold text-stone-800 dark:text-stone-200">"{productToDelete.name}"</span> ({productToDelete.sku})? Tindakan ini tidak dapat dibatalkan.
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setProductToDelete(null)}
+                className="flex-1 px-4 py-2 border border-stone-300 dark:border-stone-700 rounded-xl text-xs font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteProduct}
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-extrabold shadow transition"
+              >
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
