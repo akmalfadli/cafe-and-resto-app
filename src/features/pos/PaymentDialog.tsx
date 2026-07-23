@@ -253,7 +253,8 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
               {/* Items List (Sorted by Category Order) */}
               <div className="border-t border-b border-dashed border-stone-300 py-2 space-y-1 text-xs">
                 {(() => {
-                  const sortedItems = [...completedSale.items].sort((a, b) => {
+                  const itemsList = completedSale?.items || [];
+                  const sortedItems = [...itemsList].sort((a, b) => {
                     const prodA = products.find((p) => p.id === a.product_id);
                     const prodB = products.find((p) => p.id === b.product_id);
                     const catA = categories.find((c) => c.id === prodA?.category_id);

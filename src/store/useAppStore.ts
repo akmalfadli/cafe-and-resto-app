@@ -526,8 +526,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
       try {
         const savedSale = await dbService.createSale(newSaleData);
         deductLocalStateStock(saleItems);
-        set({ sales: [savedSale, ...get().sales], cart: [], discountValue: 0 });
-        return savedSale;
+        // Guarantee returned sale contains items array for receipt printing UI
+        const fullSaleObj = { ...savedSale, items: savedSale.items || saleItems };
+        set({ sales: [fullSaleObj, ...get().sales], cart: [], discountValue: 0 });
+        return fullSaleObj;
       } catch (dbErr) {
         console.warn('Database save failed, falling back to offline pending transaction:', dbErr);
         const updatedPending = [...get().pendingSales, newSaleData];
