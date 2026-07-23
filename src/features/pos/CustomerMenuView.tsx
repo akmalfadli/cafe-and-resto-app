@@ -11,7 +11,7 @@ interface CustomerMenuViewProps {
 }
 
 export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
-  const { products, categories, ingredients, recipes, tables, submitCustomerOrder } = useAppStore();
+  const { products, categories, ingredients, recipes, tables, enableTableNumber, submitCustomerOrder } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<{ product: Product; quantity: number; notes: string }[]>([]);
@@ -95,7 +95,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
       const payload = {
         order_number: orderNumber,
         customer_name: custName.trim(),
-        table_number: custTable,
+        table_number: enableTableNumber ? custTable : undefined,
         order_type: 'dine_in',
         subtotal: totalAmount,
         tax_amount: 0,
@@ -358,19 +358,21 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">No. Meja</label>
-                  <select
-                    value={custTable}
-                    onChange={(e) => setCustTable(e.target.value)}
-                    className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-2.5 py-2 text-xs font-bold focus:outline-none"
-                  >
-                    {tables.map(t => (
-                      <option key={t.id} value={t.table_number}>Meja {t.table_number}</option>
-                    ))}
-                  </select>
-                </div>
+              <div className={enableTableNumber ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 gap-3"}>
+                {enableTableNumber && (
+                  <div>
+                    <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">No. Meja</label>
+                    <select
+                      value={custTable}
+                      onChange={(e) => setCustTable(e.target.value)}
+                      className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-2.5 py-2 text-xs font-bold focus:outline-none"
+                    >
+                      {tables.map(t => (
+                        <option key={t.id} value={t.table_number}>Meja {t.table_number}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Catatan Tambahan</label>
                   <input
