@@ -9,6 +9,7 @@ import {
 import { PaymentDialog } from './PaymentDialog';
 import { ShiftGateScreen } from './ShiftGateScreen';
 import { CloseShiftModal } from './CloseShiftModal';
+import { CustomerMenuView } from './CustomerMenuView';
 
 interface PosScreenProps {
   onSwitchToBackOffice?: () => void;
@@ -58,6 +59,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
   const [tempDiscount, setTempDiscount] = useState<string>('0');
   const [modalDiscType, setModalDiscType] = useState<'fixed' | 'percentage'>('fixed');
   const [showCartOnMobile, setShowCartOnMobile] = useState(false);
+  const [isCustomerMode, setIsCustomerMode] = useState(false);
   const [viewMode, setViewMode] = useState<'card' | 'list'>(() => {
     return (localStorage.getItem('cafepos_menu_view_mode') as 'card' | 'list') || 'card';
   });
@@ -94,6 +96,10 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
       default: return <Grid className="w-5 h-5" />;
     }
   };
+
+  if (isCustomerMode) {
+    return <CustomerMenuView onBack={() => setIsCustomerMode(false)} />;
+  }
 
   return (
     <div className="h-screen w-screen flex flex-col bg-bgmain overflow-hidden select-none font-sans">
@@ -153,6 +159,14 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
             title={viewMode === 'card' ? 'Ubah ke Mode List' : 'Ubah ke Mode Grid'}
           >
             {viewMode === 'card' ? <List className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
+          </button>
+          <button
+            onClick={() => setIsCustomerMode(true)}
+            className="p-1.5 sm:p-2 bg-coffee-50 hover:bg-coffee-100 text-coffee-600 rounded-xl border border-coffee-200 transition shrink-0 font-bold flex items-center gap-1 text-xs"
+            title="Buka Menu Pelanggan"
+          >
+            <ShoppingBag className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Menu Pelanggan</span>
           </button>
         </div>
 
