@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { ShoppingCart, AlertTriangle, CheckCircle2, Download, Upload, FileSpreadsheet } from 'lucide-react';
+import { ShoppingCart, AlertTriangle, CheckCircle2, Download, Upload, FileSpreadsheet, Search } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { supabase } from '../../lib/supabase';
 
@@ -16,6 +16,7 @@ export const IngredientsView: React.FC = () => {
   const [supplierId, setSupplierId] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [dbCategories, setDbCategories] = useState<{ id: string; name: string }[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const loadDbCategories = async () => {
@@ -269,12 +270,25 @@ export const IngredientsView: React.FC = () => {
         </div>
       )}
 
-      {/* Category Filter Controls */}
-      <div className="flex flex-wrap gap-2 items-center bg-white p-3 rounded-2xl border border-stone-200">
-        <span className="text-xs font-bold text-stone-500 mr-2 uppercase tracking-wider">Filter Kategori:</span>
-        <div className="flex flex-wrap gap-1.5">
+      {/* Search and Category Filter Controls */}
+      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
+        {/* Search Bar */}
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Cari nama bahan baku..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-stone-50 border border-stone-200 rounded-xl pl-9 pr-4 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500"
+          />
+        </div>
+
+        {/* Category Filter Controls */}
+        <div className="flex flex-wrap gap-1.5 items-center shrink-0">
+          <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mr-1">Kategori:</span>
           {[
-            { id: 'all', label: 'Semua Kategori' },
+            { id: 'all', label: 'Semua' },
             { id: 'Makanan', label: 'Makanan' },
             { id: 'Minuman', label: 'Minuman' },
             { id: 'none', label: 'Tanpa Kategori' },
@@ -284,7 +298,7 @@ export const IngredientsView: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setSelectedFilterCategory(tab.id)}
-                className={`text-xs font-bold px-4 py-2 rounded-xl transition ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${
                   isActive 
                     ? 'bg-coffee-500 text-white shadow' 
                     : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200'
@@ -300,6 +314,13 @@ export const IngredientsView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {ingredients
           .filter((ing) => {
+            // Apply Search Query matching filter
+            if (searchQuery) {
+              const matchesSearch = ing.name.toLowerCase().includes(searchQuery.toLowerCase());
+              if (!matchesSearch) return false;
+            }
+
+            // Apply Category filter
             if (selectedFilterCategory === 'all') return true;
             if (selectedFilterCategory === 'none') return !ing.category_id;
 
