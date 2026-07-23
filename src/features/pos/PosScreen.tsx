@@ -16,42 +16,41 @@ interface PosScreenProps {
 }
 
 export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) => {
-  const {
-    currentUser,
-    logout,
-    activeShift,
-    categories,
-    products,
-    ingredients,
-    recipes,
-    cart,
-    selectedCategory,
-    searchQuery,
-    orderType,
-    selectedTable,
-    customerName,
-    enableTableNumber,
-    enableTax,
-    discountType,
-    discountValue,
-    taxRate,
-    serviceRate,
-    tables,
-    setSelectedCategory,
-    setSearchQuery,
-    setOrderType,
-    setSelectedTable,
-    setCustomerName,
-    addToCart,
-    updateCartQty,
-    updateCartNotes,
-    removeFromCart,
-    clearCart,
-    setDiscount,
-    pendingSales,
-    isDatabaseMode,
-    syncOfflineSales
-  } = useAppStore();
+  // Fine-grained Zustand selectors to prevent completeSale/background sync from re-rendering PosScreen and closing dialogs
+  const currentUser = useAppStore(s => s.currentUser);
+  const logout = useAppStore(s => s.logout);
+  const activeShift = useAppStore(s => s.activeShift);
+  const categories = useAppStore(s => s.categories);
+  const products = useAppStore(s => s.products);
+  const ingredients = useAppStore(s => s.ingredients);
+  const recipes = useAppStore(s => s.recipes);
+  const cart = useAppStore(s => s.cart);
+  const selectedCategory = useAppStore(s => s.selectedCategory);
+  const searchQuery = useAppStore(s => s.searchQuery);
+  const orderType = useAppStore(s => s.orderType);
+  const selectedTable = useAppStore(s => s.selectedTable);
+  const customerName = useAppStore(s => s.customerName);
+  const enableTableNumber = useAppStore(s => s.enableTableNumber);
+  const enableTax = useAppStore(s => s.enableTax);
+  const discountType = useAppStore(s => s.discountType);
+  const discountValue = useAppStore(s => s.discountValue);
+  const taxRate = useAppStore(s => s.taxRate);
+  const serviceRate = useAppStore(s => s.serviceRate);
+  const tables = useAppStore(s => s.tables);
+  const setSelectedCategory = useAppStore(s => s.setSelectedCategory);
+  const setSearchQuery = useAppStore(s => s.setSearchQuery);
+  const setOrderType = useAppStore(s => s.setOrderType);
+  const setSelectedTable = useAppStore(s => s.setSelectedTable);
+  const setCustomerName = useAppStore(s => s.setCustomerName);
+  const addToCart = useAppStore(s => s.addToCart);
+  const updateCartQty = useAppStore(s => s.updateCartQty);
+  const updateCartNotes = useAppStore(s => s.updateCartNotes);
+  const removeFromCart = useAppStore(s => s.removeFromCart);
+  const clearCart = useAppStore(s => s.clearCart);
+  const setDiscount = useAppStore(s => s.setDiscount);
+  const pendingSales = useAppStore(s => s.pendingSales);
+  const isDatabaseMode = useAppStore(s => s.isDatabaseMode);
+  const syncOfflineSales = useAppStore(s => s.syncOfflineSales);
 
   const navigate = useNavigate();
   const location = useLocation();
