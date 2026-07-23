@@ -25,6 +25,9 @@ export const IngredientsView: React.FC = () => {
   const [selectedAdjustIng, setSelectedAdjustIng] = useState<any | null>(null);
   const [adjustQty, setAdjustQty] = useState('1000');
 
+  // Filter category state
+  const [selectedFilterCategory, setSelectedFilterCategory] = useState<string>('all');
+
   const handleCreate = async () => {
     if (!name) return;
     const ingPayload = {
@@ -250,8 +253,29 @@ export const IngredientsView: React.FC = () => {
         </div>
       )}
 
+      {/* Category Filter Controls */}
+      <div className="flex gap-4 items-center bg-white p-3 rounded-2xl border border-stone-200">
+        <label className="text-xs font-bold text-stone-700">Filter Kategori:</label>
+        <select
+          value={selectedFilterCategory}
+          onChange={(e) => setSelectedFilterCategory(e.target.value)}
+          className="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none"
+        >
+          <option value="all">Semua Kategori</option>
+          <option value="Makanan">Makanan</option>
+          <option value="Minuman">Minuman</option>
+          <option value="none">Tanpa Kategori</option>
+        </select>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {ingredients.map((ing) => {
+        {ingredients
+          .filter((ing) => {
+            if (selectedFilterCategory === 'all') return true;
+            if (selectedFilterCategory === 'none') return !ing.category_id;
+            return ing.category_id === selectedFilterCategory;
+          })
+          .map((ing) => {
           const isLowStock = ing.current_stock <= ing.min_stock;
           return (
             <div key={ing.id} className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-3">
