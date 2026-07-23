@@ -171,7 +171,10 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
           
           {/* Antrean Pesanan Button */}
           <button
-            onClick={() => setShowOrdersQueue(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowOrdersQueue(true);
+            }}
             className="relative p-1.5 sm:p-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl transition shrink-0 font-bold flex items-center gap-1 text-xs shadow-sm"
             title="Antrean Pesanan Pelanggan"
           >
