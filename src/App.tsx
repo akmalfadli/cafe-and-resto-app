@@ -4,6 +4,7 @@ import { PosScreen } from './features/pos/PosScreen';
 import { BackOfficeLayout } from './features/backoffice/BackOfficeLayout';
 import { LoginScreen } from './features/auth/LoginScreen';
 import { CustomerMenuView } from './features/pos/CustomerMenuView';
+import { CustomerOrdersQueuePage } from './features/pos/CustomerOrdersQueuePage';
 import { RefreshCw } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
 
@@ -83,6 +84,8 @@ export const App: React.FC = () => {
     <Routes>
       {/* Route for public customers menu, accessible without auth check */}
       <Route path="/menu" element={<CustomerMenuView />} />
+      {/* Staff-only queue page (requires login via StaffLayout parent guard) */}
+      <Route path="/antrean" element={currentUser ? <CustomerOrdersQueuePage /> : <LoginScreen />} />
       {/* Staff gate routes */}
       <Route path="*" element={<StaffLayout />} />
     </Routes>

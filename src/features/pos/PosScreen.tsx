@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
 import { 
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
@@ -10,7 +10,6 @@ import {
 import { PaymentDialog } from './PaymentDialog';
 import { ShiftGateScreen } from './ShiftGateScreen';
 import { CloseShiftModal } from './CloseShiftModal';
-import { CustomerOrdersQueueModal } from './CustomerOrdersQueueModal';
 
 interface PosScreenProps {
   onSwitchToBackOffice?: () => void;
@@ -56,11 +55,11 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
   } = useAppStore();
 
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [showCloseShift, setShowCloseShift] = useState(false);
-  const [showOrdersQueue, setShowOrdersQueue] = useState(false);
   const [tempDiscount, setTempDiscount] = useState<string>('0');
   const [modalDiscType, setModalDiscType] = useState<'fixed' | 'percentage'>('fixed');
   const [showCartOnMobile, setShowCartOnMobile] = useState(false);
@@ -68,14 +67,21 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
     return (localStorage.getItem('cafepos_menu_view_mode') as 'card' | 'list') || 'card';
   });
 
-  // Periodically fetch customer orders in background at parent screen level
-  // Use getState() for a stable reference — avoids re-render loops
+  // Periodically fetch customer orders in background (for badge count)
   React.useEffect(() => {
     const doFetch = () => useAppStore.getState().fetchCustomerOrders();
     doFetch();
     const interval = setInterval(doFetch, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // Auto-open payment dialog when returning from /antrean with openPayment flag
+  React.useEffect(() => {
+    if (searchParams.get('openPayment') === '1') {
+      setIsPaymentOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const toggleViewMode = () => {
     const nextMode = viewMode === 'card' ? 'list' : 'card';
@@ -178,12 +184,9 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
             <span className="hidden sm:inline">Menu Pelanggan</span>
           </button>
           
-          {/* Antrean Pesanan Button */}
+          {/* Antrean Pesanan Button — navigates to full page */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowOrdersQueue(true);
-            }}
+            onClick={() => navigate('/antrean')}
             className="relative p-1.5 sm:p-2 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl transition shrink-0 font-bold flex items-center gap-1 text-xs shadow-sm"
             title="Antrean Pesanan Pelanggan"
           >
@@ -676,43 +679,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
         </div>
       )}
 
-      {/* Customer Orders Queue Modal (Cashier review/pay screen) */}
-      <CustomerOrdersQueueModal
-        isOpen={showOrdersQueue}
-        onClose={() => setShowOrdersQueue(false)}
-        onApproveOrder={async (order) => {
-          // 1. Populate cashier cart with the customer's QR order items
-          clearCart();
-          setCustomerName(order.customer_name);
-          if (order.table_number) {
-            setSelectedTable(order.table_number);
-          }
-          setOrderType(order.order_type);
 
-          // Map items to cart
-          for (const item of order.items || []) {
-            const prod = products.find(p => p.id === item.product_id);
-            if (prod) {
-              // Add to POS cashier cart
-              addToCart(prod);
-              // Wait a tiny bit or directly update item quantity & notes
-              updateCartQty(prod.id, item.quantity);
-              if (item.notes) {
-                updateCartNotes(prod.id, item.notes);
-              }
-            }
-          }
-
-          // 2. Open payment dialog directly for cashiers to input cash amount/QRIS and finalize
-          setShowOrdersQueue(false);
-          
-          // Setup hook so that when they complete the POS sale, the status is set to paid in Supabase.
-          // Since completeSale is triggered on PaymentDialog, we can save the pending customer order ID.
-          (window as any)._pendingCustomerOrderId = order.id;
-
-          setIsPaymentOpen(true);
-        }}
-      />
 
     </div>
   );
