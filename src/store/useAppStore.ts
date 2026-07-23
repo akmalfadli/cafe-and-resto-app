@@ -136,7 +136,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   searchQuery: '',
   orderType: 'dine_in',
   selectedTable: 'T-01',
-  customerName: 'Pelanggan Umum',
+  customerName: '',
   discountType: 'fixed',
   discountValue: 0,
   taxRate: 10,
