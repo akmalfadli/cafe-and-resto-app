@@ -42,12 +42,23 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
 
-  const subtotal = cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
-  const discountAmount = discountType === 'percentage' ? (subtotal * discountValue) / 100 : discountValue;
+  // Lock cart & discount snapshot before clearing so receipt calculations stay intact
+  const subtotal = completedSale
+    ? completedSale.subtotal
+    : cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
+  const discountAmount = completedSale
+    ? completedSale.discount_amount
+    : (discountType === 'percentage' ? (subtotal * discountValue) / 100 : discountValue);
   const afterDiscount = Math.max(0, subtotal - discountAmount);
-  const taxAmount = enableTax ? Math.round((afterDiscount * taxRate) / 100) : 0;
-  const serviceCharge = Math.round((afterDiscount * serviceRate) / 100);
-  const grandTotal = Math.round(afterDiscount + taxAmount + serviceCharge);
+  const taxAmount = completedSale
+    ? completedSale.tax_amount
+    : (enableTax ? Math.round((afterDiscount * taxRate) / 100) : 0);
+  const serviceCharge = completedSale
+    ? completedSale.service_charge
+    : Math.round((afterDiscount * serviceRate) / 100);
+  const grandTotal = completedSale
+    ? completedSale.grand_total
+    : Math.round(afterDiscount + taxAmount + serviceCharge);
 
   const parsedCash = parseFloat(cashTendered) || 0;
   const change = Math.max(0, parsedCash - grandTotal);
