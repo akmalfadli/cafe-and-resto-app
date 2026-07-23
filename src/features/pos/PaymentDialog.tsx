@@ -13,7 +13,21 @@ interface PaymentDialogProps {
 }
 
 export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose }) => {
-  const { cart, products, categories, discountType, discountValue, taxRate, serviceRate, completeSale, updateCustomerOrderStatus, receiptHeader, receiptFooter, receiptLogo, enableTableNumber, enableTax } = useAppStore();
+  const cart = useAppStore(s => s.cart);
+  const products = useAppStore(s => s.products);
+  const categories = useAppStore(s => s.categories);
+  const discountType = useAppStore(s => s.discountType);
+  const discountValue = useAppStore(s => s.discountValue);
+  const taxRate = useAppStore(s => s.taxRate);
+  const serviceRate = useAppStore(s => s.serviceRate);
+  const completeSale = useAppStore(s => s.completeSale);
+  const updateCustomerOrderStatus = useAppStore(s => s.updateCustomerOrderStatus);
+  const receiptHeader = useAppStore(s => s.receiptHeader);
+  const receiptFooter = useAppStore(s => s.receiptFooter);
+  const receiptLogo = useAppStore(s => s.receiptLogo);
+  const enableTableNumber = useAppStore(s => s.enableTableNumber);
+  const enableTax = useAppStore(s => s.enableTax);
+
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'qris' | 'transfer' | 'split'>('cash');
   const [cashTendered, setCashTendered] = useState<string>('');
   const [completedSale, setCompletedSale] = useState<Sale | null>(null);
