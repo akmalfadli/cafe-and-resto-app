@@ -299,15 +299,24 @@ export const IngredientsView: React.FC = () => {
                   </h3>
                   <span className="text-[10px] text-stone-400 font-mono">Rp {ing.avg_cost.toLocaleString('id-ID')} / {ing.unit}</span>
                 </div>
-                {isLowStock ? (
-                  <span className="p-1 bg-red-100 text-red-600 rounded-lg flex items-center gap-1 text-[10px] font-bold">
-                    <AlertTriangle className="w-3.5 h-3.5" /> Stok Rendah
-                  </span>
-                ) : (
-                  <span className="p-1 bg-emerald-100 text-emerald-600 rounded-lg flex items-center gap-1 text-[10px] font-bold">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Aman
-                  </span>
-                )}
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  {isLowStock ? (
+                    <span className="p-1 bg-red-100 text-red-600 rounded-lg flex items-center gap-1 text-[10px] font-bold">
+                      <AlertTriangle className="w-3.5 h-3.5" /> Stok Rendah
+                    </span>
+                  ) : (
+                    <span className="p-1 bg-emerald-100 text-emerald-600 rounded-lg flex items-center gap-1 text-[10px] font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Aman
+                    </span>
+                  )}
+                  {ing.category_id && (
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase inline-block ${
+                      ing.category_id === 'Makanan' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      {ing.category_id}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="pt-2 border-t border-stone-100 flex justify-between items-center">
@@ -316,16 +325,6 @@ export const IngredientsView: React.FC = () => {
                   <span className={`text-xs font-extrabold ${isLowStock ? 'text-red-600' : 'text-stone-800'}`}>
                     {ing.current_stock.toLocaleString()} {ing.unit}
                   </span>
-                  
-                  {ing.category_id && (
-                    <span className="block mt-0.5">
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase inline-block ${
-                        ing.category_id === 'Makanan' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        Kategori: {ing.category_id}
-                      </span>
-                    </span>
-                  )}
 
                   {ing.supplier_id && (
                     <span className="text-[9px] text-stone-400 block mt-0.5">
