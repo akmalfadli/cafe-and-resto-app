@@ -12,6 +12,7 @@ export const IngredientsView: React.FC = () => {
   const [unit, setUnit] = useState<'gram' | 'ml' | 'pcs' | 'pack' | 'slice'>('gram');
   const [avgCost, setAvgCost] = useState('150');
   const [minStock, setMinStock] = useState('1000');
+  const [supplierId, setSupplierId] = useState<string>('');
 
   // Excel import status messaging states
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -31,7 +32,7 @@ export const IngredientsView: React.FC = () => {
       avg_cost: parseFloat(avgCost) || 0,
       min_stock: parseFloat(minStock) || 0,
       category_id: undefined,
-      supplier_id: suppliers[0]?.id,
+      supplier_id: supplierId ? supplierId : undefined,
     };
 
     if (editingIngredient) {
@@ -41,6 +42,7 @@ export const IngredientsView: React.FC = () => {
     }
 
     setName('');
+    setSupplierId('');
     setEditingIngredient(null);
     setShowModal(false);
   };
@@ -259,6 +261,11 @@ export const IngredientsView: React.FC = () => {
                   <span className={`text-xs font-extrabold ${isLowStock ? 'text-red-600' : 'text-stone-800'}`}>
                     {ing.current_stock.toLocaleString()} {ing.unit}
                   </span>
+                  {ing.supplier_id && (
+                    <span className="text-[9px] text-stone-400 block mt-0.5">
+                      Pemasok: {suppliers.find(s => s.id === ing.supplier_id)?.name || 'Pemasok Utama'}
+                    </span>
+                  )}
                 </div>
                 <div className="flex gap-1.5">
                   <button
@@ -278,6 +285,7 @@ export const IngredientsView: React.FC = () => {
                       setUnit(ing.unit);
                       setAvgCost(String(ing.avg_cost));
                       setMinStock(String(ing.min_stock));
+                      setSupplierId(ing.supplier_id || '');
                       setShowModal(true);
                     }}
                     className="px-2.5 py-1 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg text-[10px] font-bold text-stone-600 transition"
@@ -325,6 +333,22 @@ export const IngredientsView: React.FC = () => {
                 </select>
               </div>
 
+              <div>
+                <label className="font-semibold text-stone-600">Pemasok (Supplier) - Opsional</label>
+                <select
+                  value={supplierId}
+                  onChange={(e) => setSupplierId(e.target.value)}
+                  className="w-full border border-stone-300 rounded-xl px-3 py-2 mt-1 font-medium text-stone-700 bg-white"
+                >
+                  <option value="">-- Tanpa Pemasok (Kosong) --</option>
+                  {suppliers.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-semibold text-stone-600">Biaya Rata-rata (Rp)</label>
@@ -356,6 +380,7 @@ export const IngredientsView: React.FC = () => {
                   setUnit('gram');
                   setAvgCost('150');
                   setMinStock('1000');
+                  setSupplierId('');
                 }} 
                 className="flex-1 py-2 border rounded-xl font-semibold text-xs"
               >
