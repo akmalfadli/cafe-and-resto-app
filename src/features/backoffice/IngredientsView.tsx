@@ -254,18 +254,31 @@ export const IngredientsView: React.FC = () => {
       )}
 
       {/* Category Filter Controls */}
-      <div className="flex gap-4 items-center bg-white p-3 rounded-2xl border border-stone-200">
-        <label className="text-xs font-bold text-stone-700">Filter Kategori:</label>
-        <select
-          value={selectedFilterCategory}
-          onChange={(e) => setSelectedFilterCategory(e.target.value)}
-          className="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none"
-        >
-          <option value="all">Semua Kategori</option>
-          <option value="Makanan">Makanan</option>
-          <option value="Minuman">Minuman</option>
-          <option value="none">Tanpa Kategori</option>
-        </select>
+      <div className="flex flex-wrap gap-2 items-center bg-white p-3 rounded-2xl border border-stone-200">
+        <span className="text-xs font-bold text-stone-500 mr-2 uppercase tracking-wider">Filter Kategori:</span>
+        <div className="flex flex-wrap gap-1.5">
+          {[
+            { id: 'all', label: 'Semua Kategori' },
+            { id: 'Makanan', label: 'Makanan' },
+            { id: 'Minuman', label: 'Minuman' },
+            { id: 'none', label: 'Tanpa Kategori' },
+          ].map((tab) => {
+            const isActive = selectedFilterCategory === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedFilterCategory(tab.id)}
+                className={`text-xs font-bold px-4 py-2 rounded-xl transition ${
+                  isActive 
+                    ? 'bg-coffee-500 text-white shadow' 
+                    : 'bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
