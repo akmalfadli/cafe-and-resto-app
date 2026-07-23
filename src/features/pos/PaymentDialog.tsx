@@ -32,6 +32,14 @@ export const PaymentDialog: React.FC<PaymentDialogProps> = ({ isOpen, onClose })
   const [cashTendered, setCashTendered] = useState<string>('');
   const [completedSale, setCompletedSale] = useState<Sale | null>(null);
 
+  // Reset internal state when dialog closes or opens freshly
+  React.useEffect(() => {
+    if (!isOpen) {
+      setCompletedSale(null);
+      setCashTendered('');
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const subtotal = cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
