@@ -1,12 +1,12 @@
 import React from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { 
-  DollarSign, TrendingUp, ShoppingBag, 
-  Award, ArrowUpRight 
+import {
+  DollarSign, TrendingUp, ShoppingBag,
+  Award, ArrowUpRight
 } from 'lucide-react';
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer 
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer
 } from 'recharts';
 
 export const DashboardView: React.FC = () => {
@@ -101,7 +101,7 @@ export const DashboardView: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      
+
       <div>
         <h1 className="text-2xl font-black text-stone-800 dark:text-stone-100 tracking-tight">
           Dasbor Eksekutif
@@ -110,7 +110,7 @@ export const DashboardView: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        
+
         <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Penjualan Hari Ini</span>
@@ -124,7 +124,7 @@ export const DashboardView: React.FC = () => {
             </h2>
             <div className="flex items-center text-xs text-emerald-600 mt-1 font-semibold">
               <ArrowUpRight className="w-4 h-4 mr-0.5" />
-              <span>Realtime Supabase DB</span>
+              <span>Realtime data</span>
             </div>
           </div>
         </div>
@@ -187,7 +187,7 @@ export const DashboardView: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         <div className="lg:col-span-2 bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="font-bold text-base text-stone-800 dark:text-stone-100">Tren Pendapatan & Laba Bersih Mingguan</h3>
@@ -198,18 +198,18 @@ export const DashboardView: React.FC = () => {
               <AreaChart data={salesChartData}>
                 <defs>
                   <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6F4E37" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#6F4E37" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#6F4E37" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#6F4E37" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#588157" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#588157" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#588157" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#588157" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e7e5e4" />
                 <XAxis dataKey="day" stroke="#a8a29e" fontSize={12} />
                 <YAxis stroke="#a8a29e" fontSize={12} tickFormatter={(v) => `${v / 1000}k`} />
-                <Tooltip 
+                <Tooltip
                   formatter={(val: any) => [`Rp ${val.toLocaleString('id-ID')}`, '']}
                   contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', borderColor: '#e7e5e4' }}
                 />
@@ -242,7 +242,7 @@ export const DashboardView: React.FC = () => {
       </div>
 
       <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
-        <h3 className="font-bold text-base text-stone-800 dark:text-stone-100">Transaksi Selesai Terakhir</h3>
+        <h3 className="font-bold text-base text-stone-800 dark:text-stone-100">Transaksi terakhir</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>

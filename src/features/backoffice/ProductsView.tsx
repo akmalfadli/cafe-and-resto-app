@@ -84,21 +84,88 @@ export const RecipeBuilderModal: React.FC<{ productId: string; onClose: () => vo
                   const lineTotal = (ing?.avg_cost || 0) * item.qty;
                   return (
                     <div key={idx} className="flex items-center gap-3 bg-stone-50 p-2.5 rounded-xl border border-stone-200 text-xs">
-                      <select
-                        value={item.ingredientId}
-                        onChange={(e) => {
-                          const updated = [...recipeItems];
-                          updated[idx].ingredientId = e.target.value;
-                          setRecipeItems(updated);
-                        }}
-                        className="flex-1 bg-white border border-stone-300 rounded-lg px-2.5 py-1.5 font-medium"
-                      >
-                        {ingredients.map((i) => (
-                          <option key={i.id} value={i.id}>
-                            {i.name} (Rp {i.avg_cost.toLocaleString('id-ID')} / {i.unit})
-                          </option>
-                        ))}
-                      </select>
+                      {/* Searchable Custom Dropdown Replacement for Select Option */}
+                      <div className="flex-1 relative">
+                        {(() => {
+                          const [isOpen, setIsOpen] = useState(false);
+                          const [dropSearch, setDropSearch] = useState('');
+                          
+                          const filteredIngredients = ingredients.filter(i => 
+                            i.name.toLowerCase().includes(dropSearch.toLowerCase())
+                          );
+
+                          return (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => setIsOpen(!isOpen)}
+                                className="w-full bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg px-2.5 py-1.5 font-medium text-left text-xs flex justify-between items-center text-stone-800 dark:text-stone-100"
+                              >
+                                <span>
+                                  {ing 
+                                    ? `${ing.name} (Rp ${ing.avg_cost.toLocaleString('id-ID')} / ${ing.unit})`
+                                    : '-- Pilih Bahan Baku --'}
+                                </span>
+                                <span className="text-[10px] text-stone-400">▼</span>
+                              </button>
+
+                              {isOpen && (
+                                <>
+                                  <div 
+                                    className="fixed inset-0 z-30" 
+                                    onClick={() => {
+                                      setIsOpen(false);
+                                      setDropSearch('');
+                                    }} 
+                                  />
+                                  <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-850 rounded-xl shadow-xl z-40 max-h-56 overflow-y-auto p-2 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+                                    <div className="relative sticky top-0 bg-white dark:bg-stone-900 pb-1.5 z-10 border-b border-stone-100 dark:border-stone-850">
+                                      <Search className="w-3.5 h-3.5 absolute left-2.5 top-2 text-stone-400" />
+                                      <input
+                                        type="text"
+                                        placeholder="Cari bahan baku..."
+                                        value={dropSearch}
+                                        onChange={(e) => setDropSearch(e.target.value)}
+                                        className="w-full pl-8 pr-3 py-1.5 text-[11px] bg-stone-50 dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-700 focus:outline-none focus:ring-1 focus:ring-coffee-500"
+                                        autoFocus
+                                      />
+                                    </div>
+                                    <div className="space-y-0.5 max-h-40 overflow-y-auto">
+                                      {filteredIngredients.length === 0 ? (
+                                        <p className="text-[10px] text-stone-400 text-center py-2">Bahan tidak ditemukan</p>
+                                      ) : (
+                                        filteredIngredients.map((i) => (
+                                          <button
+                                            key={i.id}
+                                            type="button"
+                                            onClick={() => {
+                                              const updated = [...recipeItems];
+                                              updated[idx].ingredientId = i.id;
+                                              setRecipeItems(updated);
+                                              setIsOpen(false);
+                                              setDropSearch('');
+                                            }}
+                                            className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] transition flex justify-between items-center ${
+                                              item.ingredientId === i.id 
+                                                ? 'bg-coffee-500 text-white font-bold' 
+                                                : 'text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-850'
+                                            }`}
+                                          >
+                                            <span className="truncate">{i.name}</span>
+                                            <span className={`text-[9px] font-mono shrink-0 ml-2 ${item.ingredientId === i.id ? 'text-coffee-100' : 'text-stone-400'}`}>
+                                              Rp {i.avg_cost} / {i.unit}
+                                            </span>
+                                          </button>
+                                        ))
+                                      )}
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
 
                       <div className="flex items-center gap-1">
                         <input
@@ -109,12 +176,12 @@ export const RecipeBuilderModal: React.FC<{ productId: string; onClose: () => vo
                             updated[idx].qty = parseFloat(e.target.value) || 0;
                             setRecipeItems(updated);
                           }}
-                          className="w-20 bg-white border border-stone-300 rounded-lg px-2 py-1.5 font-bold text-center"
+                          className="w-20 bg-white dark:bg-stone-850 border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-100 rounded-lg px-2 py-1.5 font-bold text-center"
                         />
-                        <span className="text-stone-500 font-semibold w-10">{ing?.unit}</span>
+                        <span className="text-stone-500 dark:text-stone-400 font-semibold w-10">{ing?.unit}</span>
                       </div>
 
-                      <span className="w-28 text-right font-bold text-stone-700">
+                      <span className="w-28 text-right font-bold text-stone-700 dark:text-stone-300">
                         Rp {lineTotal.toLocaleString('id-ID')}
                       </span>
 
