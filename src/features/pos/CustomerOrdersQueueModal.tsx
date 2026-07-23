@@ -14,18 +14,7 @@ export const CustomerOrdersQueueModal: React.FC<CustomerOrdersQueueModalProps> =
   onClose,
   onApproveOrder
 }) => {
-  const { customerOrders, updateCustomerOrderStatus, fetchCustomerOrders } = useAppStore();
-
-  React.useEffect(() => {
-    if (isOpen) {
-      fetchCustomerOrders();
-      // Poll every 5 seconds for new customer orders
-      const interval = setInterval(() => {
-        fetchCustomerOrders();
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [isOpen]);
+  const { customerOrders, updateCustomerOrderStatus } = useAppStore();
 
   if (!isOpen) return null;
 
