@@ -693,7 +693,13 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
         )}
       </div>
 
-      <PaymentDialog isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} />
+      <PaymentDialog 
+        isOpen={isPaymentOpen} 
+        onClose={() => {
+          setIsPaymentOpen(false);
+          setShowCartOnMobile(false);
+        }} 
+      />
 
       {showDiscountModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-4">
