@@ -180,7 +180,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
           >
             <ShoppingCart className="w-5 h-5" />
             {cart.length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-coffee-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow border-2 border-white dark:border-stone-900 animate-bounce">
+              <span className="absolute -top-1.5 -right-1.5 bg-coffee-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow border-2 border-white dark:border-stone-900">
                 {cart.reduce((sum, item) => sum + item.quantity, 0)}
               </span>
             )}
@@ -256,7 +256,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                     <img
                       src={product.image_url}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-102 transition duration-300"
+                      className="w-full h-full object-cover transition duration-300"
                     />
 
                     {product.is_favorite && (
@@ -291,25 +291,22 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                       </span>
 
                       {!isOutOfStock && cartItem && (
-                        <div className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 rounded-lg shrink-0">
+                        <div
+                          className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 rounded-lg shrink-0 relative z-10"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              updateQuantity(product.id, -1);
-                            }}
-                            className="w-5 h-5 rounded bg-white dark:bg-stone-700 text-stone-700 dark:text-stone-250 font-bold flex items-center justify-center text-xs hover:bg-coffee-500 hover:text-white"
+                            onClick={() => updateQuantity(product.id, -1)}
+                            className="w-6 h-6 rounded bg-white dark:bg-stone-700 text-stone-700 dark:text-stone-250 font-bold flex items-center justify-center text-xs hover:bg-coffee-500 hover:text-white transition"
                           >
                             -
                           </button>
-                          <span className="text-[10px] font-black text-stone-800 dark:text-stone-100">{cartItem.quantity}</span>
+                          <span className="text-[10px] font-black text-stone-800 dark:text-stone-100 min-w-[16px] text-center">{cartItem.quantity}</span>
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              updateQuantity(product.id, 1);
-                            }}
-                            className="w-5 h-5 rounded bg-white dark:bg-stone-700 text-stone-700 dark:text-stone-250 font-bold flex items-center justify-center text-xs hover:bg-coffee-500 hover:text-white"
+                            onClick={() => updateQuantity(product.id, 1)}
+                            className="w-6 h-6 rounded bg-white dark:bg-stone-700 text-stone-700 dark:text-stone-250 font-bold flex items-center justify-center text-xs hover:bg-coffee-500 hover:text-white transition"
                           >
                             +
                           </button>
