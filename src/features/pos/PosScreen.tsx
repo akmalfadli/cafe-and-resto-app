@@ -92,21 +92,27 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
     localStorage.setItem('cafepos_menu_view_mode', nextMode);
   };
 
-  const filteredProducts = products.filter((product) => {
-    const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          product.sku.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch && product.is_available;
-  });
+  const filteredProducts = React.useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    return products.filter((product) => {
+      const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
+      const matchesSearch = product.name.toLowerCase().includes(q) || 
+                            product.sku.toLowerCase().includes(q);
+      return matchesCategory && matchesSearch && product.is_available;
+    });
+  }, [products, selectedCategory, searchQuery]);
 
-  const subtotal = cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
-  const discountAmount = discountType === 'percentage' 
-    ? Math.round((subtotal * discountValue) / 100)
-    : discountValue;
-  const afterDiscount = Math.max(0, subtotal - discountAmount);
-  const taxAmount = enableTax ? Math.round((afterDiscount * taxRate) / 100) : 0;
-  const serviceCharge = Math.round((afterDiscount * serviceRate) / 100);
-  const grandTotal = Math.round(afterDiscount + taxAmount + serviceCharge);
+  const { subtotal, discountAmount, taxAmount, serviceCharge, grandTotal } = React.useMemo(() => {
+    const sub = cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
+    const disc = discountType === 'percentage' 
+      ? Math.round((sub * discountValue) / 100)
+      : discountValue;
+    const after = Math.max(0, sub - disc);
+    const tax = enableTax ? Math.round((after * taxRate) / 100) : 0;
+    const service = Math.round((after * serviceRate) / 100);
+    const grand = Math.round(after + tax + service);
+    return { subtotal: sub, discountAmount: disc, afterDiscount: after, taxAmount: tax, serviceCharge: service, grandTotal: grand };
+  }, [cart, discountType, discountValue, enableTax, taxRate, serviceRate]);
 
   const getCategoryIcon = (iconName?: string) => {
     switch (iconName) {

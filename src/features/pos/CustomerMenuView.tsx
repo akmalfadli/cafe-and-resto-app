@@ -37,12 +37,19 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
     }
   };
 
-  const filteredProducts = products.filter((product) => {
-    const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.sku.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch && product.is_available;
-  });
+  const filteredProducts = React.useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    return products.filter((product) => {
+      const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
+      const matchesSearch = product.name.toLowerCase().includes(q) ||
+        product.sku.toLowerCase().includes(q);
+      return matchesCategory && matchesSearch && product.is_available;
+    });
+  }, [products, selectedCategory, searchQuery]);
+
+  const totalAmount = React.useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
+  }, [cart]);
 
   const addToCustomerCart = (product: Product) => {
     const matchedRecipe = recipes.find(r => r.product_id === product.id);
@@ -77,7 +84,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
     }
   };
 
-  const totalAmount = cart.reduce((sum, item) => sum + item.product.selling_price * item.quantity, 0);
+
 
   const handleSubmitOrder = async () => {
     if (!custName.trim()) {
