@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
 import { 
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search, 
@@ -55,7 +55,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
   } = useAppStore();
 
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
 
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
@@ -77,12 +77,14 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
 
   // Auto-open payment dialog when returning from /antrean with openPayment flag
   React.useEffect(() => {
-    if (searchParams.get('openPayment') === '1') {
+    const state = location.state as { openPayment?: boolean } | null;
+    if (state?.openPayment) {
       setShowCartOnMobile(true);
       setIsPaymentOpen(true);
-      setSearchParams({}, { replace: true });
+      // Clear the state so it doesn't re-trigger
+      window.history.replaceState({}, '');
     }
-  }, [searchParams, setSearchParams]);
+  }, [location.state]);
 
   const toggleViewMode = () => {
     const nextMode = viewMode === 'card' ? 'list' : 'card';

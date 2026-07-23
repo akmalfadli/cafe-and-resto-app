@@ -53,8 +53,8 @@ export const CustomerOrdersQueuePage: React.FC = () => {
     // Save pending customer order ID for payment completion
     (window as any)._pendingCustomerOrderId = order.id;
 
-    // Navigate back to POS with payment flag
-    navigate('/?openPayment=1');
+    // Navigate back to POS with payment flag via router state (not URL params)
+    navigate('/', { state: { openPayment: true } });
   };
 
   return (
