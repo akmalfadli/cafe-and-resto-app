@@ -513,15 +513,30 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 <h3 className="font-extrabold text-sm text-stone-800 dark:text-stone-100 flex items-center gap-1.5">
                   <ShoppingCart className="w-4 h-4 text-coffee-500" />
                   Pesanan Saya
+                  {cart.length > 0 && (
+                    <span className="text-[10px] bg-coffee-500 text-white font-extrabold px-2 py-0.5 rounded-full ml-1">
+                      {cart.reduce((sum, item) => sum + item.quantity, 0)}
+                    </span>
+                  )}
                 </h3>
                 <p className="text-[10px] text-stone-400 dark:text-stone-400">Silakan isi detail Anda di bawah ini</p>
               </div>
-              <button
-                onClick={() => setShowOrderSummary(false)}
-                className="text-stone-400 dark:text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-bold transition"
-              >
-                Tutup
-              </button>
+              <div className="flex items-center gap-2">
+                {cart.length > 0 && (
+                  <button
+                    onClick={() => setCart([])}
+                    className="text-[10px] text-red-500 hover:text-red-600 dark:text-red-400 font-bold hover:underline transition"
+                  >
+                    Kosongkan
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowOrderSummary(false)}
+                  className="text-stone-400 dark:text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-bold transition p-1"
+                >
+                  Tutup
+                </button>
+              </div>
             </div>
 
             {/* Customer Information Inputs */}
@@ -575,11 +590,18 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 </div>
               ) : (
                 cart.map((item) => (
-                  <div key={item.product.id} className="flex gap-3 bg-stone-50 dark:bg-stone-850 p-2.5 rounded-2xl border border-stone-150 dark:border-stone-800 text-xs">
-                    <img src={item.product.image_url} alt={item.product.name} className="w-12 h-12 rounded-xl object-cover" />
+                  <div key={item.product.id} className="flex gap-3 bg-stone-50 dark:bg-stone-850 p-3 rounded-2xl border border-stone-150 dark:border-stone-800 text-xs shadow-2xs hover:border-coffee-300 dark:hover:border-coffee-800 transition">
+                    <img src={item.product.image_url} alt={item.product.name} className="w-13 h-13 rounded-xl object-cover shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-extrabold text-stone-800 dark:text-stone-100 truncate">{toCapitalCase(item.product.name)}</h4>
-                      <p className="text-[10px] text-coffee-600 font-bold mt-0.5">Rp {item.product.selling_price.toLocaleString('id-ID')}</p>
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-extrabold text-stone-800 dark:text-stone-100 truncate pr-1">{toCapitalCase(item.product.name)}</h4>
+                        <span className="font-extrabold text-stone-900 dark:text-stone-100 shrink-0 text-xs">
+                          Rp {(item.product.selling_price * item.quantity).toLocaleString('id-ID')}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-coffee-600 dark:text-coffee-400 font-bold mt-0.5">
+                        @Rp {item.product.selling_price.toLocaleString('id-ID')}
+                      </p>
 
                       <input
                         type="text"
@@ -597,17 +619,30 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                       />
                     </div>
 
-                    <div className="flex flex-col items-end justify-between shrink-0">
+                    <div className="flex flex-col items-end justify-between shrink-0 pl-1">
                       <button
                         onClick={() => updateQuantity(item.product.id, -item.quantity)}
-                        className="text-stone-300 dark:text-stone-500 hover:text-red-500 dark:hover:text-red-400 font-bold transition"
+                        title="Hapus Item"
+                        className="text-stone-300 dark:text-stone-500 hover:text-red-500 dark:hover:text-red-400 font-bold text-base transition leading-none"
                       >
                         ×
                       </button>
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => updateQuantity(item.product.id, -1)} className="w-4 h-4 bg-white dark:bg-stone-800 rounded border border-stone-200 dark:border-stone-700 font-bold flex items-center justify-center text-[10px] text-stone-700 dark:text-stone-200 hover:bg-coffee-500 hover:text-white transition">-</button>
-                        <span className="text-[10px] font-black text-stone-800 dark:text-stone-100 px-1">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.product.id, 1)} className="w-4 h-4 bg-white dark:bg-stone-800 rounded border border-stone-200 dark:border-stone-700 font-bold flex items-center justify-center text-[10px] text-stone-700 dark:text-stone-200 hover:bg-coffee-500 hover:text-white transition">+</button>
+                      <div className="flex items-center gap-1 bg-white dark:bg-stone-800 p-0.5 rounded-lg border border-stone-200 dark:border-stone-700">
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.product.id, -1)}
+                          className="w-5 h-5 bg-stone-100 dark:bg-stone-700 rounded text-stone-700 dark:text-stone-200 font-bold flex items-center justify-center text-xs hover:bg-coffee-500 hover:text-white transition"
+                        >
+                          -
+                        </button>
+                        <span className="text-[11px] font-black text-stone-800 dark:text-stone-100 min-w-[18px] text-center">{item.quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.product.id, 1)}
+                          className="w-5 h-5 bg-stone-100 dark:bg-stone-700 rounded text-stone-700 dark:text-stone-250 font-bold flex items-center justify-center text-xs hover:bg-coffee-500 hover:text-white transition"
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
                   </div>
