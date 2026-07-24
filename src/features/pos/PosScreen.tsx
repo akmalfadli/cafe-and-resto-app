@@ -420,7 +420,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
                         <span className="font-extrabold text-xs md:text-sm text-coffee-600 dark:text-coffee-400">
                           Rp {product.selling_price.toLocaleString('id-ID')}
                         </span>
-                        <button className="p-1 md:p-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg md:rounded-xl transition">
+                        <button className="p-1 md:p-1.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-coffee-500 hover:text-white dark:hover:bg-coffee-500 dark:hover:text-white rounded-lg md:rounded-xl transition border border-stone-200 dark:border-stone-700">
                           <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                         </button>
                       </div>
@@ -477,7 +477,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
                       <span className="font-extrabold text-sm text-coffee-600 dark:text-coffee-400">
                         Rp {product.selling_price.toLocaleString('id-ID')}
                       </span>
-                      <button className="p-1.5 bg-stone-100 hover:bg-coffee-500 hover:text-white rounded-lg transition">
+                      <button className="p-1.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-coffee-500 hover:text-white dark:hover:bg-coffee-500 dark:hover:text-white rounded-lg transition border border-stone-200 dark:border-stone-700">
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
