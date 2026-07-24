@@ -249,6 +249,7 @@ export const DashboardView: React.FC = () => {
               <tr className="border-b border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-400 uppercase font-semibold">
                 <th className="pb-2">No. Struk</th>
                 <th className="pb-2">Tanggal & Waktu</th>
+                <th className="pb-2">Pelanggan</th>
                 <th className="pb-2">Kasir</th>
                 <th className="pb-2">Tipe</th>
                 <th className="pb-2">Item</th>
@@ -275,6 +276,7 @@ export const DashboardView: React.FC = () => {
                     <td className="py-3 font-medium text-stone-600 dark:text-stone-300">
                       {formattedDate} <span className="text-[10px] text-stone-400 dark:text-stone-500 font-mono ml-1">{formattedTime}</span>
                     </td>
+                    <td className="py-3 font-bold text-stone-800 dark:text-stone-100">{sale.customer_name || 'Pelanggan Umum'}</td>
                     <td className="py-3 font-medium text-stone-700 dark:text-stone-300">{sale.cashier_name}</td>
                     <td className="py-3 uppercase font-bold text-stone-500 dark:text-stone-400">{sale.order_type}</td>
                     <td className="py-3 text-stone-600 dark:text-stone-400">{sale.items.length} item</td>
