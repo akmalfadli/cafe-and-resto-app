@@ -264,14 +264,14 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
             <h1 className="text-base font-extrabold text-stone-800 dark:text-stone-100 leading-tight">
               {outletName || 'Daftar Menu Pelanggan'}
             </h1>
-            <p className="text-[10px] text-stone-400">Silakan pilih menu makanan dan minuman favorit Anda</p>
+            <p className="text-[10px] text-stone-400 dark:text-stone-400 font-medium">Silakan pilih menu makanan dan minuman favorit Anda</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowOrderSummary(!showOrderSummary)}
-            className="relative p-2.5 bg-coffee-50 dark:bg-coffee-950/40 text-coffee-600 dark:text-coffee-400 rounded-xl hover:bg-coffee-100 dark:hover:bg-coffee-950/70 transition flex items-center justify-center"
+            className="relative p-2.5 bg-coffee-50 dark:bg-coffee-950/60 text-coffee-600 dark:text-coffee-300 rounded-xl hover:bg-coffee-100 dark:hover:bg-coffee-900/80 transition flex items-center justify-center border border-transparent dark:border-coffee-800/40"
           >
             <ShoppingCart className="w-5 h-5" />
             {cart.length > 0 && (
@@ -307,11 +307,11 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`flex flex-col items-center justify-center p-2.5 md:p-3 rounded-xl md:rounded-2xl transition ${active
                     ? 'bg-coffee-500 text-white font-bold shadow-sm'
-                    : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
+                    : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
                   }`}
               >
                 <div className="mb-1 transform scale-90 md:scale-100">{getCategoryIcon(cat.icon)}</div>
-                <span className="text-[10px] md:text-[11px] text-center leading-tight">{cat.name}</span>
+                <span className="text-[10px] md:text-[11px] text-center leading-tight font-medium">{cat.name}</span>
               </button>
             );
           })}
@@ -360,13 +360,13 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
           {/* Search Bar */}
           <div className="p-3 md:px-6 md:pt-3 md:pb-2 shrink-0">
             <div className="relative">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-stone-400 dark:text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Cari makanan, kopi, soda..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-750 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-coffee-500 shadow-sm"
+                className="w-full bg-white dark:bg-stone-850 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-750 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-coffee-500 shadow-sm placeholder:text-stone-400 dark:placeholder:text-stone-500"
               />
             </div>
           </div>
@@ -374,9 +374,9 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
           {/* Product Grid */}
           <div className="flex-1 p-3 md:px-6 md:pb-6 pt-0">
             {filteredProducts.length === 0 ? (
-              <div className="h-64 flex flex-col items-center justify-center text-center text-stone-400 space-y-2">
-                <p className="text-xs font-bold">Tidak ada produk ditemukan</p>
-                <p className="text-[10px]">Coba cari dengan kata kunci lain atau pilih kategori lain.</p>
+              <div className="h-64 flex flex-col items-center justify-center text-center text-stone-400 dark:text-stone-400 space-y-2">
+                <p className="text-xs font-bold text-stone-600 dark:text-stone-300">Tidak ada produk ditemukan</p>
+                <p className="text-[10px] text-stone-400 dark:text-stone-400">Coba cari dengan kata kunci lain atau pilih kategori lain.</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 pb-8">
@@ -514,33 +514,33 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                   <ShoppingCart className="w-4 h-4 text-coffee-500" />
                   Pesanan Saya
                 </h3>
-                <p className="text-[10px] text-stone-400">Silakan isi detail Anda di bawah ini</p>
+                <p className="text-[10px] text-stone-400 dark:text-stone-400">Silakan isi detail Anda di bawah ini</p>
               </div>
               <button
                 onClick={() => setShowOrderSummary(false)}
-                className="text-stone-400 hover:text-stone-600 text-xs font-bold"
+                className="text-stone-400 dark:text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-bold transition"
               >
                 Tutup
               </button>
             </div>
 
             {/* Customer Information Inputs */}
-            <div className="p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50/50 space-y-3">
+            <div className="p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-850/40 space-y-3">
               <div>
-                <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Nama Anda *</label>
+                <label className="block text-[10px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider mb-1">Nama Anda *</label>
                 <input
                   type="text"
                   placeholder="Masukkan nama Anda..."
                   value={custName}
                   onChange={(e) => setCustName(e.target.value)}
-                  className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                  className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500 placeholder:text-stone-400 dark:placeholder:text-stone-500"
                 />
               </div>
 
               <div className={enableTableNumber ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 gap-3"}>
                 {enableTableNumber && (
                   <div>
-                    <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">No. Meja</label>
+                    <label className="block text-[10px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider mb-1">No. Meja</label>
                     <select
                       value={custTable}
                       onChange={(e) => setCustTable(e.target.value)}
@@ -553,13 +553,13 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                   </div>
                 )}
                 <div>
-                  <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Catatan Tambahan</label>
+                  <label className="block text-[10px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider mb-1">Catatan Tambahan</label>
                   <input
                     type="text"
                     placeholder="Contoh: Sendok 2..."
                     value={custNotes}
                     onChange={(e) => setCustNotes(e.target.value)}
-                    className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                    className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs focus:outline-none placeholder:text-stone-400 dark:placeholder:text-stone-500"
                   />
                 </div>
               </div>
@@ -568,10 +568,10 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
             {/* List Order Items */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {cart.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center text-stone-400 space-y-2 p-6">
-                  <ShoppingCart className="w-10 h-10 text-stone-300" />
-                  <p className="text-xs font-bold">Keranjang Anda masih kosong</p>
-                  <p className="text-[10px] max-w-[200px]">Silakan klik menu-menu lezat di sebelah kiri untuk ditambahkan.</p>
+                <div className="h-full flex flex-col items-center justify-center text-center text-stone-400 dark:text-stone-400 space-y-2 p-6">
+                  <ShoppingCart className="w-10 h-10 text-stone-300 dark:text-stone-600" />
+                  <p className="text-xs font-bold text-stone-600 dark:text-stone-300">Keranjang Anda masih kosong</p>
+                  <p className="text-[10px] text-stone-400 dark:text-stone-400 max-w-[200px]">Silakan klik menu-menu lezat di sebelah kiri untuk ditambahkan.</p>
                 </div>
               ) : (
                 cart.map((item) => (
@@ -593,21 +593,21 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                             setCart(updated);
                           }
                         }}
-                        className="w-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-[10px] rounded-lg px-2 py-1 mt-1.5 focus:outline-none"
+                        className="w-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-[10px] rounded-lg px-2 py-1 mt-1.5 focus:outline-none text-stone-800 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500"
                       />
                     </div>
 
                     <div className="flex flex-col items-end justify-between shrink-0">
                       <button
                         onClick={() => updateQuantity(item.product.id, -item.quantity)}
-                        className="text-stone-300 hover:text-red-500 font-bold"
+                        className="text-stone-300 dark:text-stone-500 hover:text-red-500 dark:hover:text-red-400 font-bold transition"
                       >
                         ×
                       </button>
                       <div className="flex items-center gap-1">
-                        <button onClick={() => updateQuantity(item.product.id, -1)} className="w-4 h-4 bg-white dark:bg-stone-800 rounded border border-stone-200 dark:border-stone-700 font-bold flex items-center justify-center text-[10px]">-</button>
+                        <button onClick={() => updateQuantity(item.product.id, -1)} className="w-4 h-4 bg-white dark:bg-stone-800 rounded border border-stone-200 dark:border-stone-700 font-bold flex items-center justify-center text-[10px] text-stone-700 dark:text-stone-200 hover:bg-coffee-500 hover:text-white transition">-</button>
                         <span className="text-[10px] font-black text-stone-800 dark:text-stone-100 px-1">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.product.id, 1)} className="w-4 h-4 bg-white dark:bg-stone-800 rounded border border-stone-200 dark:border-stone-700 font-bold flex items-center justify-center text-[10px]">+</button>
+                        <button onClick={() => updateQuantity(item.product.id, 1)} className="w-4 h-4 bg-white dark:bg-stone-800 rounded border border-stone-200 dark:border-stone-700 font-bold flex items-center justify-center text-[10px] text-stone-700 dark:text-stone-200 hover:bg-coffee-500 hover:text-white transition">+</button>
                       </div>
                     </div>
                   </div>
@@ -618,7 +618,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
             {/* Total Footer Summary */}
             <div className="p-4 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/60 space-y-3">
               <div className="flex justify-between items-center text-xs">
-                <span className="font-bold text-stone-500">Estimasi Total Bill:</span>
+                <span className="font-bold text-stone-500 dark:text-stone-400">Estimasi Total Bill:</span>
                 <span className="font-black text-sm text-stone-850 dark:text-stone-100">Rp {totalAmount.toLocaleString('id-ID')}</span>
               </div>
               <button
