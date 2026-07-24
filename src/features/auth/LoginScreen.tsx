@@ -41,12 +41,18 @@ export const LoginScreen: React.FC = () => {
   }, [lockUntil]);
 
   const handlePinPress = (digit: string) => {
+    // CRITICAL: Block login PIN processing when attendance modal is open
+    if (showAttendanceModal) {
+      console.warn('[LoginScreen] handlePinPress BLOCKED — attendance modal is open');
+      return;
+    }
     if (lockUntil && Date.now() < lockUntil) return;
     if (pin.length < 6) {
       const nextPin = pin + digit;
       setPin(nextPin);
       setError('');
       if (nextPin.length === 6) {
+        console.log('[LoginScreen] verifyPin triggered for LOGIN (not attendance)');
         verifyPin(nextPin);
       }
     }
@@ -59,7 +65,13 @@ export const LoginScreen: React.FC = () => {
   };
 
   const verifyPin = (inputPin: string) => {
+    // CRITICAL: Never verify login PIN when attendance modal is open
+    if (showAttendanceModal) {
+      console.warn('[LoginScreen] verifyPin BLOCKED — attendance modal is open');
+      return;
+    }
     if (!selectedUser) return;
+    console.log('[LoginScreen] verifyPin — logging in user:', selectedUser.full_name);
     if (selectedUser.pin_code === inputPin) {
       setCurrentUser(selectedUser);
       setFailedAttempts(0);
@@ -118,7 +130,7 @@ export const LoginScreen: React.FC = () => {
 
   return (
     <div className="h-screen w-screen bg-stone-900 flex items-center justify-center p-4 font-sans select-none">
-      <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-stone-200 dark:border-stone-800 flex flex-col">
+      <div className={`bg-white dark:bg-stone-900 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-stone-200 dark:border-stone-800 flex flex-col ${showAttendanceModal ? 'pointer-events-none opacity-40' : ''}`}>
         
         {/* Header */}
         <div className="bg-coffee-500 p-6 text-white text-center space-y-2">

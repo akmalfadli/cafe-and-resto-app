@@ -113,36 +113,47 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
       setPin(nextPin);
       setError(null);
       if (nextPin.length === 6) {
+        console.log('[AttendanceModal] PIN complete (6 digits) — calling processAttendanceSubmit');
         processAttendanceSubmit(nextPin);
       }
     }
   };
 
   const processAttendanceSubmit = (inputPin: string) => {
+    console.log('[AttendanceModal] processAttendanceSubmit — todayAttendance:', todayAttendance);
     if (!todayAttendance) {
+      console.log('[AttendanceModal] No attendance today — calling handleClockIn');
       handleClockIn(inputPin);
     } else if (!todayAttendance.clock_out) {
+      console.log('[AttendanceModal] Has clock_in but no clock_out — calling handleClockOut');
       handleClockOut(inputPin);
+    } else {
+      console.log('[AttendanceModal] Already clocked in AND out today — no action');
     }
   };
 
   const handleClockIn = async (overridePin?: string) => {
     if (!selectedStaff) return;
     const pinToVerify = overridePin || pin;
+    console.log('[AttendanceModal] handleClockIn called for:', selectedStaff.full_name);
 
     // Validate PIN
     if (selectedStaff.pin_code !== pinToVerify) {
+      console.log('[AttendanceModal] PIN MISMATCH');
       setError('Kode PIN salah. Silakan coba lagi.');
       setPin('');
       return;
     }
+    console.log('[AttendanceModal] PIN OK');
 
     // Validate GPS if enabled
     let isLocationValid = true;
     let computedDistance = distanceMeters || 0;
 
     if (enableGpsValidation) {
+      console.log('[AttendanceModal] GPS validation enabled. currentCoords:', currentCoords, 'gpsError:', gpsError);
       if (gpsError || !currentCoords) {
+        console.log('[AttendanceModal] GPS validation FAILED — no coords or GPS error');
         setError('Validasi lokasi gagal! GPS peranti belum aktif atau izin ditolak.');
         return;
       }
@@ -155,6 +166,7 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
           outletLng
         );
         setDistanceMeters(computedDistance);
+        console.log('[AttendanceModal] Distance:', computedDistance, 'Max:', maxAttendanceRadius);
 
         if (computedDistance > maxAttendanceRadius) {
           isLocationValid = false;
@@ -168,6 +180,7 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
 
     setIsLoading(true);
     setError(null);
+    console.log('[AttendanceModal] Inserting attendance record into database...');
     try {
       await dbService.clockInAttendance({
         profile_id: selectedStaff.id,
@@ -179,8 +192,10 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
         notes: notes || undefined,
       });
 
+      console.log('[AttendanceModal] ✅ DB INSERT SUCCESS — setting successMsg');
       setSuccessMsg(`Berhasil Absen Masuk! Jam: ${new Date().toLocaleTimeString('id-ID')}`);
     } catch (err: any) {
+      console.error('[AttendanceModal] ❌ DB INSERT FAILED:', err);
       setError(err?.message || 'Gagal menyimpan absensi.');
     } finally {
       setIsLoading(false);
