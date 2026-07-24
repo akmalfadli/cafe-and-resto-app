@@ -9,13 +9,14 @@ import { DashboardView } from './DashboardView';
 import { ProductsView } from './ProductsView';
 import { IngredientsView } from './IngredientsView';
 import { ReportsView } from './ReportsView';
+import { AttendanceView } from './AttendanceView';
 import { CategoriesView } from './CategoriesView';
 import { SuppliersView } from './SuppliersView';
 import { UsersView } from './UsersView';
 import { SettingsView } from './SettingsView';
 import { TablesView } from './TablesView';
 import { ShiftsView } from './ShiftsView';
-import { UtensilsCrossed } from 'lucide-react';
+import { UtensilsCrossed, Clock } from 'lucide-react';
 
 interface BackOfficeLayoutProps {
   onSwitchToPos: () => void;
@@ -24,7 +25,7 @@ interface BackOfficeLayoutProps {
 export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPos }) => {
   const { currentUser, logout } = useAppStore();
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'products' | 'categories' | 'tables' | 'ingredients' | 'suppliers' | 'reports' | 'shifts' | 'users' | 'settings'
+    'dashboard' | 'products' | 'categories' | 'tables' | 'ingredients' | 'suppliers' | 'reports' | 'attendance' | 'shifts' | 'users' | 'settings'
   >(() => {
     return (localStorage.getItem('cafepos_backoffice_tab') as any) || 'dashboard';
   });
@@ -43,6 +44,7 @@ export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPo
     { id: 'ingredients', label: 'Bahan Baku & Stok', icon: BookOpen },
     { id: 'suppliers', label: 'Pemasok (Supplier)', icon: Building2 },
     { id: 'reports', label: 'Laporan Penjualan', icon: BarChart3 },
+    { id: 'attendance', label: 'Daftar Kehadiran', icon: Clock },
     { id: 'shifts', label: 'Shift Kasir', icon: Timer },
     { id: 'users', label: 'Pengguna & Peran', icon: Users },
     { id: 'settings', label: 'Pengaturan Outlet', icon: Settings },
@@ -171,6 +173,7 @@ export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPo
         {activeTab === 'ingredients' && <IngredientsView />}
         {activeTab === 'suppliers' && <SuppliersView />}
         {activeTab === 'reports' && <ReportsView />}
+        {activeTab === 'attendance' && <AttendanceView />}
         {activeTab === 'shifts' && <ShiftsView />}
         {activeTab === 'users' && <UsersView />}
         {activeTab === 'settings' && <SettingsView />}
