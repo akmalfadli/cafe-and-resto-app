@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import {
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search,
-  ShoppingCart, Check, Clock, CheckCircle, Info, X, MapPin
+  ShoppingCart, Check, Clock, CheckCircle, Info, X, MapPin, AlertCircle, User
 } from 'lucide-react';
 import type { Product } from '../../types';
 import { toCapitalCase } from '../../utils/formatters';
@@ -23,10 +23,11 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   const [selectedProductForIngredients, setSelectedProductForIngredients] = useState<Product | null>(null);
 
-  // Customer Form details
+  // Customer Form details & Validation state
   const [custName, setCustName] = useState('');
   const [custTable, setCustTable] = useState('T-01');
   const [custNotes, setCustNotes] = useState('');
+  const [showNameErrorModal, setShowNameErrorModal] = useState(false);
 
   // Submit Order Workflow State
   const [submittedOrderNo, setSubmittedOrderNo] = useState<string | null>(null);
@@ -135,7 +136,8 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
 
   const handleSubmitOrder = async () => {
     if (!custName.trim()) {
-      alert('Silakan masukkan nama Anda terlebih dahulu.');
+      setShowNameErrorModal(true);
+      setShowOrderSummary(true); // Open order summary sidebar if closed so user can type name
       return;
     }
     if (cart.length === 0) return;
@@ -734,6 +736,49 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
               >
                 <ShoppingCart className="w-4 h-4" />
                 Tambah ke Pesanan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Customer Name Required Alert Dialog Modal */}
+      {showNameErrorModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-4 animate-in fade-in duration-200 font-sans"
+          onClick={() => setShowNameErrorModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-stone-900 rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-stone-200 dark:border-stone-800 text-center space-y-4 animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-14 h-14 bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center mx-auto shadow-xs">
+              <AlertCircle className="w-8 h-8 animate-bounce" />
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="font-extrabold text-base text-stone-850 dark:text-stone-100">
+                Nama Pemesan Belum Diisi!
+              </h3>
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                Silakan masukkan <strong>Nama Anda</strong> pada kolom pemesanan agar kasir dapat memanggil dan memproses pesanan Anda dengan benar.
+              </p>
+            </div>
+
+            <div className="pt-2 space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNameErrorModal(false);
+                  // Focus the name input element if available
+                  setTimeout(() => {
+                    const input = document.querySelector('input[placeholder*="nama Anda"]') as HTMLInputElement;
+                    if (input) input.focus();
+                  }, 100);
+                }}
+                className="w-full py-3 bg-coffee-500 hover:bg-coffee-600 text-white font-extrabold rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                Mengerti, Isi Nama Sekarang
               </button>
             </div>
           </div>
