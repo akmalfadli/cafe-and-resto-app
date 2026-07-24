@@ -543,18 +543,18 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
 
             {/* Customer Information Inputs */}
             <div className="p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-800/40 space-y-3">
-              <div>
-                <label className="block text-[10px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider mb-1">Nama Anda *</label>
-                <input
-                  type="text"
-                  placeholder="Masukkan nama Anda..."
-                  value={custName}
-                  onChange={(e) => setCustName(e.target.value)}
-                  className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500 placeholder:text-stone-400 dark:placeholder:text-stone-500"
-                />
-              </div>
-
               <div className={enableTableNumber ? "grid grid-cols-2 gap-3" : "grid grid-cols-1 gap-3"}>
+                <div>
+                  <label className="block text-[10px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider mb-1">Nama Anda *</label>
+                  <input
+                    type="text"
+                    placeholder="Masukkan nama Anda..."
+                    value={custName}
+                    onChange={(e) => setCustName(e.target.value)}
+                    className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500 placeholder:text-stone-400 dark:placeholder:text-stone-500"
+                  />
+                </div>
+
                 {enableTableNumber && (
                   <div>
                     <label className="block text-[10px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider mb-1">No. Meja</label>
@@ -569,16 +569,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                     </select>
                   </div>
                 )}
-                <div>
-                  <label className="block text-[10px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider mb-1">Catatan Tambahan</label>
-                  <input
-                    type="text"
-                    placeholder="Contoh: Sendok 2..."
-                    value={custNotes}
-                    onChange={(e) => setCustNotes(e.target.value)}
-                    className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs focus:outline-none placeholder:text-stone-400 dark:placeholder:text-stone-500"
-                  />
-                </div>
               </div>
             </div>
 
