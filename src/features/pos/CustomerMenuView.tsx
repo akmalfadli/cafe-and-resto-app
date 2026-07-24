@@ -218,7 +218,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
           />
         </div>
 
-        <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setSelectedCategory('all')}
             className={`text-xs font-bold px-3 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 ${selectedCategory === 'all'
