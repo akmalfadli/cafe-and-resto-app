@@ -600,7 +600,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                         return (
                           <div
                             key={idx}
-                            className="flex items-center justify-between p-2.5 bg-stone-50 dark:bg-stone-800/60 rounded-xl border border-stone-150 dark:border-stone-750 text-xs"
+                            className="flex items-center p-2.5 bg-stone-50 dark:bg-stone-800/60 rounded-xl border border-stone-150 dark:border-stone-750 text-xs"
                           >
                             <div className="flex items-center gap-2.5">
                               <div className="w-7 h-7 rounded-lg bg-coffee-100 dark:bg-coffee-950/40 text-coffee-700 dark:text-coffee-300 font-extrabold flex items-center justify-center text-[11px] shrink-0">
@@ -610,9 +610,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                                 {toCapitalCase(ing.name)}
                               </span>
                             </div>
-                            <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 bg-white dark:bg-stone-700 px-2 py-0.5 rounded-lg border border-stone-200 dark:border-stone-600">
-                              {rItem.quantity} {ing.unit}
-                            </span>
                           </div>
                         );
                       })}
