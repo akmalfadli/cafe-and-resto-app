@@ -11,7 +11,7 @@ interface CustomerMenuViewProps {
 }
 
 export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
-  const { products, categories, ingredients, recipes, tables, enableTableNumber, submitCustomerOrder } = useAppStore();
+  const { products, categories, ingredients, recipes, tables, enableTableNumber, submitCustomerOrder, outletName, receiptLogo } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<{ product: Product; quantity: number; notes: string }[]>([]);
@@ -171,11 +171,21 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
       {/* HEADER */}
       <header className="h-16 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-4 flex items-center justify-between shrink-0 shadow-sm z-10">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-coffee-500 text-white rounded-xl flex items-center justify-center">
-            <Coffee className="w-5 h-5" />
-          </div>
+          {receiptLogo ? (
+            <img
+              src={receiptLogo}
+              alt={outletName || 'Logo'}
+              className="h-10 w-10 object-contain rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800 p-1 shrink-0"
+            />
+          ) : (
+            <div className="p-2 bg-coffee-500 text-white rounded-xl flex items-center justify-center shrink-0">
+              <Coffee className="w-5 h-5" />
+            </div>
+          )}
           <div>
-            <h1 className="text-base font-extrabold text-stone-800 dark:text-stone-100 leading-tight">Daftar Menu Pelanggan</h1>
+            <h1 className="text-base font-extrabold text-stone-800 dark:text-stone-100 leading-tight">
+              {outletName || 'Daftar Menu Pelanggan'}
+            </h1>
             <p className="text-[10px] text-stone-400">Silakan pilih menu makanan dan minuman favorit Anda</p>
           </div>
         </div>
@@ -336,7 +346,12 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
       </div>
 
           {/* Credits Footer */}
-          <footer className="mt-8 pt-4 pb-2 border-t border-stone-200/60 dark:border-stone-800/60 text-center">
+          <footer className="mt-8 pt-4 pb-2 border-t border-stone-200/60 dark:border-stone-800/60 text-center space-y-1">
+            {outletName && (
+              <p className="text-xs font-bold text-stone-700 dark:text-stone-300 tracking-wide uppercase">
+                {outletName}
+              </p>
+            )}
             <p className="text-[11px] font-medium text-stone-400 dark:text-stone-500">
               CafePOS created by{' '}
               <a
