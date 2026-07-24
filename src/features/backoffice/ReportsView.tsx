@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
 import { useAppStore } from '../../store/useAppStore';
-import { Filter, FileSpreadsheet } from 'lucide-react';
+import { Filter, FileSpreadsheet, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const ReportsView: React.FC = () => {
   const { sales, attendances, fetchAttendances } = useAppStore();
@@ -13,6 +13,15 @@ export const ReportsView: React.FC = () => {
 
   const [startDate, setStartDate] = useState(firstDayOfMonthStr);
   const [endDate, setEndDate] = useState(todayStr);
+
+  // Pagination State (25 items per page)
+  const ITEMS_PER_PAGE = 25;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset pagination to page 1 whenever filters or tabs change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [startDate, endDate, reportType]);
 
   React.useEffect(() => {
     fetchAttendances(startDate, endDate);
@@ -74,6 +83,20 @@ export const ReportsView: React.FC = () => {
   });
 
   const productPerformanceList = Object.values(productPerformanceMap).sort((a, b) => b.revenue - a.revenue);
+
+  // Paginated Slices
+  const totalItemsCount = 
+    reportType === 'daily' ? filteredSales.length :
+    reportType === 'product' ? productPerformanceList.length :
+    reportType === 'attendance' ? attendances.length : 0;
+
+  const totalPages = Math.ceil(totalItemsCount / ITEMS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+
+  const paginatedSales = filteredSales.slice(startIndex, endIndex);
+  const paginatedProducts = productPerformanceList.slice(startIndex, endIndex);
+  const paginatedAttendances = attendances.slice(startIndex, endIndex);
 
   // Excel Export Handler
   const handleExportExcel = () => {
@@ -145,6 +168,65 @@ export const ReportsView: React.FC = () => {
       XLSX.utils.book_append_sheet(workbook, ws, 'Laba Rugi');
       XLSX.writeFile(workbook, `Laporan_Laba_Rugi_${startDate || 'Awal'}_s.d_${endDate || 'Akhir'}.xlsx`);
     }
+  };
+
+  const renderPaginationControls = () => {
+    if (reportType === 'profit' || totalItemsCount <= ITEMS_PER_PAGE) return null;
+
+    const fromItem = Math.min(startIndex + 1, totalItemsCount);
+    const toItem = Math.min(endIndex, totalItemsCount);
+
+    return (
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-stone-900 px-4 py-3 rounded-2xl border border-stone-200 dark:border-stone-800 text-xs shadow-xs">
+        <div className="text-stone-500 dark:text-stone-400 font-medium">
+          Menampilkan <span className="font-bold text-stone-800 dark:text-stone-200">{fromItem}</span> - <span className="font-bold text-stone-800 dark:text-stone-200">{toItem}</span> dari <span className="font-bold text-stone-800 dark:text-stone-200">{totalItemsCount}</span> data (25 per halaman)
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="p-1.5 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            title="Halaman Sebelumnya"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+              .map((p, idx, arr) => {
+                const prevP = arr[idx - 1];
+                const showEllipsis = prevP && p - prevP > 1;
+                return (
+                  <React.Fragment key={p}>
+                    {showEllipsis && <span className="px-1 text-stone-400">...</span>}
+                    <button
+                      onClick={() => setCurrentPage(p)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                        currentPage === p
+                          ? 'bg-coffee-500 text-white shadow-xs'
+                          : 'border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+          </div>
+
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="p-1.5 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            title="Halaman Berikutnya"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -273,140 +355,149 @@ export const ReportsView: React.FC = () => {
           </div>
         </div>
       ) : reportType === 'product' ? (
-        <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[650px]">
-              <thead className="bg-stone-50 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
-                <tr>
-                  <th className="p-3">Nama Produk</th>
-                  <th className="p-3 text-center">Total Terjual (Qty)</th>
-                  <th className="p-3">Total Pendapatan</th>
-                  <th className="p-3">Total HPP</th>
-                  <th className="p-3">Laba Kotor</th>
-                  <th className="p-3">Margin %</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
-                {productPerformanceList.length === 0 ? (
+        <div className="space-y-4">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[650px]">
+                <thead className="bg-stone-50 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-stone-400">
-                      Tidak ada transaksi produk pada periode tanggal ini.
-                    </td>
+                    <th className="p-3">Nama Produk</th>
+                    <th className="p-3 text-center">Total Terjual (Qty)</th>
+                    <th className="p-3">Total Pendapatan</th>
+                    <th className="p-3">Total HPP</th>
+                    <th className="p-3">Laba Kotor</th>
+                    <th className="p-3">Margin %</th>
                   </tr>
-                ) : (
-                  productPerformanceList.map((p, idx) => {
-                    const profit = p.revenue - p.cogs;
-                    const marginPct = p.revenue > 0 ? Math.round((profit / p.revenue) * 100) : 0;
-                    return (
-                      <tr key={idx} className="hover:bg-stone-50 dark:hover:bg-stone-800/50">
-                        <td className="p-3 font-bold text-stone-800 dark:text-stone-100">{p.name}</td>
-                        <td className="p-3 text-center font-bold text-coffee-600 dark:text-coffee-400">{p.qty}</td>
-                        <td className="p-3 font-bold text-stone-800 dark:text-stone-100">Rp {p.revenue.toLocaleString('id-ID')}</td>
-                        <td className="p-3 text-stone-500 dark:text-stone-400">Rp {p.cogs.toLocaleString('id-ID')}</td>
-                        <td className="p-3 font-bold text-emerald-600 dark:text-emerald-400">Rp {profit.toLocaleString('id-ID')}</td>
-                        <td className="p-3 font-bold text-stone-700 dark:text-stone-300">{marginPct}%</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
+                  {paginatedProducts.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-6 text-center text-stone-400">
+                        Tidak ada transaksi produk pada periode tanggal ini.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedProducts.map((p, idx) => {
+                      const profit = p.revenue - p.cogs;
+                      const marginPct = p.revenue > 0 ? Math.round((profit / p.revenue) * 100) : 0;
+                      return (
+                        <tr key={idx} className="hover:bg-stone-50 dark:hover:bg-stone-800/50">
+                          <td className="p-3 font-bold text-stone-800 dark:text-stone-100">{p.name}</td>
+                          <td className="p-3 text-center font-bold text-coffee-600 dark:text-coffee-400">{p.qty}</td>
+                          <td className="p-3 font-bold text-stone-800 dark:text-stone-100">Rp {p.revenue.toLocaleString('id-ID')}</td>
+                          <td className="p-3 text-stone-500 dark:text-stone-400">Rp {p.cogs.toLocaleString('id-ID')}</td>
+                          <td className="p-3 font-bold text-emerald-600 dark:text-emerald-400">Rp {profit.toLocaleString('id-ID')}</td>
+                          <td className="p-3 font-bold text-stone-700 dark:text-stone-300">{marginPct}%</td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
+          {renderPaginationControls()}
         </div>
       ) : reportType === 'attendance' ? (
-        <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[700px]">
-              <thead className="bg-stone-50 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
-                <tr>
-                  <th className="p-3">Tanggal</th>
-                  <th className="p-3">Nama Karyawan</th>
-                  <th className="p-3">Jam Masuk (Clock In)</th>
-                  <th className="p-3">Jam Pulang (Clock Out)</th>
-                  <th className="p-3">Jarak dari Outlet</th>
-                  <th className="p-3">Status GPS</th>
-                  <th className="p-3">Catatan</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
-                {attendances.length === 0 ? (
+        <div className="space-y-4">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[700px]">
+                <thead className="bg-stone-50 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
                   <tr>
-                    <td colSpan={7} className="p-6 text-center text-stone-400">
-                      Belum ada data absensi untuk rentang tanggal ini.
-                    </td>
+                    <th className="p-3">Tanggal</th>
+                    <th className="p-3">Nama Karyawan</th>
+                    <th className="p-3">Jam Masuk (Clock In)</th>
+                    <th className="p-3">Jam Pulang (Clock Out)</th>
+                    <th className="p-3">Jarak dari Outlet</th>
+                    <th className="p-3">Status GPS</th>
+                    <th className="p-3">Catatan</th>
                   </tr>
-                ) : (
-                  attendances.map((a) => (
-                    <tr key={a.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50">
-                      <td className="p-3 font-bold text-stone-800 dark:text-stone-100">{a.date}</td>
-                      <td className="p-3 font-bold text-coffee-600 dark:text-coffee-400">{a.employee_name}</td>
-                      <td className="p-3 text-emerald-600 dark:text-emerald-400 font-bold">
-                        {a.clock_in ? new Date(a.clock_in).toLocaleTimeString('id-ID') : '-'}
+                </thead>
+                <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
+                  {paginatedAttendances.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="p-6 text-center text-stone-400">
+                        Belum ada data absensi untuk rentang tanggal ini.
                       </td>
-                      <td className="p-3 text-blue-600 dark:text-blue-400 font-bold">
-                        {a.clock_out ? new Date(a.clock_out).toLocaleTimeString('id-ID') : '-'}
-                      </td>
-                      <td className="p-3 font-mono text-stone-700 dark:text-stone-300">
-                        {a.distance_meters || 0} m
-                      </td>
-                      <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                          a.is_valid_location
-                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
-                            : 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
-                        }`}>
-                          {a.is_valid_location ? 'Valid (Di Area)' : 'Di Luar Area'}
-                        </span>
-                      </td>
-                      <td className="p-3 text-stone-400 dark:text-stone-500">{a.notes || '-'}</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    paginatedAttendances.map((a) => (
+                      <tr key={a.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50">
+                        <td className="p-3 font-bold text-stone-800 dark:text-stone-100">{a.date}</td>
+                        <td className="p-3 font-bold text-coffee-600 dark:text-coffee-400">{a.employee_name}</td>
+                        <td className="p-3 text-emerald-600 dark:text-emerald-400 font-bold">
+                          {a.clock_in ? new Date(a.clock_in).toLocaleTimeString('id-ID') : '-'}
+                        </td>
+                        <td className="p-3 text-blue-600 dark:text-blue-400 font-bold">
+                          {a.clock_out ? new Date(a.clock_out).toLocaleTimeString('id-ID') : '-'}
+                        </td>
+                        <td className="p-3 font-mono text-stone-700 dark:text-stone-300">
+                          {a.distance_meters || 0} m
+                        </td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                            a.is_valid_location
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
+                              : 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
+                          }`}>
+                            {a.is_valid_location ? 'Valid (Di Area)' : 'Di Luar Area'}
+                          </span>
+                        </td>
+                        <td className="p-3 text-stone-400 dark:text-stone-500">{a.notes || '-'}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
+          {renderPaginationControls()}
         </div>
       ) : (
-        <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[600px]">
-              <thead className="bg-stone-50 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
-                <tr>
-                  <th className="p-3">No. Struk</th>
-                  <th className="p-3">Kasir</th>
-                  <th className="p-3">Pelanggan</th>
-                  <th className="p-3">Total Akhir</th>
-                  <th className="p-3">HPP</th>
-                  <th className="p-3">Laba</th>
-                  <th className="p-3">Tanggal & Waktu</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
-                {filteredSales.length === 0 ? (
+        <div className="space-y-4">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[600px]">
+                <thead className="bg-stone-50 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
                   <tr>
-                    <td colSpan={7} className="p-6 text-center text-stone-400">
-                      Tidak ada transaksi ditemukan untuk rentang tanggal ini.
-                    </td>
+                    <th className="p-3">No. Struk</th>
+                    <th className="p-3">Kasir</th>
+                    <th className="p-3">Pelanggan</th>
+                    <th className="p-3">Total Akhir</th>
+                    <th className="p-3">HPP</th>
+                    <th className="p-3">Laba</th>
+                    <th className="p-3">Tanggal & Waktu</th>
                   </tr>
-                ) : (
-                  filteredSales.map((s) => {
-                    const profit = s.grand_total - s.total_cogs;
-                    return (
-                      <tr key={s.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50">
-                        <td className="p-3 font-bold font-mono text-coffee-600 dark:text-coffee-400">{s.receipt_number}</td>
-                        <td className="p-3 text-stone-700 dark:text-stone-300">{s.cashier_name}</td>
-                        <td className="p-3 text-stone-600 dark:text-stone-400">{s.customer_name || 'Pelanggan Umum'}</td>
-                        <td className="p-3 font-bold text-stone-800 dark:text-stone-100">Rp {s.grand_total.toLocaleString('id-ID')}</td>
-                        <td className="p-3 text-stone-500 dark:text-stone-400">Rp {s.total_cogs.toLocaleString('id-ID')}</td>
-                        <td className="p-3 font-bold text-emerald-600 dark:text-emerald-400">Rp {profit.toLocaleString('id-ID')}</td>
-                        <td className="p-3 text-stone-400 dark:text-stone-500">{new Date(s.created_at).toLocaleString('id-ID')}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
+                  {paginatedSales.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="p-6 text-center text-stone-400">
+                        Tidak ada transaksi ditemukan untuk rentang tanggal ini.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedSales.map((s) => {
+                      const profit = s.grand_total - s.total_cogs;
+                      return (
+                        <tr key={s.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50">
+                          <td className="p-3 font-bold font-mono text-coffee-600 dark:text-coffee-400">{s.receipt_number}</td>
+                          <td className="p-3 text-stone-700 dark:text-stone-300">{s.cashier_name}</td>
+                          <td className="p-3 text-stone-600 dark:text-stone-400">{s.customer_name || 'Pelanggan Umum'}</td>
+                          <td className="p-3 font-bold text-stone-800 dark:text-stone-100">Rp {s.grand_total.toLocaleString('id-ID')}</td>
+                          <td className="p-3 text-stone-500 dark:text-stone-400">Rp {s.total_cogs.toLocaleString('id-ID')}</td>
+                          <td className="p-3 font-bold text-emerald-600 dark:text-emerald-400">Rp {profit.toLocaleString('id-ID')}</td>
+                          <td className="p-3 text-stone-400 dark:text-stone-500">{new Date(s.created_at).toLocaleString('id-ID')}</td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
+          {renderPaginationControls()}
         </div>
       )}
     </div>
