@@ -219,7 +219,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-xl font-black text-stone-850 dark:text-stone-100">Pesanan Berhasil Dibuat!</h2>
+            <h2 className="text-xl font-black text-stone-900 dark:text-stone-100">Pesanan Berhasil Dibuat!</h2>
             <p className="text-xs text-stone-400 font-mono">No. Pesanan: <span className="font-bold text-coffee-600">{submittedOrderNo}</span></p>
           </div>
 
@@ -366,7 +366,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 placeholder="Cari makanan, kopi, soda..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white dark:bg-stone-850 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-750 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-coffee-500 shadow-sm placeholder:text-stone-400 dark:placeholder:text-stone-500"
+                className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-750 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-coffee-500 shadow-sm placeholder:text-stone-400 dark:placeholder:text-stone-500"
               />
             </div>
           </div>
@@ -540,7 +540,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
             </div>
 
             {/* Customer Information Inputs */}
-            <div className="p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-850/40 space-y-3">
+            <div className="p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-800/40 space-y-3">
               <div>
                 <label className="block text-[10px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider mb-1">Nama Anda *</label>
                 <input
@@ -548,7 +548,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                   placeholder="Masukkan nama Anda..."
                   value={custName}
                   onChange={(e) => setCustName(e.target.value)}
-                  className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500 placeholder:text-stone-400 dark:placeholder:text-stone-500"
+                  className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500 placeholder:text-stone-400 dark:placeholder:text-stone-500"
                 />
               </div>
 
@@ -559,7 +559,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                     <select
                       value={custTable}
                       onChange={(e) => setCustTable(e.target.value)}
-                      className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-2.5 py-2 text-xs font-bold focus:outline-none"
+                      className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-2.5 py-2 text-xs font-bold focus:outline-none"
                     >
                       {tables.map(t => (
                         <option key={t.id} value={t.table_number}>Meja {t.table_number}</option>
@@ -574,7 +574,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                     placeholder="Contoh: Sendok 2..."
                     value={custNotes}
                     onChange={(e) => setCustNotes(e.target.value)}
-                    className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs focus:outline-none placeholder:text-stone-400 dark:placeholder:text-stone-500"
+                    className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs focus:outline-none placeholder:text-stone-400 dark:placeholder:text-stone-500"
                   />
                 </div>
               </div>
@@ -590,11 +590,11 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 </div>
               ) : (
                 cart.map((item) => (
-                  <div key={item.product.id} className="flex gap-3 bg-stone-50 dark:bg-stone-850 p-3 rounded-2xl border border-stone-150 dark:border-stone-800 text-xs shadow-2xs hover:border-coffee-300 dark:hover:border-coffee-800 transition">
+                  <div key={item.product.id} className="flex gap-3 bg-stone-50 dark:bg-stone-800 p-3 rounded-2xl border border-stone-150 dark:border-stone-750 text-xs shadow-2xs hover:border-coffee-300 dark:hover:border-coffee-700 transition">
                     <img src={item.product.image_url} alt={item.product.name} className="w-13 h-13 rounded-xl object-cover shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
-                        <h4 className="font-extrabold text-stone-800 dark:text-stone-100 truncate pr-1">{toCapitalCase(item.product.name)}</h4>
+                        <h4 className="font-extrabold text-stone-900 dark:text-stone-100 truncate pr-1">{toCapitalCase(item.product.name)}</h4>
                         <span className="font-extrabold text-stone-900 dark:text-stone-100 shrink-0 text-xs">
                           Rp {(item.product.selling_price * item.quantity).toLocaleString('id-ID')}
                         </span>
@@ -654,7 +654,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
             <div className="p-4 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/60 space-y-3">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-bold text-stone-500 dark:text-stone-400">Estimasi Total Bill:</span>
-                <span className="font-black text-sm text-stone-850 dark:text-stone-100">Rp {totalAmount.toLocaleString('id-ID')}</span>
+                <span className="font-black text-sm text-stone-900 dark:text-stone-100">Rp {totalAmount.toLocaleString('id-ID')}</span>
               </div>
               <button
                 onClick={handleSubmitOrder}
