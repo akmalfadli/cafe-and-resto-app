@@ -100,7 +100,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
       const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
       const matchesSearch = product.name.toLowerCase().includes(q) || 
                             product.sku.toLowerCase().includes(q);
-      return matchesCategory && matchesSearch && product.is_available;
+      return matchesCategory && matchesSearch;
     });
   }, [products, selectedCategory, searchQuery]);
 
@@ -379,16 +379,19 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-3">
               {filteredProducts.map((product) => {
                 const matchedRecipe = recipes.find(r => r.product_id === product.id);
-                const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
+                const hasRecipeOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
                   const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
                   return matchedIng && matchedIng.current_stock <= 0;
                 });
+                const isOutOfStock = !product.is_available || hasRecipeOutOfStock;
 
                 return (
                   <div
                     key={product.id}
                     onClick={() => addToCart(product)}
-                    className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col touch-active group"
+                    className={`bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col touch-active group ${
+                      !product.is_available ? 'opacity-65' : ''
+                    }`}
                   >
                     <div className="h-24 md:h-28 lg:h-32 w-full overflow-hidden bg-stone-100 relative">
                       <img
@@ -403,7 +406,11 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
                           ★ Favorit
                         </span>
                       )}
-                      {isOutOfStock && (
+                      {!product.is_available ? (
+                        <span className="absolute top-1.5 right-1.5 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow flex items-center gap-0.5 z-10">
+                          <AlertTriangle className="w-2.5 h-2.5" /> Stok Habis
+                        </span>
+                      ) : isOutOfStock && (
                         <span className="absolute top-1.5 right-1.5 bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow animate-pulse flex items-center gap-0.5 z-10">
                           <AlertTriangle className="w-2.5 h-2.5" /> Bahan Baku Habis
                         </span>
@@ -433,16 +440,19 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
             <div className="flex flex-col gap-2">
               {filteredProducts.map((product) => {
                 const matchedRecipe = recipes.find(r => r.product_id === product.id);
-                const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
+                const hasRecipeOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
                   const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
                   return matchedIng && matchedIng.current_stock <= 0;
                 });
+                const isOutOfStock = !product.is_available || hasRecipeOutOfStock;
 
                 return (
                   <div
                     key={product.id}
                     onClick={() => addToCart(product)}
-                    className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-3 flex items-center justify-between shadow-sm hover:shadow-md transition cursor-pointer touch-active group"
+                    className={`bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-3 flex items-center justify-between shadow-sm hover:shadow-md transition cursor-pointer touch-active group ${
+                      !product.is_available ? 'opacity-65' : ''
+                    }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-lg overflow-hidden bg-stone-100 shrink-0">
@@ -464,7 +474,11 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
                               ★ Favorit
                             </span>
                           )}
-                          {isOutOfStock && (
+                          {!product.is_available ? (
+                            <span className="bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                              <AlertTriangle className="w-2.5 h-2.5" /> Stok Habis
+                            </span>
+                          ) : isOutOfStock && (
                             <span className="bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full animate-pulse flex items-center gap-0.5">
                               <AlertTriangle className="w-2.5 h-2.5" /> Bahan Baku Habis
                             </span>

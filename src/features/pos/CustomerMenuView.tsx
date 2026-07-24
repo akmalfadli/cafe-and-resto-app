@@ -92,7 +92,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
       const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
       const matchesSearch = product.name.toLowerCase().includes(q) ||
         product.sku.toLowerCase().includes(q);
-      return matchesCategory && matchesSearch && product.is_available;
+      return matchesCategory && matchesSearch;
     });
   }, [products, selectedCategory, searchQuery]);
 
@@ -382,10 +382,11 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 pb-8">
                 {filteredProducts.map((product) => {
                   const matchedRecipe = recipes.find(r => r.product_id === product.id);
-                  const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
+                  const hasRecipeOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
                     const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
                     return matchedIng && matchedIng.current_stock <= 0;
                   });
+                  const isOutOfStock = !product.is_available || hasRecipeOutOfStock;
 
                   const cartItem = cart.find((item) => item.product.id === product.id);
 
