@@ -418,8 +418,23 @@ export const LoginScreen: React.FC = () => {
                 </button>
               </div>
 
+              {/* Absensi Karyawan Quick Button on PIN Screen */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedUser(null);
+                  setPin('');
+                  setError('');
+                  setShowAttendanceModal(true);
+                }}
+                className="w-full p-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 text-xs font-bold"
+              >
+                <Clock className="w-4 h-4" />
+                Hanya Absensi Kehadiran? Klik Disini
+              </button>
+
               <div className="text-center space-y-2">
-                <label className="text-xs font-semibold text-stone-500 dark:text-stone-400">Masukkan 6 Digit PIN Keamanan</label>
+                <label className="text-xs font-semibold text-stone-500 dark:text-stone-400">Masukkan 6 Digit PIN untuk LOGIN KASIR</label>
                 <div className="flex justify-center gap-3 py-2">
                   {[0, 1, 2, 3, 4, 5].map((idx) => (
                     <div

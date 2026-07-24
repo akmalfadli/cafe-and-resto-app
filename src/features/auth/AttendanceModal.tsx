@@ -217,8 +217,8 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm font-sans p-4 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-stone-200 dark:border-stone-800 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm font-sans p-4 animate-in fade-in duration-200" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-stone-200 dark:border-stone-800 flex flex-col" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="bg-coffee-500 text-white p-5 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2.5">
