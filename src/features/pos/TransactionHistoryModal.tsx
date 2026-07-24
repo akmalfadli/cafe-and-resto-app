@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   History, Search, Printer, Clock, DollarSign, 
-  CreditCard, QrCode, X, Eye, FileText, ChevronRight
+  CreditCard, QrCode, X, Eye, FileText, ChevronRight, CheckCircle2, AlertCircle
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import type { Sale } from '../../types';
@@ -15,6 +15,7 @@ interface TransactionHistoryModalProps {
 
 export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = ({ isOpen, onClose }) => {
   const sales = useAppStore(s => s.sales);
+  const updateSaleStatus = useAppStore(s => s.updateSaleStatus);
   const receiptHeader = useAppStore(s => s.receiptHeader);
   const receiptFooter = useAppStore(s => s.receiptFooter);
   const receiptLogo = useAppStore(s => s.receiptLogo);
@@ -25,8 +26,12 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [filterPayment, setFilterPayment] = useState<'all' | 'cash' | 'qris' | 'transfer'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'preparing' | 'ready' | 'completed'>('all');
 
   if (!isOpen) return null;
+
+  // Sync selectedSale with updated store sale state
+  const activeSelectedSale = selectedSale ? (sales.find(s => s.id === selectedSale.id) || selectedSale) : null;
 
   // Filter sales
   const filteredSales = sales.filter(sale => {
@@ -40,7 +45,10 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
       filterPayment === 'all' || 
       (sale.payments && sale.payments.some(p => p.method === filterPayment));
 
-    return matchesSearch && matchesPayment;
+    const currentStatus = sale.status || 'completed';
+    const matchesStatus = filterStatus === 'all' || currentStatus === filterStatus;
+
+    return matchesSearch && matchesPayment && matchesStatus;
   });
 
   const handlePrint = async (sale: Sale) => {
@@ -51,6 +59,35 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
       enableTableNumber, 
       receiptLogo
     );
+  };
+
+  const handleMarkAsFinished = async (saleId: string) => {
+    await updateSaleStatus(saleId, 'completed');
+  };
+
+  const getOrderStatusBadge = (status?: string) => {
+    const s = status || 'completed';
+    switch (s) {
+      case 'preparing':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 animate-pulse">
+            <Clock className="w-3 h-3" /> Sedang Disiapkan
+          </span>
+        );
+      case 'ready':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+            <AlertCircle className="w-3 h-3" /> Siap Diambil
+          </span>
+        );
+      case 'completed':
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            <CheckCircle2 className="w-3 h-3" /> Selesai / Diambil
+          </span>
+        );
+    }
   };
 
   const getPaymentBadge = (sale: Sale) => {
@@ -76,9 +113,9 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               <History className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold">Riwayat Transaksi</h2>
+              <h2 className="text-base sm:text-lg font-bold">Riwayat Transaksi & Status Pesanan</h2>
               <p className="text-[10px] sm:text-xs text-stone-400">
-                Daftar semua transaksi penjualan yang telah diproses
+                Daftar semua transaksi penjualan, status persiapan, dan verifikasi pengambilan pesanan
               </p>
             </div>
           </div>
@@ -94,12 +131,12 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
         <div className="flex-1 flex overflow-hidden">
           
           {/* Left / Main List View */}
-          <div className={`flex-1 flex flex-col overflow-hidden ${selectedSale ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`flex-1 flex flex-col overflow-hidden ${activeSelectedSale ? 'hidden md:flex' : 'flex'}`}>
             
             {/* Filter & Search Bar */}
             <div className="p-3 sm:p-4 bg-stone-50 dark:bg-stone-900/50 border-b border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row gap-2.5 items-center justify-between">
               
-              <div className="relative w-full sm:w-72">
+              <div className="relative w-full sm:w-64">
                 <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
                 <input
                   type="text"
@@ -115,26 +152,41 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                 )}
               </div>
 
-              {/* Method Filter Tabs */}
-              <div className="flex items-center gap-1 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                {[
-                  { id: 'all', label: 'Semua' },
-                  { id: 'cash', label: 'Tunai' },
-                  { id: 'qris', label: 'QRIS' },
-                  { id: 'transfer', label: 'Transfer' },
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setFilterPayment(tab.id as any)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition shrink-0 ${
-                      filterPayment === tab.id
-                        ? 'bg-coffee-500 text-white shadow-sm'
-                        : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+              {/* Status & Method Filter Tabs */}
+              <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+                {/* Status Filter */}
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as any)}
+                  className="bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-2.5 py-1.5 text-xs font-bold focus:outline-none"
+                >
+                  <option value="all">Semua Status</option>
+                  <option value="preparing">Sedang Disiapkan</option>
+                  <option value="ready">Siap Diambil</option>
+                  <option value="completed">Selesai / Diambil</option>
+                </select>
+
+                {/* Method Filter */}
+                <div className="flex items-center gap-1">
+                  {[
+                    { id: 'all', label: 'Semua Bayar' },
+                    { id: 'cash', label: 'Tunai' },
+                    { id: 'qris', label: 'QRIS' },
+                    { id: 'transfer', label: 'Transfer' },
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setFilterPayment(tab.id as any)}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition shrink-0 ${
+                        filterPayment === tab.id
+                          ? 'bg-coffee-500 text-white shadow-sm'
+                          : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -144,11 +196,11 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                 <div className="h-full flex flex-col items-center justify-center text-center p-8 text-stone-400">
                   <FileText className="w-12 h-12 mb-3 stroke-[1.5] text-stone-300 dark:text-stone-700" />
                   <p className="font-bold text-sm text-stone-600 dark:text-stone-400">Tidak ada riwayat transaksi</p>
-                  <p className="text-xs text-stone-400 mt-1">Transaksi yang selesai akan muncul di sini.</p>
+                  <p className="text-xs text-stone-400 mt-1">Transaksi yang sesuai filter akan muncul di sini.</p>
                 </div>
               ) : (
                 filteredSales.map(sale => {
-                  const isSelected = selectedSale?.id === sale.id;
+                  const isSelected = activeSelectedSale?.id === sale.id;
                   const totalItems = (sale.items || []).reduce((acc, item) => acc + item.quantity, 0);
 
                   return (
@@ -161,11 +213,12 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                           : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800/60'
                       }`}
                     >
-                      <div className="space-y-1 min-w-0 flex-1">
+                      <div className="space-y-1.5 min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-extrabold text-xs text-stone-900 dark:text-stone-100 font-mono">
                             {sale.receipt_number}
                           </span>
+                          {getOrderStatusBadge(sale.status)}
                           {getPaymentBadge(sale)}
                           <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">
                             {sale.order_type === 'dine_in' ? (enableTableNumber && sale.table_number ? `Meja ${sale.table_number}` : 'Dine In') : sale.order_type}
@@ -178,7 +231,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                             {new Date(sale.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                           <span>•</span>
-                          <span>{sale.customer_name || 'Pelanggan'}</span>
+                          <span className="font-semibold text-stone-700 dark:text-stone-300">{sale.customer_name || 'Pelanggan'}</span>
                           <span>•</span>
                           <span>{totalItems} item</span>
                         </div>
@@ -193,6 +246,22 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                             {new Date(sale.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                           </div>
                         </div>
+
+                        {sale.status !== 'completed' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkAsFinished(sale.id);
+                            }}
+                            className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-extrabold text-[10px] shadow transition flex items-center gap-1"
+                            title="Tandai Pesanan Telah Selesai & Diambil"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Selesai
+                          </button>
+                        )}
+
                         <ChevronRight className="w-4 h-4 text-stone-400" />
                       </div>
                     </div>
@@ -209,13 +278,13 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
           </div>
 
           {/* Right Receipt Preview Pane */}
-          {selectedSale && (
+          {activeSelectedSale && (
             <div className="w-full md:w-[380px] bg-stone-50 dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 flex flex-col h-full">
               
               {/* Detail Header */}
               <div className="p-3 bg-stone-200/60 dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700 flex justify-between items-center">
                 <span className="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
-                  <Eye className="w-4 h-4 text-coffee-500" /> Struk #{selectedSale.receipt_number}
+                  <Eye className="w-4 h-4 text-coffee-500" /> Struk #{activeSelectedSale.receipt_number}
                 </span>
                 <button
                   onClick={() => setSelectedSale(null)}
@@ -226,7 +295,26 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               </div>
 
               {/* Thermal Receipt Paper Mockup */}
-              <div className="flex-1 overflow-y-auto p-4">
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                
+                {/* Status Notification Box */}
+                <div className="p-3 rounded-xl border bg-white dark:bg-stone-950 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider block">Status Pesanan</span>
+                    {getOrderStatusBadge(activeSelectedSale.status)}
+                  </div>
+                  {activeSelectedSale.status !== 'completed' && (
+                    <button
+                      type="button"
+                      onClick={() => handleMarkAsFinished(activeSelectedSale.id)}
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-extrabold text-xs shadow transition flex items-center gap-1"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Selesai
+                    </button>
+                  )}
+                </div>
+
                 <div className="bg-white dark:bg-stone-950 p-4 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm font-mono text-xs text-stone-800 dark:text-stone-200 space-y-3">
                   
                   {/* Receipt Header */}
@@ -239,21 +327,21 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
 
                   {/* Transaction Meta */}
                   <div className="space-y-1 text-[11px]">
-                    <div className="grid grid-cols-[100px_10px_1fr]"><span>No. Struk</span><span>:</span><span className="text-right font-semibold">{selectedSale.receipt_number}</span></div>
-                    <div className="grid grid-cols-[100px_10px_1fr]"><span>Tanggal</span><span>:</span><span className="text-right">{new Date(selectedSale.created_at).toLocaleString('id-ID')}</span></div>
-                    <div className="grid grid-cols-[100px_10px_1fr]"><span>Kasir</span><span>:</span><span className="text-right">{selectedSale.cashier_name}</span></div>
-                    {selectedSale.customer_name && (
-                      <div className="grid grid-cols-[100px_10px_1fr]"><span>Pelanggan</span><span>:</span><span className="text-right">{selectedSale.customer_name}</span></div>
+                    <div className="grid grid-cols-[100px_10px_1fr]"><span>No. Struk</span><span>:</span><span className="text-right font-semibold">{activeSelectedSale.receipt_number}</span></div>
+                    <div className="grid grid-cols-[100px_10px_1fr]"><span>Tanggal</span><span>:</span><span className="text-right">{new Date(activeSelectedSale.created_at).toLocaleString('id-ID')}</span></div>
+                    <div className="grid grid-cols-[100px_10px_1fr]"><span>Kasir</span><span>:</span><span className="text-right">{activeSelectedSale.cashier_name}</span></div>
+                    {activeSelectedSale.customer_name && (
+                      <div className="grid grid-cols-[100px_10px_1fr]"><span>Pelanggan</span><span>:</span><span className="text-right">{activeSelectedSale.customer_name}</span></div>
                     )}
-                    <div className="grid grid-cols-[100px_10px_1fr]"><span>Tipe Pesanan</span><span>:</span><span className="text-right uppercase font-bold">{selectedSale.order_type}</span></div>
-                    {enableTableNumber && selectedSale.table_number && (
-                      <div className="grid grid-cols-[100px_10px_1fr]"><span>Meja</span><span>:</span><span className="text-right font-bold">{selectedSale.table_number}</span></div>
+                    <div className="grid grid-cols-[100px_10px_1fr]"><span>Tipe Pesanan</span><span>:</span><span className="text-right uppercase font-bold">{activeSelectedSale.order_type}</span></div>
+                    {enableTableNumber && activeSelectedSale.table_number && (
+                      <div className="grid grid-cols-[100px_10px_1fr]"><span>Meja</span><span>:</span><span className="text-right font-bold">{activeSelectedSale.table_number}</span></div>
                     )}
                   </div>
 
                   {/* Items List */}
                   <div className="border-t border-b border-dashed border-stone-300 dark:border-stone-700 py-2 space-y-1 text-[11px]">
-                    {(selectedSale.items || []).map((item, idx) => (
+                    {(activeSelectedSale.items || []).map((item, idx) => (
                       <div key={idx} className="space-y-0.5">
                         <div className="flex justify-between">
                           <span>{item.quantity}x {toCapitalCase(item.product_name)}</span>
@@ -270,28 +358,28 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
 
                   {/* Financial Summary */}
                   <div className="space-y-1 text-[11px]">
-                    <div className="grid grid-cols-[100px_10px_1fr]"><span>Subtotal</span><span>:</span><span className="text-right font-semibold">Rp {selectedSale.subtotal.toLocaleString('id-ID')}</span></div>
-                    {selectedSale.discount_amount > 0 && (
-                      <div className="grid grid-cols-[100px_10px_1fr] text-red-600"><span>Diskon</span><span>:</span><span className="text-right">-Rp {selectedSale.discount_amount.toLocaleString('id-ID')}</span></div>
+                    <div className="grid grid-cols-[100px_10px_1fr]"><span>Subtotal</span><span>:</span><span className="text-right font-semibold">Rp {activeSelectedSale.subtotal.toLocaleString('id-ID')}</span></div>
+                    {activeSelectedSale.discount_amount > 0 && (
+                      <div className="grid grid-cols-[100px_10px_1fr] text-red-600"><span>Diskon</span><span>:</span><span className="text-right">-Rp {activeSelectedSale.discount_amount.toLocaleString('id-ID')}</span></div>
                     )}
-                    {selectedSale.tax_amount > 0 && (
-                      <div className="grid grid-cols-[100px_10px_1fr]"><span>Pajak ({taxRate}%)</span><span>:</span><span className="text-right">Rp {selectedSale.tax_amount.toLocaleString('id-ID')}</span></div>
+                    {activeSelectedSale.tax_amount > 0 && (
+                      <div className="grid grid-cols-[100px_10px_1fr]"><span>Pajak ({taxRate}%)</span><span>:</span><span className="text-right">Rp {activeSelectedSale.tax_amount.toLocaleString('id-ID')}</span></div>
                     )}
-                    {selectedSale.service_charge > 0 && (
-                      <div className="grid grid-cols-[100px_10px_1fr]"><span>Layanan ({serviceRate}%)</span><span>:</span><span className="text-right">Rp {selectedSale.service_charge.toLocaleString('id-ID')}</span></div>
+                    {activeSelectedSale.service_charge > 0 && (
+                      <div className="grid grid-cols-[100px_10px_1fr]"><span>Layanan ({serviceRate}%)</span><span>:</span><span className="text-right">Rp {activeSelectedSale.service_charge.toLocaleString('id-ID')}</span></div>
                     )}
                     
                     <div className="grid grid-cols-[100px_10px_1fr] text-xs font-extrabold border-t border-stone-300 dark:border-stone-700 pt-1 text-stone-900 dark:text-stone-100">
-                      <span>TAGIHAN</span><span>:</span><span className="text-right text-coffee-600 dark:text-coffee-400">Rp {selectedSale.grand_total.toLocaleString('id-ID')}</span>
+                      <span>TAGIHAN</span><span>:</span><span className="text-right text-coffee-600 dark:text-coffee-400">Rp {activeSelectedSale.grand_total.toLocaleString('id-ID')}</span>
                     </div>
 
-                    {selectedSale.payments && selectedSale.payments.length > 0 && (
+                    {activeSelectedSale.payments && activeSelectedSale.payments.length > 0 && (
                       <>
                         <div className="grid grid-cols-[100px_10px_1fr] text-[11px] pt-1 border-t border-dashed border-stone-200 dark:border-stone-800">
-                          <span>BAYAR ({selectedSale.payments[0].method.toUpperCase()})</span><span>:</span><span className="text-right font-semibold">Rp {selectedSale.payments[0].amount.toLocaleString('id-ID')}</span>
+                          <span>BAYAR ({activeSelectedSale.payments[0].method.toUpperCase()})</span><span>:</span><span className="text-right font-semibold">Rp {activeSelectedSale.payments[0].amount.toLocaleString('id-ID')}</span>
                         </div>
                         <div className="grid grid-cols-[100px_10px_1fr] text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                          <span>KEMBALIAN</span><span>:</span><span className="text-right">Rp {(selectedSale.payments[0].change_amount || 0).toLocaleString('id-ID')}</span>
+                          <span>KEMBALIAN</span><span>:</span><span className="text-right">Rp {(activeSelectedSale.payments[0].change_amount || 0).toLocaleString('id-ID')}</span>
                         </div>
                       </>
                     )}
@@ -307,7 +395,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               {/* Bottom Action for Receipt Detail */}
               <div className="p-3 bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800">
                 <button
-                  onClick={() => handlePrint(selectedSale)}
+                  onClick={() => handlePrint(activeSelectedSale)}
                   className="w-full py-2.5 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-2"
                 >
                   <Printer className="w-4 h-4" />

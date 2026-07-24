@@ -32,6 +32,7 @@ interface AppStore {
   fetchCustomerOrders: () => Promise<void>;
   submitCustomerOrder: (orderData: any) => Promise<any>;
   updateCustomerOrderStatus: (id: string, status: 'pending' | 'approved' | 'rejected' | 'paid') => Promise<void>;
+  updateSaleStatus: (id: string, status: 'completed' | 'preparing' | 'ready' | 'refunded' | 'voided') => Promise<void>;
 
   // POS State
   cart: CartItem[];
@@ -336,6 +337,19 @@ export const useAppStore = create<AppStore>((set, get) => ({
       if (settings.maxAttendanceRadius !== undefined) await dbService.saveSetting('maxAttendanceRadius', settings.maxAttendanceRadius);
       if (settings.enableGpsValidation !== undefined) await dbService.saveSetting('enableGpsValidation', settings.enableGpsValidation);
     }
+  },
+
+  updateSaleStatus: async (id, status) => {
+    const { isDatabaseMode, sales } = get();
+    if (isDatabaseMode) {
+      const { error } = await supabase.from('sales').update({ status }).eq('id', id);
+      if (error) {
+        console.warn('Failed to update sale status in supabase:', error);
+      }
+    }
+    set({
+      sales: sales.map((s) => (s.id === id ? { ...s, status } : s))
+    });
   },
 
   registerOwnerAccount: async (name, email, pin, password) => {

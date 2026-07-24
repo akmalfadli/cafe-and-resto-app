@@ -137,7 +137,7 @@ export interface Sale {
   service_charge: number;
   grand_total: number;
   total_cogs: number;
-  status: 'completed' | 'refunded' | 'voided';
+  status: 'completed' | 'preparing' | 'ready' | 'refunded' | 'voided';
   void_reason?: string;
   payments: Payment[];
   items: SaleItem[];
