@@ -205,49 +205,60 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
         </div>
       </header>
 
-      {/* FILTER & SEARCH */}
-      <div className="bg-white dark:bg-stone-900 p-3 border-b border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Cari makanan, kopi, soda..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-stone-50 dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-750 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-coffee-500"
-          />
-        </div>
+      {/* MAIN LAYOUT: Left Sidebar + Product Grid */}
+      <div className="flex-1 flex overflow-hidden relative">
 
-        <div className="flex flex-wrap gap-1.5">
+        {/* LEFT COLUMN: Category Sidebar (like POS Screen) */}
+        <aside className="w-20 sm:w-24 md:w-28 bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 p-1.5 md:p-2 flex flex-col gap-1.5 md:gap-2 shrink-0 overflow-y-auto">
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`text-xs font-bold px-3 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 ${selectedCategory === 'all'
-                ? 'bg-coffee-500 text-white shadow-sm'
-                : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-750'
-              }`}
+            className={`flex flex-col items-center justify-center p-2.5 md:p-3 rounded-xl md:rounded-2xl transition ${
+              selectedCategory === 'all'
+                ? 'bg-coffee-500 text-white font-bold shadow-sm'
+                : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
+            }`}
           >
-            <Grid className="w-3.5 h-3.5" />
-            <span>Semua</span>
+            <Grid className="w-5 h-5 md:w-6 md:h-6 mb-1" />
+            <span className="text-[10px] md:text-[11px] font-medium text-center leading-tight">Semua</span>
           </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`text-xs font-bold px-3 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 ${selectedCategory === cat.id
-                  ? 'bg-coffee-500 text-white shadow-sm'
-                  : 'bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-750'
-                }`}
-            >
-              {getCategoryIcon(cat.icon)}
-              <span>{cat.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
 
-      {/* BODY MENU & PRODUCT GRID */}
-      <div className="flex-1 flex overflow-hidden relative">
-        <main className="flex-1 p-3 md:p-6 overflow-y-auto bg-stone-100/50 dark:bg-stone-950/20 flex flex-col justify-between min-h-full">
+          {categories.map((cat) => {
+            const active = selectedCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`flex flex-col items-center justify-center p-2.5 md:p-3 rounded-xl md:rounded-2xl transition ${
+                  active
+                    ? 'bg-coffee-500 text-white font-bold shadow-sm'
+                    : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
+                }`}
+              >
+                <div className="mb-1 transform scale-90 md:scale-100">{getCategoryIcon(cat.icon)}</div>
+                <span className="text-[10px] md:text-[11px] text-center leading-tight">{cat.name}</span>
+              </button>
+            );
+          })}
+        </aside>
+
+        {/* CENTER COLUMN: Search + Product Grid */}
+        <main className="flex-1 overflow-y-auto bg-stone-100/50 dark:bg-stone-950/20 flex flex-col min-h-full">
+          {/* Search Bar */}
+          <div className="p-3 md:px-6 md:pt-4 md:pb-2 shrink-0">
+            <div className="relative">
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Cari makanan, kopi, soda..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-750 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-coffee-500 shadow-sm"
+              />
+            </div>
+          </div>
+
+          {/* Product Grid */}
+          <div className="flex-1 p-3 md:px-6 md:pb-6 pt-0">
           <div className="flex-1">
             {filteredProducts.length === 0 ? (
               <div className="h-64 flex flex-col items-center justify-center text-center text-stone-400 space-y-2">
@@ -255,7 +266,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 <p className="text-[10px]">Coba cari dengan kata kunci lain atau pilih kategori lain.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 pb-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 pb-8">
             {filteredProducts.map((product) => {
               const matchedRecipe = recipes.find(r => r.product_id === product.id);
               const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
@@ -336,14 +347,9 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                           </button>
                         </div>
                       )}
-                    </div>
-                  </div>
-                </div>
-              );
             })}
           </div>
         )}
-      </div>
 
           {/* Credits Footer */}
           <footer className="mt-8 pt-4 pb-2 border-t border-stone-200/60 dark:border-stone-800/60 text-center space-y-1">
