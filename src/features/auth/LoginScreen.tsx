@@ -129,28 +129,28 @@ export const LoginScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-stone-950 flex flex-col items-center justify-center p-4 sm:p-6 font-sans select-none overflow-y-auto">
-      <div className="w-full flex-1 flex items-center justify-center py-6">
-        <div className={`bg-white dark:bg-stone-900 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-stone-200 dark:border-stone-800 flex flex-col ${showAttendanceModal ? 'pointer-events-none opacity-40' : ''}`}>
+    <div className="min-h-screen w-screen bg-stone-950 flex flex-col items-center justify-center p-3 sm:p-6 font-sans select-none overflow-y-auto">
+      <div className="w-full flex-1 flex items-center justify-center py-4 sm:py-6">
+        <div className={`bg-white dark:bg-stone-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm sm:max-w-md w-full overflow-hidden border border-stone-200 dark:border-stone-800 flex flex-col transition-all duration-200 ${showAttendanceModal ? 'pointer-events-none opacity-40' : ''}`}>
           
           {/* Header */}
-          <div className="bg-coffee-500 p-5 sm:p-6 text-white text-center space-y-2">
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mx-auto backdrop-blur-md">
-              <Coffee className="w-7 h-7 text-white" />
+          <div className="bg-coffee-500 p-4 sm:p-6 text-white text-center space-y-1.5 sm:space-y-2">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto backdrop-blur-md">
+              <Coffee className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
             </div>
-            <h1 className="text-xl font-black tracking-wider">CAFE POS RESTO</h1>
-            <p className="text-xs text-coffee-200">Portal Kasir & Management Back Office</p>
+            <h1 className="text-lg sm:text-xl font-black tracking-wider">CAFE POS RESTO</h1>
+            <p className="text-[11px] sm:text-xs text-coffee-200">Portal Kasir & Management Back Office</p>
           </div>
 
           {/* 1. Registration Mode */}
           {isRegisterMode ? (
-            <form onSubmit={handleRegisterOwner} className="p-6 space-y-3.5 text-xs">
+            <form onSubmit={handleRegisterOwner} className="p-4 sm:p-6 space-y-3 sm:space-y-3.5 text-xs">
               <div className="text-center space-y-1">
-                <h2 className="font-bold text-base text-stone-800 dark:text-stone-100">Pendaftaran Akun Pemilik (Owner)</h2>
-                <p className="text-stone-400 dark:text-stone-500">Daftarkan akun utama resto untuk mengelola akun kasir & manajer</p>
+                <h2 className="font-bold text-sm sm:text-base text-stone-800 dark:text-stone-100">Pendaftaran Akun Pemilik (Owner)</h2>
+                <p className="text-stone-400 dark:text-stone-500 text-[11px]">Daftarkan akun utama resto untuk mengelola akun kasir & manajer</p>
               </div>
 
-              {error && <p className="p-2 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-xl text-center font-bold">{error}</p>}
+              {error && <p className="p-2 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-xl text-center font-bold text-[11px]">{error}</p>}
 
               <div>
                 <label className="font-semibold text-stone-600 dark:text-stone-400 block mb-1">Nama Lengkap Pemilik</label>
@@ -176,7 +176,7 @@ export const LoginScreen: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                 <div>
                   <label className="font-semibold text-stone-600 dark:text-stone-400 block mb-1">Kata Sandi (Password)</label>
                   <input
@@ -207,7 +207,7 @@ export const LoginScreen: React.FC = () => {
               <div className="pt-2 space-y-2">
                 <button
                   type="submit"
-                  className="w-full py-3 bg-coffee-500 hover:bg-coffee-600 text-white font-bold rounded-xl shadow transition"
+                  className="w-full py-2.5 sm:py-3 bg-coffee-500 hover:bg-coffee-600 text-white font-bold rounded-xl shadow transition"
                 >
                   Daftar & Masuk ke Resto
                 </button>
@@ -216,7 +216,7 @@ export const LoginScreen: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsRegisterMode(false)}
-                    className="w-full py-2 text-stone-500 dark:text-stone-400 font-semibold hover:underline"
+                    className="w-full py-1.5 text-stone-500 dark:text-stone-400 font-semibold hover:underline"
                   >
                     Kembali ke Pilihan Akun
                   </button>
@@ -226,36 +226,36 @@ export const LoginScreen: React.FC = () => {
           ) : (
             /* 2. Login User Selector & PIN Entry */
             !selectedUser ? (
-              <div className="p-5 sm:p-6 space-y-4">
+              <div className="p-4 sm:p-6 space-y-3.5 sm:space-y-4">
                 {/* Prominent Absensi Karyawan Quick Action Banner */}
                 <button
                   type="button"
                   onClick={() => setShowAttendanceModal(true)}
-                  className="w-full p-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-between group touch-active border border-emerald-500/30"
+                  className="w-full p-3 sm:p-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-between group touch-active border border-emerald-500/30"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-xs shrink-0">
-                      <Clock className="w-5 h-5 text-white animate-pulse" />
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-xs shrink-0">
+                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white animate-pulse" />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-extrabold text-sm leading-tight text-white flex items-center gap-1.5">
+                      <h3 className="font-extrabold text-xs sm:text-sm leading-tight text-white flex items-center gap-1.5">
                         Absensi Karyawan (Masuk / Pulang)
                       </h3>
-                      <p className="text-[10px] text-emerald-100 font-medium">Klik untuk Clock In / Clock Out menggunakan PIN & GPS</p>
+                      <p className="text-[9px] sm:text-[10px] text-emerald-100 font-medium">Clock In / Out via PIN & GPS</p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 bg-white/20 rounded-xl text-xs font-black text-white group-hover:translate-x-0.5 transition shrink-0">
+                  <span className="px-2.5 py-1 bg-white/20 rounded-xl text-[10px] sm:text-xs font-black text-white group-hover:translate-x-0.5 transition shrink-0">
                     Absen →
                   </span>
                 </button>
 
                 <div className="flex justify-between items-center pt-1">
-                  <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                  <label className="text-[10px] sm:text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                     Pilih Akun Kasir / Manager
                   </label>
                   <button
                     onClick={() => setIsRegisterMode(true)}
-                    className="text-xs text-coffee-600 dark:text-coffee-400 font-bold hover:underline flex items-center gap-1"
+                    className="text-[11px] sm:text-xs text-coffee-600 dark:text-coffee-400 font-bold hover:underline flex items-center gap-1"
                   >
                     <UserPlus className="w-3.5 h-3.5" />
                     Daftar Pemilik Baru
@@ -277,7 +277,7 @@ export const LoginScreen: React.FC = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-3 max-h-64 sm:max-h-72 overflow-y-auto pr-1">
+                  <div className="space-y-3 max-h-56 sm:max-h-72 overflow-y-auto pr-1">
                     {/* Management section */}
                     {(() => {
                       const mgmt = profiles.filter((u) => u.role === 'Owner' || u.role === 'Manager');
@@ -294,18 +294,18 @@ export const LoginScreen: React.FC = () => {
                                   <button
                                     key={u.id}
                                     onClick={() => setSelectedUser(u)}
-                                    className="w-full p-3.5 rounded-2xl border border-coffee-200 dark:border-coffee-900/40 bg-coffee-50/40 dark:bg-coffee-950/10 hover:border-coffee-500 dark:hover:border-coffee-500 hover:bg-coffee-50 dark:hover:bg-coffee-950/20 transition flex items-center justify-between group touch-active text-left"
+                                    className="w-full p-3 sm:p-3.5 rounded-2xl border border-coffee-200 dark:border-coffee-900/40 bg-coffee-50/40 dark:bg-coffee-950/10 hover:border-coffee-500 dark:hover:border-coffee-500 hover:bg-coffee-50 dark:hover:bg-coffee-950/20 transition flex items-center justify-between group touch-active text-left"
                                   >
-                                    <div className="flex items-center gap-3">
-                                      <div className="w-9 h-9 rounded-xl bg-coffee-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                                    <div className="flex items-center gap-2.5 sm:gap-3">
+                                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-coffee-500 text-white flex items-center justify-center font-bold text-xs sm:text-sm shrink-0">
                                         {u.full_name.charAt(0)}
                                       </div>
                                       <div>
-                                        <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">{u.full_name}</h3>
-                                        <p className="text-xs text-stone-400 dark:text-stone-500 font-medium">{u.email}</p>
+                                        <h3 className="font-bold text-xs sm:text-sm text-stone-800 dark:text-stone-100">{u.full_name}</h3>
+                                        <p className="text-[11px] sm:text-xs text-stone-400 dark:text-stone-500 font-medium">{u.email}</p>
                                       </div>
                                     </div>
-                                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase shrink-0 ${
+                                    <span className={`text-[9px] sm:text-[10px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase shrink-0 ${
                                       u.role === 'Owner'
                                         ? 'bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400'
                                         : 'bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400'
@@ -318,7 +318,6 @@ export const LoginScreen: React.FC = () => {
                             </div>
                           )}
 
-                          {/* No management accounts — show prompt */}
                           {mgmt.length === 0 && (
                             <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-950/10 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-3.5 text-xs">
                               <Shield className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
@@ -339,18 +338,18 @@ export const LoginScreen: React.FC = () => {
                                   <button
                                     key={u.id}
                                     onClick={() => setSelectedUser(u)}
-                                    className="w-full p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-coffee-500 dark:hover:border-coffee-500 hover:bg-coffee-50/50 dark:hover:bg-coffee-950/10 transition flex items-center justify-between group touch-active text-left"
+                                    className="w-full p-3 sm:p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-coffee-500 dark:hover:border-coffee-500 hover:bg-coffee-50/50 dark:hover:bg-coffee-950/10 transition flex items-center justify-between group touch-active text-left"
                                   >
-                                    <div className="flex items-center gap-3">
-                                      <div className="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 group-hover:bg-coffee-500 group-hover:text-white flex items-center justify-center transition font-bold text-stone-700 dark:text-stone-300 shrink-0">
+                                    <div className="flex items-center gap-2.5 sm:gap-3">
+                                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-stone-100 dark:bg-stone-800 group-hover:bg-coffee-500 group-hover:text-white flex items-center justify-center transition font-bold text-stone-700 dark:text-stone-300 shrink-0">
                                         <User className="w-4 h-4" />
                                       </div>
                                       <div>
-                                        <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">{u.full_name}</h3>
-                                        <p className="text-xs text-stone-400 dark:text-stone-500 font-medium">{u.email}</p>
+                                        <h3 className="font-bold text-xs sm:text-sm text-stone-800 dark:text-stone-100">{u.full_name}</h3>
+                                        <p className="text-[11px] sm:text-xs text-stone-400 dark:text-stone-500 font-medium">{u.email}</p>
                                       </div>
                                     </div>
-                                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 group-hover:bg-coffee-100 dark:group-hover:bg-coffee-900 group-hover:text-coffee-800 dark:group-hover:text-coffee-300 shrink-0">
+                                    <span className="text-[9px] sm:text-[10px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 group-hover:bg-coffee-100 dark:group-hover:bg-coffee-900 group-hover:text-coffee-800 dark:group-hover:text-coffee-300 shrink-0">
                                       {u.role}
                                     </span>
                                   </button>
@@ -366,7 +365,7 @@ export const LoginScreen: React.FC = () => {
               </div>
             ) : selectedUser.role === 'Owner' ? (
               /* Owner Password Entry Step */
-              <form onSubmit={handleOwnerPasswordSubmit} className="p-5 sm:p-6 space-y-4 text-xs">
+              <form onSubmit={handleOwnerPasswordSubmit} className="p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-xs">
                 <div className="flex items-center justify-between border-b pb-3 border-stone-100 dark:border-stone-800">
                   <div>
                     <span className="text-[10px] text-stone-400 dark:text-stone-500 font-bold uppercase">Masuk sebagai Owner</span>
@@ -396,7 +395,7 @@ export const LoginScreen: React.FC = () => {
                       setPasswordInput(e.target.value);
                       setError('');
                     }}
-                    className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3.5 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm"
+                    className="w-full border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl px-3.5 py-2.5 sm:py-3 font-medium focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm"
                     placeholder="••••••••"
                   />
                 </div>
@@ -406,18 +405,18 @@ export const LoginScreen: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading || !passwordInput}
-                  className="w-full py-3 bg-coffee-500 hover:bg-coffee-600 disabled:opacity-55 text-white font-bold rounded-xl shadow transition text-xs flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 sm:py-3 bg-coffee-500 hover:bg-coffee-600 disabled:opacity-55 text-white font-bold rounded-xl shadow transition text-xs flex items-center justify-center gap-1.5"
                 >
                   {isLoading ? 'Memverifikasi...' : 'Masuk ke Back Office'}
                 </button>
               </form>
             ) : (
               /* Staff / Manager PIN Entry Step */
-              <div className="p-5 sm:p-6 space-y-4 sm:space-y-5">
-                <div className="flex items-center justify-between border-b pb-3 border-stone-100 dark:border-stone-800">
+              <div className="p-4 sm:p-6 space-y-3.5 sm:space-y-5">
+                <div className="flex items-center justify-between border-b pb-2.5 sm:pb-3 border-stone-100 dark:border-stone-800">
                   <div>
                     <span className="text-[10px] text-stone-400 dark:text-stone-500 font-bold uppercase">Masuk sebagai</span>
-                    <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">{selectedUser.full_name}</h3>
+                    <h3 className="font-bold text-xs sm:text-sm text-stone-800 dark:text-stone-100">{selectedUser.full_name}</h3>
                   </div>
                   <button
                     onClick={() => {
@@ -440,19 +439,19 @@ export const LoginScreen: React.FC = () => {
                     setError('');
                     setShowAttendanceModal(true);
                   }}
-                  className="w-full p-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 text-xs font-bold"
+                  className="w-full p-2.5 sm:p-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 text-xs font-bold"
                 >
                   <Clock className="w-4 h-4" />
                   Hanya Absensi Kehadiran? Klik Disini
                 </button>
 
-                <div className="text-center space-y-2">
-                  <label className="text-xs font-semibold text-stone-500 dark:text-stone-400">Masukkan 6 Digit PIN untuk LOGIN KASIR</label>
-                  <div className="flex justify-center gap-3 py-2">
+                <div className="text-center space-y-1.5 sm:space-y-2">
+                  <label className="text-[11px] sm:text-xs font-semibold text-stone-500 dark:text-stone-400">Masukkan 6 Digit PIN untuk LOGIN KASIR</label>
+                  <div className="flex justify-center gap-2.5 sm:gap-3 py-1.5 sm:py-2">
                     {[0, 1, 2, 3, 4, 5].map((idx) => (
                       <div
                         key={idx}
-                        className={`w-4 h-4 rounded-full border-2 transition-all ${
+                        className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2 transition-all ${
                           pin.length > idx
                             ? 'bg-coffee-500 border-coffee-500 scale-110'
                             : 'border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800'
@@ -463,13 +462,13 @@ export const LoginScreen: React.FC = () => {
                   {error && <p className="text-xs text-red-500 dark:text-red-400 font-semibold animate-shake">{error}</p>}
                   
                   {lockUntil && (
-                    <div className="p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-2xl text-[11px] font-bold mt-2 border border-red-200/50 dark:border-red-900/55">
+                    <div className="p-2.5 sm:p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-2xl text-[11px] font-bold mt-2 border border-red-200/50 dark:border-red-900/55">
                       Akun terkunci. Coba lagi dalam: {Math.floor(secondsRemaining / 60)}m {secondsRemaining % 60}d
                     </div>
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-2.5 sm:gap-3 pt-1 sm:pt-2 relative">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-1 sm:pt-2 relative">
                   {lockUntil && (
                     <div className="absolute inset-0 bg-white/40 dark:bg-stone-900/60 backdrop-blur-[1px] z-10 rounded-2xl cursor-not-allowed" />
                   )}
@@ -478,25 +477,25 @@ export const LoginScreen: React.FC = () => {
                       key={digit}
                       onClick={() => handlePinPress(digit)}
                       disabled={!!lockUntil}
-                      className="h-12 sm:h-14 rounded-2xl bg-stone-50 dark:bg-stone-800 hover:bg-coffee-50 dark:hover:bg-coffee-950/30 hover:border-coffee-300 dark:hover:border-coffee-500 border border-stone-200 dark:border-stone-750 text-lg font-bold text-stone-800 dark:text-stone-100 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
+                      className="h-11 sm:h-14 rounded-xl sm:rounded-2xl bg-stone-50 dark:bg-stone-800 hover:bg-coffee-50 dark:hover:bg-coffee-950/30 hover:border-coffee-300 dark:hover:border-coffee-500 border border-stone-200 dark:border-stone-750 text-base sm:text-lg font-bold text-stone-800 dark:text-stone-100 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
                     >
                       {digit}
                     </button>
                   ))}
-                  <div className="h-12 sm:h-14" />
+                  <div className="h-11 sm:h-14" />
                   <button
                     onClick={() => handlePinPress('0')}
                     disabled={!!lockUntil}
-                    className="h-12 sm:h-14 rounded-2xl bg-stone-50 dark:bg-stone-800 hover:bg-coffee-50 dark:hover:bg-coffee-950/30 hover:border-coffee-300 dark:hover:border-coffee-500 border border-stone-200 dark:border-stone-750 text-lg font-bold text-stone-800 dark:text-stone-100 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
+                    className="h-11 sm:h-14 rounded-xl sm:rounded-2xl bg-stone-50 dark:bg-stone-800 hover:bg-coffee-50 dark:hover:bg-coffee-950/30 hover:border-coffee-300 dark:hover:border-coffee-500 border border-stone-200 dark:border-stone-750 text-base sm:text-lg font-bold text-stone-800 dark:text-stone-100 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
                   >
                     0
                   </button>
                   <button
                     onClick={handleDelete}
                     disabled={!!lockUntil}
-                    className="h-12 sm:h-14 rounded-2xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-750 text-stone-600 dark:text-stone-300 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
+                    className="h-11 sm:h-14 rounded-xl sm:rounded-2xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-750 text-stone-600 dark:text-stone-300 shadow-sm touch-active transition flex items-center justify-center disabled:opacity-50"
                   >
-                    <Delete className="w-5 h-5" />
+                    <Delete className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
               </div>
@@ -511,8 +510,8 @@ export const LoginScreen: React.FC = () => {
         onClose={() => setShowAttendanceModal(false)}
       />
 
-      {/* Footer credit text positioned relative so it stays below card and never overlaps */}
-      <footer className="py-3 text-center text-xs text-stone-400 dark:text-stone-500 font-medium shrink-0">
+      {/* Footer credit text */}
+      <footer className="py-2 sm:py-3 text-center text-[11px] sm:text-xs text-stone-400 dark:text-stone-500 font-medium shrink-0">
         Created with ❤️ by <a href="https://akmalfadli.github.io" target="_blank" rel="noopener noreferrer" className="text-coffee-400 hover:text-coffee-300 font-bold hover:underline transition">Akmal Fadli</a>
       </footer>
     </div>
