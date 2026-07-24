@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import {
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search,
-  ShoppingCart, Check, Clock, CheckCircle
+  ShoppingCart, Check, Clock, CheckCircle, Info, X
 } from 'lucide-react';
 import type { Product } from '../../types';
 import { toCapitalCase } from '../../utils/formatters';
@@ -17,6 +17,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<{ product: Product; quantity: number; notes: string }[]>([]);
   const [showOrderSummary, setShowOrderSummary] = useState(false);
+  const [selectedProductForIngredients, setSelectedProductForIngredients] = useState<Product | null>(null);
 
   // Customer Form details
   const [custName, setCustName] = useState('');
@@ -311,6 +312,21 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                         <Check className="w-3.5 h-3.5 font-bold" />
                       </div>
                     ) : null}
+
+                    {/* Info Button for Ingredients */}
+                    {matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedProductForIngredients(product);
+                        }}
+                        title="Lihat Komposisi Bahan"
+                        className="absolute bottom-2 right-2 z-10 p-1.5 bg-white/90 dark:bg-stone-800/90 hover:bg-coffee-500 hover:text-white text-stone-600 dark:text-stone-300 rounded-full shadow-md backdrop-blur-xs transition transform hover:scale-110 flex items-center justify-center"
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
 
                   <div className="p-2.5 md:p-3 flex flex-col justify-between flex-1 space-y-2">
@@ -318,23 +334,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                       <h4 className="font-extrabold text-xs md:text-sm text-stone-800 dark:text-stone-100 line-clamp-2">
                         {toCapitalCase(product.name)}
                       </h4>
-                      {(() => {
-                        if (!matchedRecipe || !matchedRecipe.items || matchedRecipe.items.length === 0) return null;
-                        const ingredientNames = matchedRecipe.items
-                          .map((rItem) => {
-                            const ing = ingredients.find((i) => i.id === rItem.ingredient_id);
-                            return ing ? toCapitalCase(ing.name) : null;
-                          })
-                          .filter(Boolean)
-                          .join(', ');
-
-                        if (!ingredientNames) return null;
-                        return (
-                          <p className="text-[10px] text-stone-400 dark:text-stone-500 font-medium line-clamp-2 mt-1 leading-tight">
-                            <span className="font-semibold text-stone-500 dark:text-stone-400">Komposisi:</span> {ingredientNames}
-                          </p>
-                        );
-                      })()}
                     </div>
 
                     <div className="flex justify-between items-center">
@@ -535,6 +534,107 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
           >
             Lihat Pesanan
           </button>
+        </div>
+      )}
+      {/* Ingredients Detail Modal Dialog */}
+      {selectedProductForIngredients && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-4 animate-in fade-in duration-200"
+          onClick={() => setSelectedProductForIngredients(null)}
+        >
+          <div
+            className="bg-white dark:bg-stone-900 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden border border-stone-200 dark:border-stone-800 animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header & Product Image */}
+            <div className="relative h-48 w-full bg-stone-100 dark:bg-stone-800">
+              <img
+                src={selectedProductForIngredients.image_url}
+                alt={selectedProductForIngredients.name}
+                className="w-full h-full object-cover"
+              />
+              <button
+                onClick={() => setSelectedProductForIngredients(null)}
+                className="absolute top-3 right-3 p-1.5 bg-black/60 text-white hover:bg-black/80 rounded-full backdrop-blur-xs transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-10 text-white">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-coffee-300">Detail Komposisi</span>
+                <h3 className="text-base font-extrabold leading-tight">
+                  {toCapitalCase(selectedProductForIngredients.name)}
+                </h3>
+              </div>
+            </div>
+
+            {/* Ingredients Content Body */}
+            <div className="p-5 space-y-4">
+              <div className="flex items-center justify-between text-xs pb-3 border-b border-stone-100 dark:border-stone-800">
+                <span className="text-stone-500 font-medium">Harga Menu:</span>
+                <span className="font-extrabold text-coffee-600 dark:text-coffee-400 text-sm">
+                  Rp {selectedProductForIngredients.selling_price.toLocaleString('id-ID')}
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="text-xs font-extrabold text-stone-800 dark:text-stone-100 flex items-center gap-1.5">
+                  <Info className="w-4 h-4 text-coffee-500" />
+                  Bahan / Resep Pembuatan:
+                </h4>
+
+                {(() => {
+                  const matchedRecipe = recipes.find(r => r.product_id === selectedProductForIngredients.id);
+                  if (!matchedRecipe || !matchedRecipe.items || matchedRecipe.items.length === 0) {
+                    return (
+                      <p className="text-xs text-stone-400 italic py-2">
+                        Belum ada rincian bahan resep untuk menu ini.
+                      </p>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                      {matchedRecipe.items.map((rItem, idx) => {
+                        const ing = ingredients.find(i => i.id === rItem.ingredient_id);
+                        if (!ing) return null;
+                        return (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-2.5 bg-stone-50 dark:bg-stone-800/60 rounded-xl border border-stone-150 dark:border-stone-750 text-xs"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 rounded-lg bg-coffee-100 dark:bg-coffee-950/40 text-coffee-700 dark:text-coffee-300 font-extrabold flex items-center justify-center text-[11px] shrink-0">
+                                {ing.name.charAt(0).toUpperCase()}
+                              </div>
+                              <span className="font-bold text-stone-800 dark:text-stone-100">
+                                {toCapitalCase(ing.name)}
+                              </span>
+                            </div>
+                            <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 bg-white dark:bg-stone-700 px-2 py-0.5 rounded-lg border border-stone-200 dark:border-stone-600">
+                              {rItem.quantity} {ing.unit}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Action Add to Cart from Modal */}
+              <button
+                type="button"
+                onClick={() => {
+                  addToCustomerCart(selectedProductForIngredients);
+                  setSelectedProductForIngredients(null);
+                }}
+                className="w-full py-3 bg-coffee-500 hover:bg-coffee-600 text-white font-extrabold rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2 mt-2"
+              >
+                <ShoppingCart className="w-4 h-4" />
+                Tambah ke Pesanan
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
