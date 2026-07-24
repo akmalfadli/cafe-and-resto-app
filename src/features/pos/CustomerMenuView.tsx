@@ -379,7 +379,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                 <p className="text-[10px] text-stone-400 dark:text-stone-400">Coba cari dengan kata kunci lain atau pilih kategori lain.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 pb-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 pb-8">
                 {filteredProducts.map((product) => {
                   const matchedRecipe = recipes.find(r => r.product_id === product.id);
                   const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {

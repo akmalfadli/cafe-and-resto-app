@@ -341,7 +341,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
       <div className="flex-1 flex overflow-hidden relative">
         
         {/* LEFT COLUMN: Categories */}
-        <aside className={`${showCartOnMobile ? 'hidden' : 'flex'} w-16 sm:w-20 md:w-28 bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 p-1 md:p-2 flex-col gap-1.5 md:gap-2 shrink-0 overflow-y-auto`}>
+        <aside className={`${showCartOnMobile ? 'hidden' : 'flex'} w-16 sm:w-20 md:w-24 lg:w-28 bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 p-1 md:p-2 flex-col gap-1.5 md:gap-2 shrink-0 overflow-y-auto`}>
           <button
             onClick={() => setSelectedCategory('all')}
             className={`flex flex-col items-center justify-center p-2.5 md:p-3 rounded-xl md:rounded-2xl transition touch-active ${
@@ -374,9 +374,9 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
         </aside>
 
         {/* CENTER COLUMN: Product Grid / List Tiles */}
-        <main className={`${showCartOnMobile ? 'hidden lg:block' : 'block'} flex-1 p-2 md:p-4 overflow-y-auto bg-stone-50/50`}>
+        <main className={`${showCartOnMobile ? 'hidden md:block' : 'block'} flex-1 p-2 md:p-4 overflow-y-auto bg-stone-50/50`}>
           {viewMode === 'card' ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-3">
               {filteredProducts.map((product) => {
                 const matchedRecipe = recipes.find(r => r.product_id === product.id);
                 const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
@@ -390,7 +390,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
                     onClick={() => addToCart(product)}
                     className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col touch-active group"
                   >
-                    <div className="h-24 md:h-32 w-full overflow-hidden bg-stone-100 relative">
+                    <div className="h-24 md:h-28 lg:h-32 w-full overflow-hidden bg-stone-100 relative">
                       <img
                         src={product.image_url}
                         alt={product.name}
@@ -489,7 +489,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
         </main>
 
         {/* RIGHT COLUMN: Shopping Cart */}
-        <aside className={`${showCartOnMobile ? 'flex' : 'hidden'} lg:flex w-full lg:w-96 bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 flex-col shrink-0 shadow-lg`}>
+        <aside className={`${showCartOnMobile ? 'flex' : 'hidden'} md:flex w-full md:w-80 lg:w-96 bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 flex-col shrink-0 shadow-lg`}>
           
           <div className="p-3 border-b border-stone-200 dark:border-stone-800 space-y-2">
             <div className="grid grid-cols-3 gap-1 bg-stone-100 p-1 rounded-xl">
@@ -671,11 +671,11 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
               <span>BAYAR • Rp {grandTotal.toLocaleString('id-ID')}</span>
             </button>
 
-            {/* Discrete Kembali button (underneath BAYAR on mobile & tablet screens inside the cart view) */}
+            {/* Discrete Kembali button (underneath BAYAR on mobile screens inside the cart view) */}
             {showCartOnMobile && (
               <button
                 onClick={() => setShowCartOnMobile(false)}
-                className="lg:hidden w-full py-3 bg-stone-800 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2"
+                className="md:hidden w-full py-3 bg-stone-800 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2"
               >
                 <span>← Kembali Pilih Menu</span>
               </button>
@@ -684,9 +684,9 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
 
         </aside>
 
-        {/* Mobile & Tablet Cart Floating Action Bar */}
+        {/* Mobile Cart Floating Action Bar (Hidden on Tablet md: and Desktop lg:) */}
         {!showCartOnMobile && (
-          <div className="lg:hidden absolute bottom-3 left-3 right-3 z-30 flex items-center gap-2">
+          <div className="md:hidden absolute bottom-3 left-3 right-3 z-30 flex items-center gap-2">
             <button
               onClick={() => setShowCartOnMobile(true)}
               className="flex-1 py-3.5 bg-coffee-500 hover:bg-coffee-600 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition"
