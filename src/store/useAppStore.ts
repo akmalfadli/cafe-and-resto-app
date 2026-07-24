@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { 
   Profile, Product, Category, Ingredient, Supplier, Recipe, Sale, 
-  CashShift, CartItem, OrderType, TableItem, Attendance 
+  CashShift, CartItem, OrderType, TableItem, Attendance, RoleType 
 } from '../types';
 import { dbService } from '../services/dbService';
 import { supabase } from '../lib/supabase';
@@ -92,7 +92,9 @@ interface AppStore {
   // Actions
   fetchInitialData: () => Promise<void>;
   registerOwnerAccount: (name: string, email: string, pin: string, password?: string) => Promise<Profile>;
-  createStaffAccount: (name: string, email: string, role: 'Manager' | 'Cashier', pin: string, password?: string) => Promise<Profile>;
+  createStaffAccount: (name: string, email: string, role: RoleType, pin: string, password?: string) => Promise<Profile>;
+  updateStaffAccount: (id: string, name: string, email: string, role: RoleType, pin?: string) => Promise<void>;
+  deleteStaffAccount: (id: string) => Promise<void>;
   updateProfilePin: (profileId: string, newPin: string) => Promise<void>;
   loginWithOwnerPassword: (email: string, password: string) => Promise<Profile>;
 
@@ -392,6 +394,36 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
     set({ profiles: [...profiles, newProfile] });
     return newProfile;
+  },
+
+  updateStaffAccount: async (id, name, email, role, pin) => {
+    const { isDatabaseMode, profiles, currentUser } = get();
+    const updateData: any = { full_name: name, email, role };
+    if (pin && pin.trim() !== '') {
+      updateData.pin_code = pin;
+    }
+
+    if (isDatabaseMode) {
+      const { error } = await supabase.from('profiles').update(updateData).eq('id', id);
+      if (error) throw error;
+    }
+
+    const updatedProfiles = profiles.map((p) => (p.id === id ? { ...p, ...updateData } : p));
+    set({ profiles: updatedProfiles });
+
+    if (currentUser?.id === id) {
+      set({ currentUser: { ...currentUser, ...updateData } });
+    }
+  },
+
+  deleteStaffAccount: async (id) => {
+    const { isDatabaseMode, profiles } = get();
+    if (isDatabaseMode) {
+      // Soft delete in database
+      const { error } = await supabase.from('profiles').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+      if (error) throw error;
+    }
+    set({ profiles: profiles.filter((p) => p.id !== id) });
   },
 
   updateProfilePin: async (profileId, newPin) => {
