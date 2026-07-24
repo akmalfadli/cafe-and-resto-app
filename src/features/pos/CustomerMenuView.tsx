@@ -318,6 +318,23 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                       <h4 className="font-extrabold text-xs md:text-sm text-stone-800 dark:text-stone-100 line-clamp-2">
                         {toCapitalCase(product.name)}
                       </h4>
+                      {(() => {
+                        if (!matchedRecipe || !matchedRecipe.items || matchedRecipe.items.length === 0) return null;
+                        const ingredientNames = matchedRecipe.items
+                          .map((rItem) => {
+                            const ing = ingredients.find((i) => i.id === rItem.ingredient_id);
+                            return ing ? toCapitalCase(ing.name) : null;
+                          })
+                          .filter(Boolean)
+                          .join(', ');
+
+                        if (!ingredientNames) return null;
+                        return (
+                          <p className="text-[10px] text-stone-400 dark:text-stone-500 font-medium line-clamp-2 mt-1 leading-tight">
+                            <span className="font-semibold text-stone-500 dark:text-stone-400">Komposisi:</span> {ingredientNames}
+                          </p>
+                        );
+                      })()}
                     </div>
 
                     <div className="flex justify-between items-center">
