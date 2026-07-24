@@ -525,7 +525,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       service_charge: serviceCharge,
       grand_total: grandTotal,
       total_cogs: totalCogs,
-      status: 'completed',
+      status: 'preparing',
       payments: [
         {
           method: paymentMethod,
