@@ -5,7 +5,7 @@ import { storageService } from '../../services/storageService';
 import { printerService } from '../../services/printerService';
 
 export const SettingsView: React.FC = () => {
-  const { taxRate, serviceRate, receiptHeader, receiptFooter, receiptLogo, outletName, outletPhone, enableTableNumber, enableTax, saveSystemSettings } = useAppStore();
+  const { taxRate, serviceRate, receiptHeader, receiptFooter, receiptLogo, outletName, outletPhone, enableTableNumber, enableTax, outletLat, outletLng, maxAttendanceRadius, enableGpsValidation, saveSystemSettings } = useAppStore();
   const [outletNameInput, setOutletNameInput] = useState(outletName);
   const [phoneInput, setPhoneInput] = useState(outletPhone);
   const [taxInput, setTaxInput] = useState(taxRate.toString());
@@ -15,8 +15,36 @@ export const SettingsView: React.FC = () => {
   const [logoInput, setLogoInput] = useState(receiptLogo);
   const [enableTablesInput, setEnableTablesInput] = useState(enableTableNumber);
   const [enableTaxInput, setEnableTaxInput] = useState(enableTax);
+  
+  // GPS & Geofencing States
+  const [latInput, setLatInput] = useState(outletLat?.toString() || '-6.200000');
+  const [lngInput, setLngInput] = useState(outletLng?.toString() || '106.816666');
+  const [radiusInput, setRadiusInput] = useState(maxAttendanceRadius?.toString() || '100');
+  const [enableGpsInput, setEnableGpsInput] = useState(enableGpsValidation ?? true);
+
   const [isUploading, setIsUploading] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [detectingGps, setDetectingGps] = useState(false);
+
+  const detectCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Browser Anda tidak mendukung fitur Geolocation GPS.');
+      return;
+    }
+    setDetectingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLatInput(pos.coords.latitude.toFixed(6));
+        setLngInput(pos.coords.longitude.toFixed(6));
+        setDetectingGps(false);
+      },
+      (err) => {
+        alert('Gagal mengambil koordinat GPS: ' + err.message);
+        setDetectingGps(false);
+      },
+      { enableHighAccuracy: true }
+    );
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +58,10 @@ export const SettingsView: React.FC = () => {
       receiptLogo: logoInput,
       enableTableNumber: enableTablesInput,
       enableTax: enableTaxInput,
+      outletLat: parseFloat(latInput) || 0,
+      outletLng: parseFloat(lngInput) || 0,
+      maxAttendanceRadius: parseFloat(radiusInput) || 100,
+      enableGpsValidation: enableGpsInput,
     });
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
@@ -76,7 +108,7 @@ export const SettingsView: React.FC = () => {
             </div>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 space-y-3">
             <label className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl border border-stone-200 cursor-pointer hover:bg-stone-100/70 transition">
               <input
                 type="checkbox"
@@ -89,6 +121,76 @@ export const SettingsView: React.FC = () => {
                 <span className="text-[10px] text-stone-500">Nyahaktifkan jika kafe/resto Anda outdoor, taman, atau tanpa nomor meja khusus.</span>
               </div>
             </label>
+
+            {/* GPS Geofencing Settings */}
+            <div className="bg-stone-50/80 p-4 rounded-xl border border-stone-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-xs text-stone-800 block">Validasi Lokasi GPS & Geofencing Absensi</span>
+                  <span className="text-[10px] text-stone-500">Karyawan hanya bisa absen jika berada di lokasi outlet.</span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={enableGpsInput}
+                    onChange={(e) => setEnableGpsInput(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-coffee-500"></div>
+                </label>
+              </div>
+
+              {enableGpsInput && (
+                <div className="space-y-3 pt-2 border-t border-stone-200 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="font-semibold text-stone-600 block mb-1">Latitude Outlet</label>
+                      <input
+                        type="text"
+                        value={latInput}
+                        onChange={(e) => setLatInput(e.target.value)}
+                        placeholder="-6.200000"
+                        className="w-full border px-3 py-2 rounded-xl font-mono text-stone-800 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-semibold text-stone-600 block mb-1">Longitude Outlet</label>
+                      <input
+                        type="text"
+                        value={lngInput}
+                        onChange={(e) => setLngInput(e.target.value)}
+                        placeholder="106.816666"
+                        className="w-full border px-3 py-2 rounded-xl font-mono text-stone-800 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-semibold text-stone-600 block mb-1">Radius Absen (Meter)</label>
+                      <input
+                        type="number"
+                        value={radiusInput}
+                        onChange={(e) => setRadiusInput(e.target.value)}
+                        placeholder="100"
+                        className="w-full border px-3 py-2 rounded-xl font-bold text-stone-800 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-1">
+                    <p className="text-[10px] text-stone-400">
+                      Batas maksimal jarak lokasi perangkat karyawan saat absen (contoh: 50m / 100m).
+                    </p>
+                    <button
+                      type="button"
+                      onClick={detectCurrentLocation}
+                      disabled={detectingGps}
+                      className="px-3 py-1.5 bg-coffee-500 hover:bg-coffee-600 text-white rounded-lg font-bold text-[11px] shadow transition shrink-0 disabled:opacity-50"
+                    >
+                      {detectingGps ? 'Mengambil GPS...' : '📍 Gunakan Lokasi Perangkat Ini'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { Coffee, User, Delete, UserPlus, Shield } from 'lucide-react';
+import { Coffee, User, Delete, UserPlus, Shield, Clock } from 'lucide-react';
 import type { Profile } from '../../types';
+import { AttendanceModal } from './AttendanceModal';
 
 export const LoginScreen: React.FC = () => {
   const { profiles, setCurrentUser, registerOwnerAccount, loginWithOwnerPassword } = useAppStore();
@@ -11,6 +12,7 @@ export const LoginScreen: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [isRegisterMode, setIsRegisterMode] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showAttendanceModal, setShowAttendanceModal] = useState<boolean>(false);
 
   // Security Lock Form State
   const [failedAttempts, setFailedAttempts] = useState<number>(0);
@@ -216,13 +218,24 @@ export const LoginScreen: React.FC = () => {
                 <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                   Pilih Akun
                 </label>
-                <button
-                  onClick={() => setIsRegisterMode(true)}
-                  className="text-xs text-coffee-600 dark:text-coffee-400 font-bold hover:underline flex items-center gap-1"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  Daftar Pemilik Baru
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowAttendanceModal(true)}
+                    className="text-xs text-emerald-600 dark:text-emerald-400 font-bold hover:underline flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800"
+                  >
+                    <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                    Absensi Karyawan
+                  </button>
+
+                  <button
+                    onClick={() => setIsRegisterMode(true)}
+                    className="text-xs text-coffee-600 dark:text-coffee-400 font-bold hover:underline flex items-center gap-1"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    Daftar Pemilik Baru
+                  </button>
+                </div>
               </div>
 
               {profiles.length === 0 ? (
@@ -452,6 +465,12 @@ export const LoginScreen: React.FC = () => {
         )}
 
       </div>
+
+      <AttendanceModal
+        isOpen={showAttendanceModal}
+        onClose={() => setShowAttendanceModal(false)}
+      />
+
       <div className="absolute bottom-4 left-0 right-0 text-center text-xs text-stone-500 font-medium">
         Created with ❤️ by <a href="https://akmalfadli.github.io" target="_blank" rel="noopener noreferrer" className="text-coffee-400 hover:text-coffee-300 font-bold hover:underline transition">Akmal Fadli</a>
       </div>

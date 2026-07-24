@@ -4,8 +4,8 @@ import { useAppStore } from '../../store/useAppStore';
 import { Filter, FileSpreadsheet } from 'lucide-react';
 
 export const ReportsView: React.FC = () => {
-  const { sales } = useAppStore();
-  const [reportType, setReportType] = useState<'daily' | 'product' | 'profit'>('daily');
+  const { sales, attendances, fetchAttendances } = useAppStore();
+  const [reportType, setReportType] = useState<'daily' | 'product' | 'profit' | 'attendance'>('daily');
   
   // Date Range Filter States (default to current month start & today)
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -13,6 +13,10 @@ export const ReportsView: React.FC = () => {
 
   const [startDate, setStartDate] = useState(firstDayOfMonthStr);
   const [endDate, setEndDate] = useState(todayStr);
+
+  React.useEffect(() => {
+    fetchAttendances(startDate, endDate);
+  }, [startDate, endDate]);
 
   // Quick Preset Helper
   const applyPreset = (preset: 'today' | '7days' | 'thisMonth' | 'all') => {
@@ -112,6 +116,22 @@ export const ReportsView: React.FC = () => {
       XLSX.utils.book_append_sheet(workbook, ws, 'Penjualan Per Produk');
       XLSX.writeFile(workbook, `Laporan_Penjualan_Produk_${startDate || 'Awal'}_s.d_${endDate || 'Akhir'}.xlsx`);
 
+    } else if (reportType === 'attendance') {
+      const exportData = attendances.map((a, idx) => ({
+        'No': idx + 1,
+        'Tanggal': a.date,
+        'Nama Karyawan': a.employee_name,
+        'Jam Masuk (Clock In)': a.clock_in ? new Date(a.clock_in).toLocaleTimeString('id-ID') : '-',
+        'Jam Pulang (Clock Out)': a.clock_out ? new Date(a.clock_out).toLocaleTimeString('id-ID') : '-',
+        'Jarak dari Outlet (m)': a.distance_meters || 0,
+        'Validasi GPS': a.is_valid_location ? 'VALID (Di Area)' : 'DILUAR AREA',
+        'Catatan': a.notes || '-',
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      XLSX.utils.book_append_sheet(workbook, ws, 'Absensi Karyawan');
+      XLSX.writeFile(workbook, `Laporan_Absensi_Karyawan_${startDate || 'Awal'}_s.d_${endDate || 'Akhir'}.xlsx`);
+
     } else {
       const exportData = [
         { 'Keterangan': 'Periode Laporan', 'Nilai': `${startDate || 'Semua'} s/d ${endDate || 'Semua'}` },
@@ -203,16 +223,17 @@ export const ReportsView: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-stone-200 dark:border-stone-800 pb-2">
+      <div className="flex gap-2 border-b border-stone-200 dark:border-stone-800 pb-2 overflow-x-auto">
         {[
           { id: 'daily', label: `Penjualan Harian (${filteredSales.length})` },
           { id: 'product', label: `Penjualan per Produk (${productPerformanceList.length})` },
           { id: 'profit', label: 'Laporan Laba Rugi' },
+          { id: 'attendance', label: `Absensi Karyawan (${attendances.length})` },
         ].map((t) => (
           <button
             key={t.id}
             onClick={() => setReportType(t.id as any)}
-            className={`px-4 py-2 text-xs font-bold rounded-xl transition ${
+            className={`px-4 py-2 text-xs font-bold rounded-xl transition whitespace-nowrap ${
               reportType === t.id 
                 ? 'bg-coffee-500 text-white shadow-xs' 
                 : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -287,6 +308,59 @@ export const ReportsView: React.FC = () => {
                       </tr>
                     );
                   })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : reportType === 'attendance' ? (
+        <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[700px]">
+              <thead className="bg-stone-50 dark:bg-stone-800/60 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
+                <tr>
+                  <th className="p-3">Tanggal</th>
+                  <th className="p-3">Nama Karyawan</th>
+                  <th className="p-3">Jam Masuk (Clock In)</th>
+                  <th className="p-3">Jam Pulang (Clock Out)</th>
+                  <th className="p-3">Jarak dari Outlet</th>
+                  <th className="p-3">Status GPS</th>
+                  <th className="p-3">Catatan</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
+                {attendances.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="p-6 text-center text-stone-400">
+                      Belum ada data absensi untuk rentang tanggal ini.
+                    </td>
+                  </tr>
+                ) : (
+                  attendances.map((a) => (
+                    <tr key={a.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50">
+                      <td className="p-3 font-bold text-stone-800 dark:text-stone-100">{a.date}</td>
+                      <td className="p-3 font-bold text-coffee-600 dark:text-coffee-400">{a.employee_name}</td>
+                      <td className="p-3 text-emerald-600 dark:text-emerald-400 font-bold">
+                        {a.clock_in ? new Date(a.clock_in).toLocaleTimeString('id-ID') : '-'}
+                      </td>
+                      <td className="p-3 text-blue-600 dark:text-blue-400 font-bold">
+                        {a.clock_out ? new Date(a.clock_out).toLocaleTimeString('id-ID') : '-'}
+                      </td>
+                      <td className="p-3 font-mono text-stone-700 dark:text-stone-300">
+                        {a.distance_meters || 0} m
+                      </td>
+                      <td className="p-3">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                          a.is_valid_location
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
+                            : 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
+                        }`}>
+                          {a.is_valid_location ? 'Valid (Di Area)' : 'Di Luar Area'}
+                        </span>
+                      </td>
+                      <td className="p-3 text-stone-400 dark:text-stone-500">{a.notes || '-'}</td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>

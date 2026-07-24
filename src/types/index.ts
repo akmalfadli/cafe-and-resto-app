@@ -190,3 +190,20 @@ export interface CustomerOrder {
   created_at: string;
   items?: CustomerOrderItem[];
 }
+
+export interface Attendance {
+  id: string;
+  profile_id: string;
+  employee_name: string;
+  date: string;
+  clock_in: string;
+  clock_out?: string;
+  clock_in_lat?: number;
+  clock_in_lng?: number;
+  clock_out_lat?: number;
+  clock_out_lng?: number;
+  distance_meters?: number;
+  is_valid_location: boolean;
+  notes?: string;
+  created_at: string;
+}

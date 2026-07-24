@@ -439,4 +439,91 @@ export const dbService = {
       .eq('id', id);
     if (error) throw error;
   },
+
+  // Attendance Workflow
+  async getTodayAttendance(profileId: string): Promise<any | null> {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const { data, error } = await supabase
+      .from('attendances')
+      .select('*')
+      .eq('profile_id', profileId)
+      .eq('date', todayStr)
+      .order('clock_in', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.warn('getTodayAttendance notice:', error.message);
+      return null;
+    }
+    return data;
+  },
+
+  async getAllAttendances(startDate?: string, endDate?: string): Promise<any[]> {
+    let query = supabase.from('attendances').select('*').order('clock_in', { ascending: false });
+    if (startDate) query = query.gte('date', startDate);
+    if (endDate) query = query.lte('date', endDate);
+
+    const { data, error } = await query;
+    if (error) {
+      console.warn('getAllAttendances notice:', error.message);
+      return [];
+    }
+    return data || [];
+  },
+
+  async clockInAttendance(payload: {
+    profile_id: string;
+    employee_name: string;
+    clock_in_lat?: number;
+    clock_in_lng?: number;
+    distance_meters?: number;
+    is_valid_location: boolean;
+    notes?: string;
+  }): Promise<any> {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const { data, error } = await supabase
+      .from('attendances')
+      .insert({
+        profile_id: payload.profile_id,
+        employee_name: payload.employee_name,
+        date: todayStr,
+        clock_in: new Date().toISOString(),
+        clock_in_lat: payload.clock_in_lat,
+        clock_in_lng: payload.clock_in_lng,
+        distance_meters: payload.distance_meters || 0,
+        is_valid_location: payload.is_valid_location,
+        notes: payload.notes,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async clockOutAttendance(
+    attendanceId: string,
+    payload: {
+      clock_out_lat?: number;
+      clock_out_lng?: number;
+      notes?: string;
+    }
+  ): Promise<any> {
+    const { data, error } = await supabase
+      .from('attendances')
+      .update({
+        clock_out: new Date().toISOString(),
+        clock_out_lat: payload.clock_out_lat,
+        clock_out_lng: payload.clock_out_lng,
+        notes: payload.notes,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', attendanceId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
 };

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { 
   Profile, Product, Category, Ingredient, Supplier, Recipe, Sale, 
-  CashShift, CartItem, OrderType, TableItem 
+  CashShift, CartItem, OrderType, TableItem, Attendance 
 } from '../types';
 import { dbService } from '../services/dbService';
 import { supabase } from '../lib/supabase';
@@ -51,12 +51,37 @@ interface AppStore {
   receiptLogo: string;
   enableTableNumber: boolean;
   enableTax: boolean;
+  
+  // GPS & Geofencing Settings
+  outletLat: number;
+  outletLng: number;
+  maxAttendanceRadius: number;
+  enableGpsValidation: boolean;
+
+  // Attendance state
+  attendances: Attendance[];
+  fetchAttendances: (startDate?: string, endDate?: string) => Promise<void>;
+
   setReceiptHeader: (header: string) => void;
   setReceiptFooter: (footer: string) => void;
   setReceiptLogo: (logo: string) => void;
   setCustomerName: (name: string) => void;
 
-  saveSystemSettings: (settings: { outletName?: string; outletPhone?: string; taxRate?: number; serviceRate?: number; receiptHeader?: string; receiptFooter?: string; receiptLogo?: string; enableTableNumber?: boolean; enableTax?: boolean }) => Promise<void>;
+  saveSystemSettings: (settings: { 
+    outletName?: string; 
+    outletPhone?: string; 
+    taxRate?: number; 
+    serviceRate?: number; 
+    receiptHeader?: string; 
+    receiptFooter?: string; 
+    receiptLogo?: string; 
+    enableTableNumber?: boolean; 
+    enableTax?: boolean;
+    outletLat?: number;
+    outletLng?: number;
+    maxAttendanceRadius?: number;
+    enableGpsValidation?: boolean;
+  }) => Promise<void>;
 
   // Shift actions
   openShift: (startingCash: number, profileId: string) => Promise<void>;
@@ -145,14 +170,27 @@ export const useAppStore = create<AppStore>((set, get) => ({
   discountType: 'fixed',
   discountValue: 0,
   taxRate: 10,
-  serviceRate: 5,
-  outletName: 'CafePOS Cabang Seminyak',
-  outletPhone: '(0361) 890-1234',
-  receiptHeader: 'CAFE POS RESTO\nJalan Sunset Road No. 88, Seminyak\nTelp: (0361) 890-1234',
-  receiptFooter: 'Terima kasih atas kunjungan Anda!\nSampai jumpa kembali.',
+  serviceRate: 0,
+  outletName: 'Kopi Kenangan Resto',
+  outletPhone: '0812-3456-7890',
+  receiptHeader: 'Kopi Kenangan Resto\nJl. Sudirman No. 12, Jakarta',
+  receiptFooter: 'Terima kasih atas kunjungan Anda!\nFollow IG: @kopikenangan',
   receiptLogo: '',
   enableTableNumber: true,
   enableTax: true,
+
+  // GPS Defaults
+  outletLat: -6.200000,
+  outletLng: 106.816666,
+  maxAttendanceRadius: 100,
+  enableGpsValidation: true,
+
+  attendances: [],
+  fetchAttendances: async (startDate?: string, endDate?: string) => {
+    const list = await dbService.getAllAttendances(startDate, endDate);
+    set({ attendances: list });
+  },
+  
   pendingSales: (() => {
     try {
       const saved = localStorage.getItem('cafepos_pending_sales');
@@ -215,6 +253,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
         receiptLogo: dbSettings.receiptLogo ?? get().receiptLogo,
         enableTableNumber: dbSettings.enableTableNumber ?? get().enableTableNumber,
         enableTax: dbSettings.enableTax ?? get().enableTax,
+        outletLat: dbSettings.outletLat ?? get().outletLat,
+        outletLng: dbSettings.outletLng ?? get().outletLng,
+        maxAttendanceRadius: dbSettings.maxAttendanceRadius ?? get().maxAttendanceRadius,
+        enableGpsValidation: dbSettings.enableGpsValidation ?? get().enableGpsValidation,
         isDatabaseMode: true,
         isLoading: false,
       });
@@ -274,6 +316,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
     if (settings.receiptLogo !== undefined) set({ receiptLogo: settings.receiptLogo });
     if (settings.enableTableNumber !== undefined) set({ enableTableNumber: settings.enableTableNumber });
     if (settings.enableTax !== undefined) set({ enableTax: settings.enableTax });
+    if (settings.outletLat !== undefined) set({ outletLat: settings.outletLat });
+    if (settings.outletLng !== undefined) set({ outletLng: settings.outletLng });
+    if (settings.maxAttendanceRadius !== undefined) set({ maxAttendanceRadius: settings.maxAttendanceRadius });
+    if (settings.enableGpsValidation !== undefined) set({ enableGpsValidation: settings.enableGpsValidation });
 
     if (isDatabaseMode) {
       if (settings.outletName !== undefined) await dbService.saveSetting('outletName', settings.outletName);
@@ -285,6 +331,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
       if (settings.receiptLogo !== undefined) await dbService.saveSetting('receiptLogo', settings.receiptLogo);
       if (settings.enableTableNumber !== undefined) await dbService.saveSetting('enableTableNumber', settings.enableTableNumber);
       if (settings.enableTax !== undefined) await dbService.saveSetting('enableTax', settings.enableTax);
+      if (settings.outletLat !== undefined) await dbService.saveSetting('outletLat', settings.outletLat);
+      if (settings.outletLng !== undefined) await dbService.saveSetting('outletLng', settings.outletLng);
+      if (settings.maxAttendanceRadius !== undefined) await dbService.saveSetting('maxAttendanceRadius', settings.maxAttendanceRadius);
+      if (settings.enableGpsValidation !== undefined) await dbService.saveSetting('enableGpsValidation', settings.enableGpsValidation);
     }
   },
 
