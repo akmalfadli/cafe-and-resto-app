@@ -28,6 +28,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
   const [custTable, setCustTable] = useState('T-01');
   const [custNotes, setCustNotes] = useState('');
   const [showNameErrorModal, setShowNameErrorModal] = useState(false);
+  const [showGpsErrorModal, setShowGpsErrorModal] = useState<string | null>(null);
 
   // Submit Order Workflow State
   const [submittedOrderNo, setSubmittedOrderNo] = useState<string | null>(null);
@@ -145,7 +146,9 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
     // Validate GPS Location if Geofencing is enabled in Settings
     if (enableGpsValidation) {
       if (gpsError || !currentCoords) {
-        alert('Gagal memverifikasi lokasi Anda! Harap izinkan akses lokasi GPS pada browser peranti Anda.');
+        setShowGpsErrorModal(
+          'Gagal mengakses koordinat lokasi GPS peranti Anda! Harap izinkan akses lokasi (Location Permission) pada browser untuk dapat melakukan pemesanan.'
+        );
         fetchCurrentGps();
         return;
       }
@@ -160,7 +163,9 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
         setDistanceMeters(computedDist);
 
         if (computedDist > maxAttendanceRadius) {
-          alert(`Pemesanan ditolak! Anda berada di luar area outlet (${computedDist}m dari outlet). Maksimal jarak pemesanan: ${maxAttendanceRadius}m.`);
+          setShowGpsErrorModal(
+            `Pemesanan Ditolak! Posisi Anda terdeteksi berjarak ${computedDist} meter dari outlet. Maksimal jarak pemesanan yang diizinkan adalah ${maxAttendanceRadius} meter.`
+          );
           return;
         }
       }
@@ -779,6 +784,45 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
               >
                 <User className="w-4 h-4" />
                 Mengerti, Isi Nama Sekarang
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* GPS Location / Out of Range Alert Dialog Modal */}
+      {showGpsErrorModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-4 animate-in fade-in duration-200 font-sans"
+          onClick={() => setShowGpsErrorModal(null)}
+        >
+          <div
+            className="bg-white dark:bg-stone-900 rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-stone-200 dark:border-stone-800 text-center space-y-4 animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-14 h-14 bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-center mx-auto shadow-xs">
+              <MapPin className="w-8 h-8 animate-pulse" />
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="font-extrabold text-base text-stone-850 dark:text-stone-100">
+                Di Luar Area Jangkauan!
+              </h3>
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                {showGpsErrorModal}
+              </p>
+            </div>
+
+            <div className="pt-2 space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowGpsErrorModal(null);
+                  fetchCurrentGps();
+                }}
+                className="w-full py-3 bg-stone-800 hover:bg-stone-900 dark:bg-stone-700 dark:hover:bg-stone-600 text-white font-extrabold rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2"
+              >
+                <MapPin className="w-4 h-4" />
+                Refresh Lokasi GPS
               </button>
             </div>
           </div>
