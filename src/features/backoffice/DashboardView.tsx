@@ -246,7 +246,7 @@ export const DashboardView: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-stone-200 text-stone-400 uppercase font-semibold">
+              <tr className="border-b border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-400 uppercase font-semibold">
                 <th className="pb-2">No. Struk</th>
                 <th className="pb-2">Tanggal & Waktu</th>
                 <th className="pb-2">Kasir</th>
@@ -256,7 +256,7 @@ export const DashboardView: React.FC = () => {
                 <th className="pb-2">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
               {paginatedSales.map((sale) => {
                 const dateObj = new Date(sale.created_at);
                 const formattedDate = dateObj.toLocaleDateString('id-ID', {
@@ -273,12 +273,12 @@ export const DashboardView: React.FC = () => {
                   <tr key={sale.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/40">
                     <td className="py-3 font-mono font-bold text-coffee-600 dark:text-coffee-400">{sale.receipt_number}</td>
                     <td className="py-3 font-medium text-stone-600 dark:text-stone-300">
-                      {formattedDate} <span className="text-[10px] text-stone-400 font-mono ml-1">{formattedTime}</span>
+                      {formattedDate} <span className="text-[10px] text-stone-400 dark:text-stone-500 font-mono ml-1">{formattedTime}</span>
                     </td>
                     <td className="py-3 font-medium text-stone-700 dark:text-stone-300">{sale.cashier_name}</td>
-                    <td className="py-3 uppercase font-bold text-stone-500">{sale.order_type}</td>
+                    <td className="py-3 uppercase font-bold text-stone-500 dark:text-stone-400">{sale.order_type}</td>
                     <td className="py-3 text-stone-600 dark:text-stone-400">{sale.items.length} item</td>
-                    <td className="py-3 font-bold text-stone-800 dark:text-stone-200">Rp {sale.grand_total.toLocaleString('id-ID')}</td>
+                    <td className="py-3 font-bold text-stone-800 dark:text-stone-100">Rp {sale.grand_total.toLocaleString('id-ID')}</td>
                     <td className="py-3">
                       <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400 px-2 py-0.5 rounded-md font-bold text-[10px]">
                         Selesai
@@ -292,7 +292,7 @@ export const DashboardView: React.FC = () => {
         </div>
 
         {/* Pagination Controls */}
-        <div className="flex items-center justify-between pt-4 border-t border-stone-100 text-xs text-stone-500 font-semibold">
+        <div className="flex items-center justify-between pt-4 border-t border-stone-100 dark:border-stone-800 text-xs text-stone-500 dark:text-stone-400 font-semibold">
           <div>
             Menampilkan {sales.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} - {Math.min(currentPage * itemsPerPage, sales.length)} dari {sales.length} transaksi
           </div>

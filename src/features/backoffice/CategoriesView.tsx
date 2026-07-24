@@ -105,7 +105,7 @@ export const CategoriesView: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white p-3 rounded-2xl border border-stone-200">
+      <div className="bg-white dark:bg-stone-900 p-3 rounded-2xl border border-stone-200 dark:border-stone-800">
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
           <input
@@ -113,7 +113,7 @@ export const CategoriesView: React.FC = () => {
             placeholder="Cari kategori..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 rounded-xl border border-stone-200 focus:outline-none"
+            className="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl border border-stone-200 dark:border-stone-700 focus:outline-none placeholder:text-stone-400 dark:placeholder:text-stone-500"
           />
         </div>
       </div>
@@ -121,7 +121,7 @@ export const CategoriesView: React.FC = () => {
       <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[550px]">
-          <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase">
+          <thead className="bg-stone-50 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
             <tr>
               <th className="p-3 w-28">Urutan Struk</th>
               <th className="p-3">Nama Kategori</th>
@@ -130,38 +130,38 @@ export const CategoriesView: React.FC = () => {
               <th className="p-3 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-100">
+          <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
             {filtered.map((c, idx) => (
-              <tr key={c.id} className="hover:bg-stone-50 transition">
-                <td className="p-3 font-extrabold text-stone-700">
+              <tr key={c.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50 transition">
+                <td className="p-3 font-extrabold text-stone-700 dark:text-stone-300">
                   <div className="flex items-center gap-1.5">
-                    <span className="bg-stone-100 px-2 py-0.5 rounded-lg border text-coffee-700">#{c.sort_order}</span>
+                    <span className="bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded-lg border border-stone-200 dark:border-stone-700 text-coffee-700 dark:text-coffee-300">#{c.sort_order}</span>
                     <div className="flex flex-col gap-0.5">
                       <button
                         disabled={idx === 0}
                         onClick={() => handleMove(idx, 'up')}
-                        className="p-0.5 hover:bg-stone-200 rounded disabled:opacity-30"
+                        className="p-0.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded disabled:opacity-30"
                         title="Naikkan Urutan Struk"
                       >
-                        <ArrowUp className="w-3.5 h-3.5 text-stone-600" />
+                        <ArrowUp className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
                       </button>
                       <button
                         disabled={idx === sortedCategories.length - 1}
                         onClick={() => handleMove(idx, 'down')}
-                        className="p-0.5 hover:bg-stone-200 rounded disabled:opacity-30"
+                        className="p-0.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded disabled:opacity-30"
                         title="Turunkan Urutan Struk"
                       >
-                        <ArrowDown className="w-3.5 h-3.5 text-stone-600" />
+                        <ArrowDown className="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" />
                       </button>
                     </div>
                   </div>
                 </td>
-                <td className="p-3 font-bold text-stone-800">{c.name}</td>
-                <td className="p-3 font-mono text-stone-500">{c.slug}</td>
-                <td className="p-3 text-coffee-600 font-semibold text-base">{c.icon}</td>
+                <td className="p-3 font-bold text-stone-800 dark:text-stone-100">{c.name}</td>
+                <td className="p-3 font-mono text-stone-500 dark:text-stone-400">{c.slug}</td>
+                <td className="p-3 text-coffee-600 dark:text-coffee-400 font-semibold text-base">{c.icon}</td>
                 <td className="p-3 text-right">
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => handleOpenEdit(c)} className="p-1.5 text-stone-400 hover:text-coffee-600 hover:bg-coffee-50 rounded-lg transition">
+                    <button onClick={() => handleOpenEdit(c)} className="p-1.5 text-stone-400 dark:text-stone-400 hover:text-coffee-600 dark:hover:text-coffee-300 hover:bg-coffee-50 dark:hover:bg-coffee-950/40 rounded-lg transition">
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button onClick={() => handleDelete(c.id, c.name)} className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition">

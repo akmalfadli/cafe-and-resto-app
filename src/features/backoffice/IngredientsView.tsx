@@ -475,7 +475,7 @@ export const IngredientsView: React.FC = () => {
         <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[700px]">
-            <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase">
+            <thead className="bg-stone-50 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
               <tr>
                 <th className="p-3">Nama Bahan</th>
                 <th className="p-3">Kategori</th>
@@ -487,7 +487,7 @@ export const IngredientsView: React.FC = () => {
                 <th className="p-3 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
               {filteredIngredients.map((ing) => {
                 const isLowStock = ing.current_stock <= ing.min_stock;
                 
@@ -498,25 +498,25 @@ export const IngredientsView: React.FC = () => {
                 const isFood = categoryName.toLowerCase().includes('makan');
 
                 return (
-                  <tr key={ing.id} className="hover:bg-stone-50 transition">
-                    <td className="p-3 font-bold text-stone-850">{ing.name}</td>
-                    <td className="p-3 font-semibold text-stone-600">
+                  <tr key={ing.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50 transition">
+                    <td className="p-3 font-bold text-stone-900 dark:text-stone-100">{ing.name}</td>
+                    <td className="p-3 font-semibold text-stone-600 dark:text-stone-300">
                       {ing.category_id ? (
                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase inline-block ${
-                          isFood ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                          isFood ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300' : 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'
                         }`}>
                           {categoryName}
                         </span>
                       ) : '-'}
                     </td>
                     <td className="p-3">
-                      <span className={`font-bold ${isLowStock ? 'text-red-600' : 'text-stone-800'}`}>
+                      <span className={`font-bold ${isLowStock ? 'text-red-600 dark:text-red-400' : 'text-stone-800 dark:text-stone-100'}`}>
                         {ing.current_stock.toLocaleString()} {ing.unit}
                       </span>
                     </td>
-                    <td className="p-3 text-stone-600 font-medium">{ing.min_stock.toLocaleString()} {ing.unit}</td>
-                    <td className="p-3 text-stone-600 font-medium">Rp {ing.avg_cost.toLocaleString('id-ID')}</td>
-                    <td className="p-3 text-stone-500 font-medium">
+                    <td className="p-3 text-stone-600 dark:text-stone-300 font-medium">{ing.min_stock.toLocaleString()} {ing.unit}</td>
+                    <td className="p-3 text-stone-600 dark:text-stone-300 font-medium">Rp {ing.avg_cost.toLocaleString('id-ID')}</td>
+                    <td className="p-3 text-stone-500 dark:text-stone-400 font-medium">
                       {ing.supplier_id ? (suppliers.find(s => s.id === ing.supplier_id)?.name || 'Pemasok Utama') : '-'}
                     </td>
                     <td className="p-3">

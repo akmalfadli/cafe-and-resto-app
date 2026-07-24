@@ -80,7 +80,7 @@ export const UsersView: React.FC = () => {
       <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[600px]">
-          <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase">
+          <thead className="bg-stone-50 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
             <tr>
               <th className="p-3">Pengguna</th>
               <th className="p-3">Email</th>
@@ -90,33 +90,33 @@ export const UsersView: React.FC = () => {
               <th className="p-3 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-100">
+          <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
             {profiles.map((u) => (
-              <tr key={u.id} className="hover:bg-stone-50">
+              <tr key={u.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50 transition">
                 <td className="p-3">
-                  <div className="flex items-center gap-2 font-bold text-stone-800">
+                  <div className="flex items-center gap-2 font-bold text-stone-800 dark:text-stone-100">
                     <UserCheck className="w-4 h-4 text-coffee-500" />
                     <span>{u.full_name}</span>
                   </div>
                 </td>
-                <td className="p-3 text-stone-600">{u.email}</td>
+                <td className="p-3 text-stone-600 dark:text-stone-300">{u.email}</td>
                 <td className="p-3">
                   <span className={`font-bold px-2 py-0.5 rounded text-[10px] uppercase ${
                     u.role === 'Owner'
-                      ? 'bg-purple-100 text-purple-800'
+                      ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300'
                       : u.role === 'Manager'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-coffee-100 text-coffee-800'
+                      ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'
+                      : 'bg-coffee-100 dark:bg-coffee-950/60 text-coffee-800 dark:text-coffee-300'
                   }`}>
                     {u.role}
                   </span>
                 </td>
-                <td className="p-3 font-mono font-bold text-stone-500 flex items-center gap-1">
-                  <Key className="w-3.5 h-3.5 text-stone-400" />
+                <td className="p-3 font-mono font-bold text-stone-500 dark:text-stone-400 flex items-center gap-1">
+                  <Key className="w-3.5 h-3.5 text-stone-400 dark:text-stone-500" />
                   <span>•••••• ({u.pin_code})</span>
                 </td>
                 <td className="p-3">
-                  <span className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">
+                  <span className="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold px-2 py-0.5 rounded text-[10px]">
                     Aktif
                   </span>
                 </td>

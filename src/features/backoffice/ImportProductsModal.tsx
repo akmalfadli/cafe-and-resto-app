@@ -254,12 +254,12 @@ export const ImportProductsModal: React.FC<ImportProductsModalProps> = ({ isOpen
                   </thead>
                   <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
                     {previewData.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-stone-50 dark:hover:bg-stone-850">
-                        <td className="p-2 font-mono">{row['SKU'] || row['sku'] || '-'}</td>
+                      <tr key={idx} className="hover:bg-stone-50 dark:hover:bg-stone-800/50">
+                        <td className="p-2 font-mono text-stone-600 dark:text-stone-300">{row['SKU'] || row['sku'] || '-'}</td>
                         <td className="p-2 font-bold text-stone-800 dark:text-stone-100">{row['Nama_Produk'] || row['nama_produk'] || '-'}</td>
-                        <td className="p-2">{row['Kategori'] || row['kategori'] || 'Umum'}</td>
-                        <td className="p-2 font-semibold text-coffee-600">Rp {parseFloat(row['Harga_Jual'] || row['harga_jual'] || '0').toLocaleString('id-ID')}</td>
-                        <td className="p-2">Rp {parseFloat(row['Biaya_Kemasan'] || row['biaya_kemasan'] || '0').toLocaleString('id-ID')}</td>
+                        <td className="p-2 text-stone-700 dark:text-stone-300">{row['Kategori'] || row['kategori'] || 'Umum'}</td>
+                        <td className="p-2 font-semibold text-coffee-600 dark:text-coffee-400">Rp {parseFloat(row['Harga_Jual'] || row['harga_jual'] || '0').toLocaleString('id-ID')}</td>
+                        <td className="p-2 text-stone-600 dark:text-stone-400">Rp {parseFloat(row['Biaya_Kemasan'] || row['biaya_kemasan'] || '0').toLocaleString('id-ID')}</td>
                       </tr>
                     ))}
                   </tbody>
