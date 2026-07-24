@@ -112,14 +112,26 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
       const nextPin = pin + digit;
       setPin(nextPin);
       setError(null);
+      if (nextPin.length === 6) {
+        processAttendanceSubmit(nextPin);
+      }
     }
   };
 
-  const handleClockIn = async () => {
+  const processAttendanceSubmit = (inputPin: string) => {
+    if (!todayAttendance) {
+      handleClockIn(inputPin);
+    } else if (!todayAttendance.clock_out) {
+      handleClockOut(inputPin);
+    }
+  };
+
+  const handleClockIn = async (overridePin?: string) => {
     if (!selectedStaff) return;
+    const pinToVerify = overridePin || pin;
 
     // Validate PIN
-    if (selectedStaff.pin_code !== pin) {
+    if (selectedStaff.pin_code !== pinToVerify) {
       setError('Kode PIN salah. Silakan coba lagi.');
       setPin('');
       return;
@@ -175,10 +187,11 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
     }
   };
 
-  const handleClockOut = async () => {
+  const handleClockOut = async (overridePin?: string) => {
     if (!selectedStaff || !todayAttendance) return;
+    const pinToVerify = overridePin || pin;
 
-    if (selectedStaff.pin_code !== pin) {
+    if (selectedStaff.pin_code !== pinToVerify) {
       setError('Kode PIN salah. Silakan coba lagi.');
       setPin('');
       return;
@@ -429,7 +442,7 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
                     {!todayAttendance ? (
                       <button
                         type="button"
-                        onClick={handleClockIn}
+                        onClick={() => handleClockIn()}
                         disabled={isLoading || pin.length !== 6}
                         className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold rounded-xl shadow transition flex items-center justify-center gap-2 text-sm"
                       >
@@ -439,7 +452,7 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
                     ) : !todayAttendance.clock_out ? (
                       <button
                         type="button"
-                        onClick={handleClockOut}
+                        onClick={() => handleClockOut()}
                         disabled={isLoading || pin.length !== 6}
                         className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold rounded-xl shadow transition flex items-center justify-center gap-2 text-sm"
                       >
