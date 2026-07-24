@@ -297,22 +297,24 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               {/* Thermal Receipt Paper Mockup */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 
-                {/* Status Notification Box */}
-                <div className="p-3 rounded-xl border bg-white dark:bg-stone-950 flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider block">Status Pesanan</span>
+                {/* Status Notification Box & Control */}
+                <div className="p-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider block">Status Pesanan saat ini</span>
                     {getOrderStatusBadge(activeSelectedSale.status)}
                   </div>
-                  {activeSelectedSale.status !== 'completed' && (
-                    <button
-                      type="button"
-                      onClick={() => handleMarkAsFinished(activeSelectedSale.id)}
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-extrabold text-xs shadow transition flex items-center gap-1"
+                  <div className="flex items-center gap-2 pt-1 border-t border-stone-100 dark:border-stone-850">
+                    <span className="text-[11px] font-bold text-stone-600 dark:text-stone-300 shrink-0">Ubah Status:</span>
+                    <select
+                      value={activeSelectedSale.status || 'completed'}
+                      onChange={(e) => updateSaleStatus(activeSelectedSale.id, e.target.value as any)}
+                      className="w-full bg-stone-50 dark:bg-stone-800 text-stone-850 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-lg px-2 py-1 text-xs font-bold focus:outline-none"
                     >
-                      <CheckCircle2 className="w-4 h-4" />
-                      Selesai
-                    </button>
-                  )}
+                      <option value="preparing">⏳ Sedang Disiapkan</option>
+                      <option value="ready">🛎️ Siap Diambil</option>
+                      <option value="completed">✅ Selesai / Diambil</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="bg-white dark:bg-stone-950 p-4 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm font-mono text-xs text-stone-800 dark:text-stone-200 space-y-3">
