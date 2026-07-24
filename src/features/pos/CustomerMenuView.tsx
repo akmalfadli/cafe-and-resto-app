@@ -5,6 +5,7 @@ import {
   ShoppingCart, Check, Clock, CheckCircle
 } from 'lucide-react';
 import type { Product } from '../../types';
+import { toCapitalCase } from '../../utils/formatters';
 
 interface CustomerMenuViewProps {
   // no-op (back button removed)
@@ -315,7 +316,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                   <div className="p-2.5 md:p-3 flex flex-col justify-between flex-1 space-y-2">
                     <div>
                       <h4 className="font-extrabold text-xs md:text-sm text-stone-800 dark:text-stone-100 line-clamp-2">
-                        {product.name}
+                        {toCapitalCase(product.name)}
                       </h4>
                     </div>
 
@@ -449,7 +450,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                   <div key={item.product.id} className="flex gap-3 bg-stone-50 dark:bg-stone-850 p-2.5 rounded-2xl border border-stone-150 dark:border-stone-800 text-xs">
                     <img src={item.product.image_url} alt={item.product.name} className="w-12 h-12 rounded-xl object-cover" />
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-extrabold text-stone-800 dark:text-stone-100 truncate">{item.product.name}</h4>
+                      <h4 className="font-extrabold text-stone-800 dark:text-stone-100 truncate">{toCapitalCase(item.product.name)}</h4>
                       <p className="text-[10px] text-coffee-600 font-bold mt-0.5">Rp {item.product.selling_price.toLocaleString('id-ID')}</p>
 
                       <input

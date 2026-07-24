@@ -11,6 +11,7 @@ import { PaymentDialog } from './PaymentDialog';
 import { ShiftGateScreen } from './ShiftGateScreen';
 import { CloseShiftModal } from './CloseShiftModal';
 import { TransactionHistoryModal } from './TransactionHistoryModal';
+import { toCapitalCase } from '../../utils/formatters';
 
 interface PosScreenProps {
   onSwitchToBackOffice?: () => void;
@@ -411,7 +412,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
                     <div className="p-2.5 md:p-3 flex flex-col justify-between flex-1">
                       <div>
                         <h3 className="font-bold text-xs md:text-sm text-stone-800 dark:text-stone-100 line-clamp-1">
-                          {product.name}
+                          {toCapitalCase(product.name)}
                         </h3>
                         <p className="text-[10px] text-stone-400 font-mono mt-0.5">{product.sku}</p>
                       </div>
@@ -456,7 +457,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">
-                            {product.name}
+                            {toCapitalCase(product.name)}
                           </h3>
                           {product.is_favorite && (
                             <span className="bg-coffee-500 text-white text-[8px] font-bold px-1.5 py-0.2 rounded-full">
@@ -561,7 +562,7 @@ export const PosScreen: React.FC<PosScreenProps> = ({ onSwitchToBackOffice }) =>
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="text-xs font-bold text-stone-800 dark:text-stone-100">
-                        {item.product.name}
+                        {toCapitalCase(item.product.name)}
                       </h4>
                       <p className="text-[11px] text-coffee-600 font-semibold mt-0.5">
                         Rp {(item.product.selling_price * item.quantity).toLocaleString('id-ID')}

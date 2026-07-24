@@ -6,6 +6,7 @@ import {
 import { useAppStore } from '../../store/useAppStore';
 import type { Sale } from '../../types';
 import { printerService } from '../../services/printerService';
+import { toCapitalCase } from '../../utils/formatters';
 
 interface TransactionHistoryModalProps {
   isOpen: boolean;
@@ -255,7 +256,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                     {(selectedSale.items || []).map((item, idx) => (
                       <div key={idx} className="space-y-0.5">
                         <div className="flex justify-between">
-                          <span>{item.quantity}x {item.product_name}</span>
+                          <span>{item.quantity}x {toCapitalCase(item.product_name)}</span>
                           <span className="font-semibold">Rp {item.total_price.toLocaleString('id-ID')}</span>
                         </div>
                         {item.notes && item.notes.trim() !== '' && (

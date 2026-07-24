@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
 import { Clock, ClipboardList, Check, X, ArrowLeft, Coffee, RefreshCw } from 'lucide-react';
 import type { CustomerOrder } from '../../types';
+import { toCapitalCase } from '../../utils/formatters';
 
 export const CustomerOrdersQueuePage: React.FC = () => {
   const navigate = useNavigate();
@@ -157,7 +158,7 @@ export const CustomerOrdersQueuePage: React.FC = () => {
                     <div key={item.id} className="flex justify-between items-start text-xs">
                       <div className="min-w-0 flex-1 pr-4">
                         <span className="font-bold text-stone-700 dark:text-stone-200">
-                          {item.product_name}
+                          {toCapitalCase(item.product_name)}
                         </span>
                         <span className="text-stone-400 font-bold ml-1.5">x{item.quantity}</span>
                         {item.notes && (

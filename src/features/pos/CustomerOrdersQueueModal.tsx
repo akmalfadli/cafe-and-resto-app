@@ -3,6 +3,8 @@ import { useAppStore } from '../../store/useAppStore';
 import { Clock, ClipboardList, Check, X } from 'lucide-react';
 import type { CustomerOrder } from '../../types';
 
+import { toCapitalCase } from '../../utils/formatters';
+
 interface CustomerOrdersQueueModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -105,7 +107,7 @@ export const CustomerOrdersQueueModal: React.FC<CustomerOrdersQueueModalProps> =
                     <div key={item.id} className="flex justify-between items-start text-[11px]">
                       <div className="min-w-0 flex-1 pr-4">
                         <span className="font-bold text-stone-700 dark:text-stone-200">
-                          {item.product_name}
+                          {toCapitalCase(item.product_name)}
                         </span>
                         <span className="text-stone-400 font-bold ml-1.5">x{item.quantity}</span>
                         {item.notes && (

@@ -1,5 +1,6 @@
 import type { Sale } from '../types';
 import { useAppStore } from '../store/useAppStore';
+import { toCapitalCase } from '../utils/formatters';
 
 let cachedDevice: any = null;
 
@@ -244,7 +245,7 @@ export const printerService = {
       });
 
       sortedSaleItems.forEach((item) => {
-        const itemHeader = `${item.quantity}x ${item.product_name}\n`;
+        const itemHeader = `${item.quantity}x ${toCapitalCase(item.product_name)}\n`;
         const itemPrice = `@Rp ${item.unit_price.toLocaleString('id-ID')}`;
         const itemTotal = `Rp ${item.total_price.toLocaleString('id-ID')}`;
         const rightAlignedTotal = itemTotal.padStart(30 - itemPrice.length, ' ');
