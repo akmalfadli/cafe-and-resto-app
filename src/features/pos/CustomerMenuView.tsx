@@ -2,17 +2,21 @@ import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import {
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search,
-  ShoppingCart, Check, Clock, CheckCircle, Info, X
+  ShoppingCart, Check, Clock, CheckCircle, Info, X, MapPin
 } from 'lucide-react';
 import type { Product } from '../../types';
 import { toCapitalCase } from '../../utils/formatters';
+import { calculateDistanceMeters } from '../auth/AttendanceModal';
 
 interface CustomerMenuViewProps {
   // no-op (back button removed)
 }
 
 export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
-  const { products, categories, ingredients, recipes, tables, enableTableNumber, submitCustomerOrder, outletName, receiptLogo } = useAppStore();
+  const {
+    products, categories, ingredients, recipes, tables, enableTableNumber, submitCustomerOrder, outletName, receiptLogo,
+    outletLat, outletLng, maxAttendanceRadius, enableGpsValidation
+  } = useAppStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<{ product: Product; quantity: number; notes: string }[]>([]);
@@ -27,6 +31,47 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
   // Submit Order Workflow State
   const [submittedOrderNo, setSubmittedOrderNo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // GPS Location State for Outlet Geofencing
+  const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [distanceMeters, setDistanceMeters] = useState<number | null>(null);
+  const [gpsError, setGpsError] = useState<string | null>(null);
+  const [gettingGps, setGettingGps] = useState(false);
+
+  // Request GPS Location when menu page mounts or when GPS validation is enabled
+  const fetchCurrentGps = () => {
+    if (!navigator.geolocation) {
+      setGpsError('Browser tidak mendukung GPS Geolocation.');
+      return;
+    }
+    setGettingGps(true);
+    setGpsError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const userLat = pos.coords.latitude;
+        const userLng = pos.coords.longitude;
+        setCurrentCoords({ lat: userLat, lng: userLng });
+
+        if (outletLat && outletLng) {
+          const dist = calculateDistanceMeters(userLat, userLng, outletLat, outletLng);
+          setDistanceMeters(dist);
+        }
+        setGettingGps(false);
+      },
+      (err) => {
+        setGpsError('Gagal mengakses lokasi GPS: ' + err.message + '. Harap izinkan akses lokasi.');
+        setGettingGps(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  };
+
+  React.useEffect(() => {
+    if (enableGpsValidation) {
+      fetchCurrentGps();
+    }
+  }, [enableGpsValidation, outletLat, outletLng]);
 
   const getCategoryIcon = (iconName?: string) => {
     switch (iconName) {
@@ -94,6 +139,30 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
       return;
     }
     if (cart.length === 0) return;
+
+    // Validate GPS Location if Geofencing is enabled in Settings
+    if (enableGpsValidation) {
+      if (gpsError || !currentCoords) {
+        alert('Gagal memverifikasi lokasi Anda! Harap izinkan akses lokasi GPS pada browser peranti Anda.');
+        fetchCurrentGps();
+        return;
+      }
+
+      if (outletLat && outletLng && currentCoords) {
+        const computedDist = calculateDistanceMeters(
+          currentCoords.lat,
+          currentCoords.lng,
+          outletLat,
+          outletLng
+        );
+        setDistanceMeters(computedDist);
+
+        if (computedDist > maxAttendanceRadius) {
+          alert(`Pemesanan ditolak! Anda berada di luar area outlet (${computedDist}m dari outlet). Maksimal jarak pemesanan: ${maxAttendanceRadius}m.`);
+          return;
+        }
+      }
+    }
 
     setIsSubmitting(true);
     try {
@@ -214,11 +283,10 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
         <aside className="w-20 sm:w-24 md:w-28 bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 p-1.5 md:p-2 flex flex-col gap-1.5 md:gap-2 shrink-0 overflow-y-auto">
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`flex flex-col items-center justify-center p-2.5 md:p-3 rounded-xl md:rounded-2xl transition ${
-              selectedCategory === 'all'
+            className={`flex flex-col items-center justify-center p-2.5 md:p-3 rounded-xl md:rounded-2xl transition ${selectedCategory === 'all'
                 ? 'bg-coffee-500 text-white font-bold shadow-sm'
                 : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
-            }`}
+              }`}
           >
             <Grid className="w-5 h-5 md:w-6 md:h-6 mb-1" />
             <span className="text-[10px] md:text-[11px] font-medium text-center leading-tight">Semua</span>
@@ -230,11 +298,10 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`flex flex-col items-center justify-center p-2.5 md:p-3 rounded-xl md:rounded-2xl transition ${
-                  active
+                className={`flex flex-col items-center justify-center p-2.5 md:p-3 rounded-xl md:rounded-2xl transition ${active
                     ? 'bg-coffee-500 text-white font-bold shadow-sm'
                     : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
-                }`}
+                  }`}
               >
                 <div className="mb-1 transform scale-90 md:scale-100">{getCategoryIcon(cat.icon)}</div>
                 <span className="text-[10px] md:text-[11px] text-center leading-tight">{cat.name}</span>
@@ -245,8 +312,46 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
 
         {/* CENTER COLUMN: Search + Product Grid */}
         <main className="flex-1 overflow-y-auto bg-stone-100/50 dark:bg-stone-950/20 flex flex-col min-h-full">
+          {/* GPS Geofencing Status Banner (If Validation Active) */}
+          {enableGpsValidation && (
+            <div className="px-3 pt-3 md:px-6 md:pt-4 shrink-0">
+              <div className={`p-2.5 rounded-xl border text-[11px] flex items-center justify-between shadow-xs ${
+                gpsError
+                  ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'
+                  : distanceMeters !== null && distanceMeters <= maxAttendanceRadius
+                    ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+                    : 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300'
+              }`}>
+                <div className="flex items-center gap-2 min-w-0">
+                  <MapPin className="w-4 h-4 shrink-0" />
+                  <div className="truncate">
+                    {gettingGps ? (
+                      <span>Memeriksa posisi GPS Anda...</span>
+                    ) : gpsError ? (
+                      <span>{gpsError}</span>
+                    ) : distanceMeters !== null ? (
+                      <span>
+                        Jarak Anda ke Outlet: <strong>{distanceMeters}m</strong> (Batas: {maxAttendanceRadius}m)
+                        {distanceMeters <= maxAttendanceRadius ? ' — Area Terverifikasi ✅' : ' — Di Luar Jangkauan ❌'}
+                      </span>
+                    ) : (
+                      <span>Memverifikasi posisi GPS outlet...</span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchCurrentGps}
+                  className="text-[10px] font-bold underline hover:opacity-80 shrink-0 ml-2"
+                >
+                  Refresh GPS
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Search Bar */}
-          <div className="p-3 md:px-6 md:pt-4 md:pb-2 shrink-0">
+          <div className="p-3 md:px-6 md:pt-3 md:pb-2 shrink-0">
             <div className="relative">
               <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
@@ -268,109 +373,109 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 pb-8">
-            {filteredProducts.map((product) => {
-              const matchedRecipe = recipes.find(r => r.product_id === product.id);
-              const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
-                const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
-                return matchedIng && matchedIng.current_stock <= 0;
-              });
+                {filteredProducts.map((product) => {
+                  const matchedRecipe = recipes.find(r => r.product_id === product.id);
+                  const isOutOfStock = matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && matchedRecipe.items.some((rItem) => {
+                    const matchedIng = ingredients.find(ing => ing.id === rItem.ingredient_id);
+                    return matchedIng && matchedIng.current_stock <= 0;
+                  });
 
-              const cartItem = cart.find((item) => item.product.id === product.id);
+                  const cartItem = cart.find((item) => item.product.id === product.id);
 
-              return (
-                <div
-                  key={product.id}
-                  onClick={() => addToCustomerCart(product)}
-                  className={`bg-white dark:bg-stone-900 border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col relative group select-none ${isOutOfStock
-                      ? 'opacity-60 border-stone-200 dark:border-stone-800'
-                      : cartItem
-                        ? 'border-coffee-500 ring-2 ring-coffee-500/20'
-                        : 'border-stone-200 dark:border-stone-800'
-                    }`}
-                >
-                  <div className="h-28 md:h-36 w-full overflow-hidden bg-stone-100 dark:bg-stone-850 relative">
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-full h-full object-cover transition duration-300"
-                    />
+                  return (
+                    <div
+                      key={product.id}
+                      onClick={() => addToCustomerCart(product)}
+                      className={`bg-white dark:bg-stone-900 border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer flex flex-col relative group select-none ${isOutOfStock
+                        ? 'opacity-60 border-stone-200 dark:border-stone-800'
+                        : cartItem
+                          ? 'border-coffee-500 ring-2 ring-coffee-500/20'
+                          : 'border-stone-200 dark:border-stone-800'
+                        }`}
+                    >
+                      <div className="h-28 md:h-36 w-full overflow-hidden bg-stone-100 dark:bg-stone-850 relative">
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition duration-300"
+                        />
 
-                    {product.is_favorite && (
-                      <span className="absolute top-2 left-2 bg-coffee-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow">
-                        FAVORIT
-                      </span>
-                    )}
+                        {product.is_favorite && (
+                          <span className="absolute top-2 left-2 bg-coffee-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow">
+                            FAVORIT
+                          </span>
+                        )}
 
-                    {isOutOfStock ? (
-                      <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-2 text-center">
-                        <span className="bg-red-600 text-white text-[9px] font-black px-2 py-1 rounded-lg shadow-md tracking-wider">
-                          HABIS / SOLD OUT
-                        </span>
-                      </div>
-                    ) : cartItem ? (
-                      <div className="absolute top-2 right-2 bg-coffee-500 text-white p-1 rounded-full shadow flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5 font-bold" />
-                      </div>
-                    ) : null}
+                        {isOutOfStock ? (
+                          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-2 text-center">
+                            <span className="bg-red-600 text-white text-[9px] font-black px-2 py-1 rounded-lg shadow-md tracking-wider">
+                              HABIS / SOLD OUT
+                            </span>
+                          </div>
+                        ) : cartItem ? (
+                          <div className="absolute top-2 right-2 bg-coffee-500 text-white p-1 rounded-full shadow flex items-center justify-center">
+                            <Check className="w-3.5 h-3.5 font-bold" />
+                          </div>
+                        ) : null}
 
-                    {/* Info Button for Ingredients */}
-                    {matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedProductForIngredients(product);
-                        }}
-                        title="Lihat Komposisi Bahan"
-                        className="absolute bottom-2 right-2 z-10 p-1.5 bg-white/90 dark:bg-stone-800/90 hover:bg-coffee-500 hover:text-white text-stone-600 dark:text-stone-300 rounded-full shadow-md backdrop-blur-xs transition transform hover:scale-110 flex items-center justify-center"
-                      >
-                        <Info className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="p-2.5 md:p-3 flex flex-col justify-between flex-1 space-y-2">
-                    <div>
-                      <h4 className="font-extrabold text-xs md:text-sm text-stone-800 dark:text-stone-100 line-clamp-2">
-                        {toCapitalCase(product.name)}
-                      </h4>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <span className="font-black text-xs md:text-sm text-coffee-600 dark:text-coffee-400">
-                        Rp {product.selling_price.toLocaleString('id-ID')}
-                      </span>
-
-                      {!isOutOfStock && cartItem && (
-                        <div
-                          className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 rounded-lg shrink-0 relative z-10"
-                          onClick={(e) => e.stopPropagation()}
-                        >
+                        {/* Info Button for Ingredients */}
+                        {matchedRecipe && matchedRecipe.items && matchedRecipe.items.length > 0 && (
                           <button
                             type="button"
-                            onClick={() => updateQuantity(product.id, -1)}
-                            className="w-6 h-6 rounded bg-white dark:bg-stone-700 text-stone-700 dark:text-stone-250 font-bold flex items-center justify-center text-xs hover:bg-coffee-500 hover:text-white transition"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedProductForIngredients(product);
+                            }}
+                            title="Lihat Komposisi Bahan"
+                            className="absolute bottom-2 right-2 z-10 p-1.5 bg-white/90 dark:bg-stone-800/90 hover:bg-coffee-500 hover:text-white text-stone-600 dark:text-stone-300 rounded-full shadow-md backdrop-blur-xs transition transform hover:scale-110 flex items-center justify-center"
                           >
-                            -
+                            <Info className="w-3.5 h-3.5" />
                           </button>
-                          <span className="text-[10px] font-black text-stone-800 dark:text-stone-100 min-w-[16px] text-center">{cartItem.quantity}</span>
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(product.id, 1)}
-                            className="w-6 h-6 rounded bg-white dark:bg-stone-700 text-stone-700 dark:text-stone-250 font-bold flex items-center justify-center text-xs hover:bg-coffee-500 hover:text-white transition"
-                          >
-                            +
-                          </button>
+                        )}
+                      </div>
+
+                      <div className="p-2.5 md:p-3 flex flex-col justify-between flex-1 space-y-2">
+                        <div>
+                          <h4 className="font-extrabold text-xs md:text-sm text-stone-800 dark:text-stone-100 line-clamp-2">
+                            {toCapitalCase(product.name)}
+                          </h4>
                         </div>
-                      )}
+
+                        <div className="flex justify-between items-center">
+                          <span className="font-black text-xs md:text-sm text-coffee-600 dark:text-coffee-400">
+                            Rp {product.selling_price.toLocaleString('id-ID')}
+                          </span>
+
+                          {!isOutOfStock && cartItem && (
+                            <div
+                              className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 rounded-lg shrink-0 relative z-10"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => updateQuantity(product.id, -1)}
+                                className="w-6 h-6 rounded bg-white dark:bg-stone-700 text-stone-700 dark:text-stone-250 font-bold flex items-center justify-center text-xs hover:bg-coffee-500 hover:text-white transition"
+                              >
+                                -
+                              </button>
+                              <span className="text-[10px] font-black text-stone-800 dark:text-stone-100 min-w-[16px] text-center">{cartItem.quantity}</span>
+                              <button
+                                type="button"
+                                onClick={() => updateQuantity(product.id, 1)}
+                                className="w-6 h-6 rounded bg-white dark:bg-stone-700 text-stone-700 dark:text-stone-250 font-bold flex items-center justify-center text-xs hover:bg-coffee-500 hover:text-white transition"
+                              >
+                                +
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
           {/* Credits Footer */}
           <footer className="mt-8 pt-4 pb-2 border-t border-stone-200/60 dark:border-stone-800/60 text-center space-y-1">
@@ -579,7 +684,7 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
               <div className="space-y-2">
                 <h4 className="text-xs font-extrabold text-stone-800 dark:text-stone-100 flex items-center gap-1.5">
                   <Info className="w-4 h-4 text-coffee-500" />
-                  Bahan / Resep Pembuatan:
+                  Bahan-bahan:
                 </h4>
 
                 {(() => {
