@@ -168,9 +168,6 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
       });
 
       setSuccessMsg(`Berhasil Absen Masuk! Jam: ${new Date().toLocaleTimeString('id-ID')}`);
-      setTimeout(() => {
-        onClose();
-      }, 2000);
     } catch (err: any) {
       setError(err?.message || 'Gagal menyimpan absensi.');
     } finally {
@@ -197,9 +194,6 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
       });
 
       setSuccessMsg(`Berhasil Absen Pulang! Jam: ${new Date().toLocaleTimeString('id-ID')}`);
-      setTimeout(() => {
-        onClose();
-      }, 2000);
     } catch (err: any) {
       setError(err?.message || 'Gagal memperbarui absensi.');
     } finally {
@@ -229,10 +223,19 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClos
         <div className="p-6 space-y-4 text-xs overflow-y-auto max-h-[80vh]">
           {/* Success Banner */}
           {successMsg ? (
-            <div className="p-6 text-center space-y-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl border border-emerald-200 dark:border-emerald-800">
-              <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto animate-bounce" />
-              <h3 className="font-extrabold text-base text-emerald-800 dark:text-emerald-200">{successMsg}</h3>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400">Terima kasih atas kerja keras Anda hari ini!</p>
+            <div className="p-6 text-center space-y-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl border border-emerald-200 dark:border-emerald-800">
+              <CheckCircle2 className="w-14 h-14 text-emerald-500 mx-auto animate-bounce" />
+              <div className="space-y-1">
+                <h3 className="font-extrabold text-base text-emerald-800 dark:text-emerald-200">{successMsg}</h3>
+                <p className="text-xs text-emerald-600 dark:text-emerald-400">Absensi Anda telah dicatat dalam sistem.</p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl shadow transition text-xs"
+              >
+                TUTUP & SELESAI
+              </button>
             </div>
           ) : !selectedStaff ? (
             /* Step 1: Select Employee */
