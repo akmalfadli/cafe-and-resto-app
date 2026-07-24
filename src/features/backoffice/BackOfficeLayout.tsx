@@ -3,7 +3,8 @@ import { useAppStore } from '../../store/useAppStore';
 import { 
   LayoutDashboard, Package, BookOpen, 
   BarChart3, Coffee, ChevronRight, ShoppingBag, 
-  Grid, Building2, Users, Settings, Timer, Menu, X, LogOut, Monitor
+  Grid, Building2, Users, Settings, Timer, Menu, X, LogOut, Monitor,
+  PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import { DashboardView } from './DashboardView';
 import { ProductsView } from './ProductsView';
@@ -30,10 +31,21 @@ export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPo
     return (localStorage.getItem('cafepos_backoffice_tab') as any) || 'dashboard';
   });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('cafepos_sidebar_collapsed') === 'true';
+  });
 
   const handleTabChange = (tab: any) => {
     setActiveTab(tab);
     localStorage.setItem('cafepos_backoffice_tab', tab);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('cafepos_sidebar_collapsed', String(next));
+      return next;
+    });
   };
 
   const sidebarItems = [
@@ -73,22 +85,34 @@ export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPo
         </button>
       </header>
       
-      {/* SIDEBAR NAVIGATION (Desktop: visible aside, Mobile: overlay drawer) */}
+      {/* SIDEBAR NAVIGATION (Desktop: width transitions between w-64 & w-20, Mobile: overlay drawer) */}
       <aside className={`
-        fixed inset-y-0 left-0 w-64 bg-stone-900 text-white flex flex-col justify-between shrink-0 shadow-2xl z-40 md:relative md:translate-x-0 transition-transform duration-300
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        fixed inset-y-0 left-0 bg-stone-900 text-white flex flex-col justify-between shrink-0 shadow-2xl z-40 md:relative md:translate-x-0 transition-all duration-300
+        ${isSidebarCollapsed ? 'md:w-20' : 'md:w-64'}
+        w-64 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-5 space-y-5 flex-1 overflow-y-auto">
+        <div className={`p-4 sm:p-5 space-y-4 sm:space-y-5 flex-1 overflow-y-auto ${isSidebarCollapsed ? 'md:px-3' : ''}`}>
+          {/* Sidebar Top Header with Brand & Minimize Toggle */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-coffee-500 rounded-xl">
-                <Coffee className="w-6 h-6 text-white" />
+            <div className={`flex items-center gap-3 ${isSidebarCollapsed ? 'md:justify-center md:w-full' : ''}`}>
+              <div className="p-2 bg-coffee-500 rounded-xl shrink-0 shadow-md">
+                <Coffee className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div>
+              <div className={`${isSidebarCollapsed ? 'md:hidden' : 'block'}`}>
                 <h2 className="font-black text-base tracking-wider leading-tight">CafePOS</h2>
                 <span className="text-[10px] text-stone-400 font-semibold uppercase tracking-widest">Back Office</span>
               </div>
             </div>
+
+            {/* Minimize / Expand Toggle Button for Desktop */}
+            <button
+              onClick={toggleSidebar}
+              className={`hidden md:flex p-1.5 hover:bg-stone-800 rounded-xl text-stone-400 hover:text-white transition shadow-xs ${isSidebarCollapsed ? 'md:hidden' : ''}`}
+              title="Minimize Left Sidebar Drawer"
+            >
+              <PanelLeftClose className="w-5 h-5" />
+            </button>
+
             {/* Close button for mobile menu drawer */}
             <button
               onClick={() => setIsMobileMenuOpen(false)}
@@ -98,18 +122,33 @@ export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPo
             </button>
           </div>
 
+          {/* Desktop Expand Icon Button when Collapsed */}
+          {isSidebarCollapsed && (
+            <div className="hidden md:flex justify-center border-b border-stone-800 pb-3">
+              <button
+                onClick={toggleSidebar}
+                className="p-2 bg-stone-800 hover:bg-stone-700 rounded-xl text-coffee-400 hover:text-white transition shadow-sm"
+                title="Expand Sidebar Drawer"
+              >
+                <PanelLeftOpen className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+
+          {/* Switch to POS Button */}
           <button
             onClick={() => {
               onSwitchToPos();
               setIsMobileMenuOpen(false);
             }}
-            className="w-full py-2.5 px-3 bg-stone-800 hover:bg-stone-700 text-coffee-300 hover:text-white rounded-xl text-xs font-bold transition flex items-center justify-between border border-stone-700 shadow-inner"
+            className={`w-full py-2.5 px-3 bg-stone-800 hover:bg-stone-700 text-coffee-300 hover:text-white rounded-xl text-xs font-bold transition flex items-center justify-between border border-stone-700 shadow-inner ${isSidebarCollapsed ? 'md:justify-center md:px-2' : ''}`}
+            title="Buka Kasir POS"
           >
             <div className="flex items-center gap-2">
-              <ShoppingBag className="w-4 h-4 text-coffee-400" />
-              <span>Buka Kasir POS</span>
+              <ShoppingBag className="w-4 h-4 text-coffee-400 shrink-0" />
+              <span className={`${isSidebarCollapsed ? 'md:hidden' : 'block'}`}>Buka Kasir POS</span>
             </div>
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className={`w-4 h-4 ${isSidebarCollapsed ? 'md:hidden' : 'block'}`} />
           </button>
 
           <nav className="space-y-1">
@@ -123,14 +162,17 @@ export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPo
                     handleTabChange(item.id as any);
                     setIsMobileMenuOpen(false);
                   }}
+                  title={isSidebarCollapsed ? item.label : undefined}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+                    isSidebarCollapsed ? 'md:justify-center md:px-2' : ''
+                  } ${
                     active
                       ? 'bg-coffee-500 text-white shadow-md font-bold'
                       : 'text-stone-400 hover:bg-stone-800 hover:text-white'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-stone-400'}`} />
-                  <span>{item.label}</span>
+                  <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-stone-400'}`} />
+                  <span className={`${isSidebarCollapsed ? 'md:hidden' : 'block'} truncate`}>{item.label}</span>
                 </button>
               );
             })}
@@ -138,18 +180,18 @@ export const BackOfficeLayout: React.FC<BackOfficeLayoutProps> = ({ onSwitchToPo
         </div>
 
         {/* Credit Link */}
-        <div className="px-5 py-2.5 text-center text-[10px] text-stone-500 border-t border-stone-800/80">
+        <div className={`px-4 py-2 text-center text-[10px] text-stone-500 border-t border-stone-800/80 ${isSidebarCollapsed ? 'md:hidden' : 'block'}`}>
           Created with ❤️ by <a href="https://akmalfadli.github.io" target="_blank" rel="noopener noreferrer" className="text-coffee-400 hover:text-coffee-300 font-bold hover:underline transition">Akmal Fadli</a>
         </div>
 
-        <div className="p-4 border-t border-stone-800 bg-stone-950/50 flex items-center justify-between shrink-0">
-          <div>
-            <p className="text-xs font-bold text-stone-200">{currentUser?.full_name}</p>
+        <div className={`p-4 border-t border-stone-800 bg-stone-950/50 flex items-center justify-between shrink-0 ${isSidebarCollapsed ? 'md:justify-center md:px-2' : ''}`}>
+          <div className={`${isSidebarCollapsed ? 'md:hidden' : 'block'} truncate`}>
+            <p className="text-xs font-bold text-stone-200 truncate">{currentUser?.full_name}</p>
             <p className="text-[10px] text-coffee-400 font-semibold">{currentUser?.role}</p>
           </div>
           <button
             onClick={logout}
-            className="p-1.5 hover:bg-stone-800 text-stone-400 hover:text-red-400 rounded-lg transition"
+            className="p-1.5 hover:bg-stone-800 text-stone-400 hover:text-red-400 rounded-lg transition shrink-0"
             title="Keluar"
           >
             <LogOut className="w-4 h-4" />
