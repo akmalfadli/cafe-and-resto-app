@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import {
   Coffee, CupSoda, Cookie, Utensils, IceCream, Grid, Search,
-  ShoppingCart, Check, Clock, CheckCircle, Info, X, MapPin, AlertCircle, User
+  ShoppingCart, Check, Clock, CheckCircle, Info, X, MapPin, AlertCircle, User, Trash2
 } from 'lucide-react';
 import type { Product } from '../../types';
 import { toCapitalCase } from '../../utils/formatters';
@@ -524,10 +524,12 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
               <div className="flex items-center gap-2">
                 {cart.length > 0 && (
                   <button
+                    type="button"
                     onClick={() => setCart([])}
-                    className="text-[10px] text-red-500 hover:text-red-600 dark:text-red-400 font-bold hover:underline transition"
+                    title="Kosongkan Keranjang"
+                    className="p-1.5 text-stone-400 dark:text-stone-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition"
                   >
-                    Kosongkan
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 )}
                 <button
