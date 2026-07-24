@@ -308,34 +308,34 @@ export const ProductFormModal: React.FC<{
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs max-h-[80vh] overflow-y-auto">
           <div>
-            <label className="font-semibold text-stone-600 block mb-1">Nama Produk</label>
+            <label className="font-semibold text-stone-700 dark:text-stone-300 block mb-1">Nama Produk</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-stone-300 rounded-xl px-3 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-300 dark:border-stone-700 rounded-xl px-3 py-2 font-bold focus:outline-none focus:ring-2 focus:ring-coffee-500 placeholder:text-stone-400 dark:placeholder:text-stone-500"
               placeholder="Contoh: Caffè Americano"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="font-semibold text-stone-600 block mb-1">SKU</label>
+              <label className="font-semibold text-stone-700 dark:text-stone-300 block mb-1">SKU</label>
               <input
                 type="text"
                 required
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
-                className="w-full border border-stone-300 rounded-xl px-3 py-2 font-mono focus:outline-none"
+                className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-300 dark:border-stone-700 rounded-xl px-3 py-2 font-mono focus:outline-none"
               />
             </div>
             <div>
-              <label className="font-semibold text-stone-600 block mb-1">Kategori</label>
+              <label className="font-semibold text-stone-700 dark:text-stone-300 block mb-1">Kategori</label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full border border-stone-300 rounded-xl px-3 py-2 font-medium focus:outline-none"
+                className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-300 dark:border-stone-700 rounded-xl px-3 py-2 font-medium focus:outline-none"
               >
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -346,31 +346,31 @@ export const ProductFormModal: React.FC<{
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="font-semibold text-stone-600 block mb-1">Harga Jual (Rp)</label>
+              <label className="font-semibold text-stone-700 dark:text-stone-300 block mb-1">Harga Jual (Rp)</label>
               <input
                 type="number"
                 required
                 value={sellingPrice}
                 onChange={(e) => setSellingPrice(e.target.value)}
-                className="w-full border border-stone-300 rounded-xl px-3 py-2 font-bold focus:outline-none"
+                className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-300 dark:border-stone-700 rounded-xl px-3 py-2 font-bold focus:outline-none"
               />
             </div>
             <div>
-              <label className="font-semibold text-stone-600 block mb-1">Kemasan (Rp)</label>
+              <label className="font-semibold text-stone-700 dark:text-stone-300 block mb-1">Kemasan (Rp)</label>
               <input
                 type="number"
                 value={packagingCost}
                 onChange={(e) => setPackagingCost(e.target.value)}
-                className="w-full border border-stone-300 rounded-xl px-3 py-2 focus:outline-none"
+                className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-300 dark:border-stone-700 rounded-xl px-3 py-2 focus:outline-none"
               />
             </div>
             <div>
-              <label className="font-semibold text-stone-600 block mb-1">Layanan (Rp)</label>
+              <label className="font-semibold text-stone-700 dark:text-stone-300 block mb-1">Layanan (Rp)</label>
               <input
                 type="number"
                 value={serviceCost}
                 onChange={(e) => setServiceCost(e.target.value)}
-                className="w-full border border-stone-300 rounded-xl px-3 py-2 focus:outline-none"
+                className="w-full bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-300 dark:border-stone-700 rounded-xl px-3 py-2 focus:outline-none"
               />
             </div>
           </div>
@@ -417,7 +417,7 @@ export const ProductFormModal: React.FC<{
           </div>
 
           <div className="flex gap-4 pt-2">
-            <label className="flex items-center gap-2 cursor-pointer font-semibold text-stone-700">
+            <label className="flex items-center gap-2 cursor-pointer font-semibold text-stone-700 dark:text-stone-300">
               <input
                 type="checkbox"
                 checked={isFavorite}
@@ -427,7 +427,7 @@ export const ProductFormModal: React.FC<{
               <span>Tandai Favorit</span>
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer font-semibold text-stone-700">
+            <label className="flex items-center gap-2 cursor-pointer font-semibold text-stone-700 dark:text-stone-300">
               <input
                 type="checkbox"
                 checked={isAvailable}
@@ -438,11 +438,11 @@ export const ProductFormModal: React.FC<{
             </label>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200 dark:border-stone-800">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-stone-300 rounded-xl font-semibold hover:bg-stone-100"
+              className="px-4 py-2 border border-stone-300 dark:border-stone-700 rounded-xl font-semibold hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
             >
               Batal
             </button>
@@ -515,7 +515,7 @@ export const ProductsView: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex gap-4 items-center bg-white p-3 rounded-2xl border border-stone-200">
+      <div className="flex gap-4 items-center bg-white dark:bg-stone-900 p-3 rounded-2xl border border-stone-200 dark:border-stone-800">
         <div className="relative flex-1">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
           <input
@@ -523,14 +523,14 @@ export const ProductsView: React.FC = () => {
             placeholder="Cari produk berdasarkan nama atau SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 rounded-xl border border-stone-200 focus:outline-none"
+            className="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-xl border border-stone-200 dark:border-stone-700 focus:outline-none placeholder:text-stone-400 dark:placeholder:text-stone-500"
           />
         </div>
 
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-semibold"
+          className="bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-2 text-xs font-semibold"
         >
           <option value="all">Semua Kategori</option>
           {categories.map((c) => (
@@ -542,7 +542,7 @@ export const ProductsView: React.FC = () => {
       <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[650px]">
-          <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 font-semibold uppercase">
+          <thead className="bg-stone-50 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-semibold uppercase">
             <tr>
               <th className="p-3">Produk</th>
               <th className="p-3">Kategori</th>
@@ -552,7 +552,7 @@ export const ProductsView: React.FC = () => {
               <th className="p-3 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-100">
+          <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
             {filtered.map((p) => {
               const cat = categories.find((c) => c.id === p.category_id);
               const totalCost = p.cost_price + p.packaging_cost + p.service_cost;
@@ -560,21 +560,21 @@ export const ProductsView: React.FC = () => {
               const margin = p.selling_price > 0 ? Math.round((profit / p.selling_price) * 100) : 0;
 
               return (
-                <tr key={p.id} className="hover:bg-stone-50">
+                <tr key={p.id} className="hover:bg-stone-50 dark:hover:bg-stone-800/50 transition">
                   <td className="p-3">
                     <div className="flex items-center gap-3">
-                      <img src={p.image_url} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />
+                      <img src={p.image_url} alt={p.name} className="w-10 h-10 rounded-lg object-cover border border-stone-200 dark:border-stone-700" />
                       <div>
-                        <h4 className="font-bold text-stone-800">{p.name}</h4>
-                        <span className="text-[10px] font-mono text-stone-400">{p.sku}</span>
+                        <h4 className="font-bold text-stone-800 dark:text-stone-100">{p.name}</h4>
+                        <span className="text-[10px] font-mono text-stone-400 dark:text-stone-500">{p.sku}</span>
                       </div>
                     </div>
                   </td>
-                  <td className="p-3 font-semibold text-stone-600">{cat?.name}</td>
-                  <td className="p-3 font-bold text-coffee-600">Rp {p.selling_price.toLocaleString('id-ID')}</td>
-                  <td className="p-3 font-medium text-stone-600">Rp {totalCost.toLocaleString('id-ID')}</td>
+                  <td className="p-3 font-semibold text-stone-600 dark:text-stone-300">{cat?.name}</td>
+                  <td className="p-3 font-bold text-coffee-600 dark:text-coffee-400">Rp {p.selling_price.toLocaleString('id-ID')}</td>
+                  <td className="p-3 font-medium text-stone-600 dark:text-stone-300">Rp {totalCost.toLocaleString('id-ID')}</td>
                   <td className="p-3">
-                    <span className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">
+                    <span className="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold px-2 py-0.5 rounded text-[10px]">
                       {margin}%
                     </span>
                   </td>
@@ -585,7 +585,7 @@ export const ProductsView: React.FC = () => {
                           setEditingProduct(p);
                           setIsFormOpen(true);
                         }}
-                        className="p-1.5 bg-stone-100 text-stone-600 hover:bg-stone-200 rounded-lg font-semibold flex items-center gap-1"
+                        className="p-1.5 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-lg font-semibold flex items-center gap-1 transition"
                         title="Edit Produk"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -593,7 +593,7 @@ export const ProductsView: React.FC = () => {
                       </button>
                       <button
                         onClick={() => setActiveRecipeProdId(p.id)}
-                        className="p-1.5 bg-coffee-50 text-coffee-600 hover:bg-coffee-100 rounded-lg font-semibold flex items-center gap-1"
+                        className="p-1.5 bg-coffee-50 dark:bg-coffee-950/40 text-coffee-600 dark:text-coffee-300 hover:bg-coffee-100 dark:hover:bg-coffee-900/60 rounded-lg font-semibold flex items-center gap-1 transition"
                         title="Atur Resep & HPP"
                       >
                         <Calculator className="w-3.5 h-3.5" />
