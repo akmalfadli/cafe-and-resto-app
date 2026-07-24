@@ -259,7 +259,6 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
 
           {/* Product Grid */}
           <div className="flex-1 p-3 md:px-6 md:pb-6 pt-0">
-          <div className="flex-1">
             {filteredProducts.length === 0 ? (
               <div className="h-64 flex flex-col items-center justify-center text-center text-stone-400 space-y-2">
                 <p className="text-xs font-bold">Tidak ada produk ditemukan</p>
@@ -347,9 +346,14 @@ export const CustomerMenuView: React.FC<CustomerMenuViewProps> = () => {
                           </button>
                         </div>
                       )}
+                    </div>
+                  </div>
+                </div>
+              );
             })}
           </div>
         )}
+      </div>
 
           {/* Credits Footer */}
           <footer className="mt-8 pt-4 pb-2 border-t border-stone-200/60 dark:border-stone-800/60 text-center space-y-1">
