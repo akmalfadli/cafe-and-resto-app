@@ -214,28 +214,39 @@ export const LoginScreen: React.FC = () => {
           /* 2. Login User Selector & PIN Entry */
           !selectedUser ? (
             <div className="p-6 space-y-4">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
-                  Pilih Akun
-                </label>
+              {/* Prominent Absensi Karyawan Quick Action Banner */}
+              <button
+                type="button"
+                onClick={() => setShowAttendanceModal(true)}
+                className="w-full p-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-between group touch-active border border-emerald-500/30"
+              >
                 <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowAttendanceModal(true)}
-                    className="text-xs text-emerald-600 dark:text-emerald-400 font-bold hover:underline flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800"
-                  >
-                    <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                    Absensi Karyawan
-                  </button>
-
-                  <button
-                    onClick={() => setIsRegisterMode(true)}
-                    className="text-xs text-coffee-600 dark:text-coffee-400 font-bold hover:underline flex items-center gap-1"
-                  >
-                    <UserPlus className="w-3.5 h-3.5" />
-                    Daftar Pemilik Baru
-                  </button>
+                  <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-xs shrink-0">
+                    <Clock className="w-5 h-5 text-white animate-pulse" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-extrabold text-sm leading-tight text-white flex items-center gap-1.5">
+                      Absensi Karyawan (Masuk / Pulang)
+                    </h3>
+                    <p className="text-[10px] text-emerald-100 font-medium">Klik untuk Clock In / Clock Out menggunakan PIN & GPS</p>
+                  </div>
                 </div>
+                <span className="px-3 py-1 bg-white/20 rounded-xl text-xs font-black text-white group-hover:translate-x-0.5 transition shrink-0">
+                  Absen →
+                </span>
+              </button>
+
+              <div className="flex justify-between items-center pt-1">
+                <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                  Pilih Akun Kasir / Manager
+                </label>
+                <button
+                  onClick={() => setIsRegisterMode(true)}
+                  className="text-xs text-coffee-600 dark:text-coffee-400 font-bold hover:underline flex items-center gap-1"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Daftar Pemilik Baru
+                </button>
               </div>
 
               {profiles.length === 0 ? (
